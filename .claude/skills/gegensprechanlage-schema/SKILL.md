@@ -1,6 +1,6 @@
 ---
 name: gegensprechanlage-schema
-description: Erzeugt deterministisch ein Gegensprechanlagen-Schema (Intercom / Türsprechanlage) als PDF im Format DIN A3 quer. Verwenden, wenn ein Schema, Strangschema oder Übersichtsplan einer IP-Gegensprechanlage gefragt ist - mit Außen- und Innensprechstellen an Türen, Toren, Schranken, Vereinzelungsanlagen, Aufzügen, Pollern, Schleusen, Rampen, Kassenautomaten, Notrufsäulen, Klingeltableaus, Fluchttüren, Paketanlagen und Drehtüren, mit/ohne Video und Zugangskontrolle, Freigaben, PoE-Speisung, LWL-Strecken über 90 m mit Medienkonverter und PoE-Injektor 230 V, TK-Anlage, Wählgerät (IP/Mobilfunk) und Störmeldungen an die GLT.
+description: Erzeugt deterministisch ein Gegensprechanlagen-Schema (Intercom / Türsprechanlage) als PDF im Format DIN A3 quer. Verwenden, wenn ein Schema, Strangschema oder Übersichtsplan einer IP-Gegensprechanlage gefragt ist - mit Außen- und Innensprechstellen an Türen, Toren, Schranken, Vereinzelungsanlagen, Aufzügen, Pollern, Schleusen, Rampen, Kassenautomaten, Notrufsäulen, Klingeltableaus, Fluchttüren, Paketanlagen und Drehtüren, Innensprechstellen an Pforte, Leitstand, Wohnung/Büro, Etagenruf, Schleuseninnenraum, Aufzugvorraum und Tiefgarage, Software-Clients/Apps, Zusatzgeräten, mit/ohne Video und Zugangskontrolle, Freigaben, PoE-Speisung, LWL-Strecken über 90 m mit Medienkonverter und PoE-Injektor 230 V, TK-Anlage, Wählgerät (IP/Mobilfunk) und Störmeldungen an die GLT.
 ---
 
 # Gegensprechanlage-Schema (PDF)
@@ -16,7 +16,8 @@ kein Zugriff auf Uhrzeit, Zufall oder Netzwerk, festes Raster, feste Reihenfolge
 
 1. **Angaben sammeln.** Fehlende Pflichtangaben beim Nutzer erfragen, nichts erfinden:
    Projektname, Plandatum, Verteiler (PoE-Switches) und je Sprechstelle
-   ID, Typ, Einbauort, Video, Zugangskontrolle, Freigaben, Verteiler, Leitungslänge in Metern.
+   ID, Typ, Einbauort, Video, Zugangskontrolle, Freigaben, Verteiler, Leitungslänge in Metern
+   (Software-Clients: nur ID, Plattform, Video, Freigaben).
    Ist eine Leitungslänge unbekannt, nachfragen - sie entscheidet über Kupfer oder LWL.
 2. **JSON schreiben** nach dem Vorbild `examples/beispiel.json` (UTF-8).
 3. **Prüfen:** `python3 scripts/generate_schema.py anlage.json --nur-pruefen`
@@ -37,12 +38,17 @@ Voraussetzung: Python 3 und `reportlab` (`pip install reportlab`).
 | Außensprechstelle | Freigabe lokal über Relaiskontakt auf Türöffner, Tor-, Schranken-, Aufzug-, Poller-, Schleusen-, Fluchttür-, Drehtürsteuerung, Vereinzelungsanlage |
 | Notrufsäule | nur Ruf, keine Freigabe zulässig |
 | Klingeltableau | Anzahl `ruftasten` ist Pflicht |
-| Innensprechstelle | nur an Türen; Freigabe als Fernfreigabe über IP |
+| Innensprechstelle | an Tür, Pforte, Leitstand, Wohnung/Büro, Etagenruf, Schleuseninnenraum, Aufzugvorraum, Tiefgarage; Freigabe als Fernfreigabe über IP |
+| Etagenruf / Nebenstelle | keine Freigabe zulässig |
+| Wohnungs- / Bürostation | optional Zuordnung zu Klingeltableau und Ruftaste |
+| Zusatzgeräte | Etagentaster, Zweitwecker, Signalleuchte - nur an Innensprechstellen |
+| Software-Client / App | PC, Smartphone oder Tablet; eigene Gruppe ohne PoE-Port und ohne Leitung; Fernfreigabe über IP |
 | Zentrale | Intercom-Server, TK-Anlage, eigenes Wählgerät (IP und/oder Mobilfunk), Störmeldungen an GLT |
 | Blattaufteilung | 10 Sprechstellen je Schemablatt; Verteiler bleiben zusammen, sofern sie auf ein Blatt passen; danach Geräte- und Leitungsliste mit Summen |
 
 Die Grenze von 90 m ist fest (genau 90 m gilt noch als Kupfer).
-Reihenfolge im Plan: Verteiler in Eingabereihenfolge, darin Sprechstellen in Eingabereihenfolge.
+Reihenfolge im Plan: Verteiler in Eingabereihenfolge, darin Sprechstellen in Eingabereihenfolge;
+Software-Clients stehen als eigene Gruppe am Ende.
 
 ## JSON-Referenz
 
@@ -86,15 +92,26 @@ Jeder Verteiler muss mindestens eine Sprechstelle haben.
 | Feld | Pflicht | Werte |
 |---|---|---|
 | `id` | ja | eindeutig über Verteiler und Sprechstellen |
-| `typ` | ja | `aussen` oder `innen` |
-| `einbauort` | nein | `tuer` (Standard), `tor`, `schranke`, `vereinzelung`, `aufzug`, `poller`, `schleuse`, `rampe`, `kassenautomat`, `notrufsaeule`, `klingeltableau`, `fluchttuer`, `paketanlage`, `drehtuer`; bei `innen` nur `tuer` |
-| `ruftasten` | bei `klingeltableau` | Anzahl Ruftasten 1-999; sonst nicht zulässig |
+| `typ` | ja | `aussen`, `innen` oder `client` |
+| `einbauort` | nein | Standard `tuer`; zulässige Werte je Typ siehe unten |
 | `bezeichnung` | nein | z. B. "Haupteingang" |
 | `video` | nein | `true` / `false` (Standard `false`) |
-| `zugangskontrolle` | nein | `true` / `false` (Standard `false`) |
+| `zugangskontrolle` | nein | `true` / `false` (Standard `false`); nicht bei `client` |
 | `freigabe` | nein | Liste aus `tuer`, `tor`, `schranke`, `vereinzelung`, `aufzug`, `poller`, `schleuse`, `fluchttuer`, `drehtuer`; leer = ohne Freigabe |
-| `verteiler` | ja* | ID des PoE-Switches (*entfällt bei genau einem Verteiler) |
-| `leitungslaenge_m` | ja | Länge Switch bis Sprechstelle in Metern |
+| `verteiler` | ja* | ID des PoE-Switches (*entfällt bei genau einem Verteiler); nicht bei `client` |
+| `leitungslaenge_m` | ja | Länge Switch bis Sprechstelle in Metern; nicht bei `client` |
+| `ruftasten` | bei `klingeltableau` | Anzahl Ruftasten 1-999; sonst nicht zulässig |
+| `tableau`, `ruftaste` | nein | nur `innen` mit `einbauort` `wohnung`: ID des Klingeltableaus und Tastennummer, nur gemeinsam |
+| `zusatz` | nein | nur `innen`: Liste aus `etagentaster`, `zweitwecker`, `signalleuchte` |
+| `plattform` | nein | nur `client`: `pc` (Standard), `smartphone`, `tablet` |
+
+Einbauorte `aussen`: `tuer`, `tor`, `schranke`, `vereinzelung`, `aufzug`, `poller`, `schleuse`, `rampe`,
+`kassenautomat`, `notrufsaeule`, `klingeltableau`, `fluchttuer`, `paketanlage`, `drehtuer`.
+
+Einbauorte `innen`: `tuer`, `pforte`, `leitstand`, `wohnung`, `etagenruf`, `schleuseninnenraum`,
+`aufzugvorraum`, `tiefgarage`.
+
+Keine Freigabe zulässig bei `notrufsaeule` und `etagenruf`.
 
 Übliche Zuordnung Einbauort zu Freigabe: `rampe` -> `tor`, `kassenautomat` -> `schranke`,
 `paketanlage` -> `tuer`, `klingeltableau` -> `tuer`. Aufzugnotruf, WC-Notruf und
