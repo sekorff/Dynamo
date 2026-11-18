@@ -1,6 +1,6 @@
 ---
 name: gegensprechanlage-schema
-description: Erzeugt deterministisch ein Gegensprechanlagen-Schema (Intercom / Türsprechanlage) als PDF im Format DIN A3 quer. Verwenden, wenn ein Schema, Strangschema oder Übersichtsplan einer IP-Gegensprechanlage gefragt ist - mit Außen- und Innensprechstellen an Türen, Toren, Schranken, Vereinzelungsanlagen und Aufzügen, mit/ohne Video und Zugangskontrolle, Freigaben, PoE-Speisung, LWL-Strecken über 90 m mit Medienkonverter und PoE-Injektor 230 V, TK-Anlage, Wählgerät (IP/Mobilfunk) und Störmeldungen an die GLT.
+description: Erzeugt deterministisch ein Gegensprechanlagen-Schema (Intercom / Türsprechanlage) als PDF im Format DIN A3 quer. Verwenden, wenn ein Schema, Strangschema oder Übersichtsplan einer IP-Gegensprechanlage gefragt ist - mit Außen- und Innensprechstellen an Türen, Toren, Schranken, Vereinzelungsanlagen, Aufzügen, Pollern, Schleusen, Rampen, Kassenautomaten, Notrufsäulen, Klingeltableaus, Fluchttüren, Paketanlagen und Drehtüren, mit/ohne Video und Zugangskontrolle, Freigaben, PoE-Speisung, LWL-Strecken über 90 m mit Medienkonverter und PoE-Injektor 230 V, TK-Anlage, Wählgerät (IP/Mobilfunk) und Störmeldungen an die GLT.
 ---
 
 # Gegensprechanlage-Schema (PDF)
@@ -34,7 +34,9 @@ Voraussetzung: Python 3 und `reportlab` (`pip install reportlab`).
 | Leitungslänge bis 90 m | Kupferleitung, PoE direkt vom Switch |
 | Leitungslänge über 90 m | LWL bis Medienkonverter am Einbauort, PoE lokal über Injektor 230 V AC / PoE |
 | Verteiler-Uplink über 90 m | LWL-Uplink (SFP), Switch hat eigene 230-V-Versorgung |
-| Außensprechstelle | Freigabe lokal über Relaiskontakt auf Türöffner, Tor-, Schranken-, Aufzugsteuerung, Vereinzelungsanlage |
+| Außensprechstelle | Freigabe lokal über Relaiskontakt auf Türöffner, Tor-, Schranken-, Aufzug-, Poller-, Schleusen-, Fluchttür-, Drehtürsteuerung, Vereinzelungsanlage |
+| Notrufsäule | nur Ruf, keine Freigabe zulässig |
+| Klingeltableau | Anzahl `ruftasten` ist Pflicht |
 | Innensprechstelle | nur an Türen; Freigabe als Fernfreigabe über IP |
 | Zentrale | Intercom-Server, TK-Anlage, eigenes Wählgerät (IP und/oder Mobilfunk), Störmeldungen an GLT |
 | Blattaufteilung | 10 Sprechstellen je Schemablatt; Verteiler bleiben zusammen, sofern sie auf ein Blatt passen; danach Geräte- und Leitungsliste mit Summen |
@@ -85,13 +87,18 @@ Jeder Verteiler muss mindestens eine Sprechstelle haben.
 |---|---|---|
 | `id` | ja | eindeutig über Verteiler und Sprechstellen |
 | `typ` | ja | `aussen` oder `innen` |
-| `einbauort` | nein | `tuer` (Standard), `tor`, `schranke`, `vereinzelung`, `aufzug`; bei `innen` nur `tuer` |
+| `einbauort` | nein | `tuer` (Standard), `tor`, `schranke`, `vereinzelung`, `aufzug`, `poller`, `schleuse`, `rampe`, `kassenautomat`, `notrufsaeule`, `klingeltableau`, `fluchttuer`, `paketanlage`, `drehtuer`; bei `innen` nur `tuer` |
+| `ruftasten` | bei `klingeltableau` | Anzahl Ruftasten 1-999; sonst nicht zulässig |
 | `bezeichnung` | nein | z. B. "Haupteingang" |
 | `video` | nein | `true` / `false` (Standard `false`) |
 | `zugangskontrolle` | nein | `true` / `false` (Standard `false`) |
-| `freigabe` | nein | Liste aus `tuer`, `tor`, `schranke`, `vereinzelung`, `aufzug`; leer = ohne Freigabe |
+| `freigabe` | nein | Liste aus `tuer`, `tor`, `schranke`, `vereinzelung`, `aufzug`, `poller`, `schleuse`, `fluchttuer`, `drehtuer`; leer = ohne Freigabe |
 | `verteiler` | ja* | ID des PoE-Switches (*entfällt bei genau einem Verteiler) |
 | `leitungslaenge_m` | ja | Länge Switch bis Sprechstelle in Metern |
+
+Übliche Zuordnung Einbauort zu Freigabe: `rampe` -> `tor`, `kassenautomat` -> `schranke`,
+`paketanlage` -> `tuer`, `klingeltableau` -> `tuer`. Aufzugnotruf, WC-Notruf und
+Notfall-/Gefahren-Sprechanlagen sind eigene Anlagen und gehören nicht in dieses Schema.
 
 ## Dateien
 

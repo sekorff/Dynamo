@@ -38,6 +38,15 @@ EINBAUORTE = {
     "schranke": "Schranke",
     "vereinzelung": "Vereinzelungsanlage",
     "aufzug": "Aufzug",
+    "poller": "Poller",
+    "schleuse": "Schleuse",
+    "rampe": "Rampe / Anlieferung",
+    "kassenautomat": "Kassenautomat / Parksäule",
+    "notrufsaeule": "Notrufsäule",
+    "klingeltableau": "Klingeltableau",
+    "fluchttuer": "Fluchttür",
+    "paketanlage": "Briefkasten- / Paketanlage",
+    "drehtuer": "Drehtür",
 }
 EINBAUORTE_INNEN = ("tuer",)
 FREIGABE_KURZ = {
@@ -46,6 +55,10 @@ FREIGABE_KURZ = {
     "schranke": "Schranke",
     "vereinzelung": "Vereinzelung",
     "aufzug": "Aufzug",
+    "poller": "Poller",
+    "schleuse": "Schleuse",
+    "fluchttuer": "Fluchttür",
+    "drehtuer": "Drehtür",
 }
 AKTOR = {
     "tuer": "Türöffner",
@@ -53,8 +66,13 @@ AKTOR = {
     "schranke": "Schrankensteuerung",
     "vereinzelung": "Vereinzelungsanlage",
     "aufzug": "Aufzugsteuerung",
+    "poller": "Pollersteuerung",
+    "schleuse": "Schleusensteuerung",
+    "fluchttuer": "Fluchttürsteuerung",
+    "drehtuer": "Drehtürsteuerung",
 }
-FREIGABE_REIHENFOLGE = ("tuer", "tor", "schranke", "vereinzelung", "aufzug")
+FREIGABE_REIHENFOLGE = ("tuer", "tor", "schranke", "vereinzelung", "aufzug",
+                        "poller", "schleuse", "fluchttuer", "drehtuer")
 WAEHL_WEGE = {"ip": "IP (LAN / WAN)", "mobil": "Mobilfunk (LTE / 5G)"}
 DEFAULT_MELDUNGEN = [
     "Sammelstörung Anlage",
@@ -249,7 +267,7 @@ def validieren(roh):
     for i, s in enumerate(roh["sprechstellen"]):
         pf = "sprechstellen[%d]" % i
         _obj(s, pf, {"id", "typ", "einbauort", "bezeichnung", "video", "zugangskontrolle",
-                     "freigabe", "verteiler", "leitungslaenge_m"},
+                     "freigabe", "verteiler", "leitungslaenge_m", "ruftasten"},
              ("id", "typ", "leitungslaenge_m"))
         sid = _id(s, pf)
         if sid in ids:
@@ -270,6 +288,18 @@ def validieren(roh):
             raise EingabeFehler("%s.freigabe: Liste ohne Doppelte aus %s erwartet"
                                 % (pf, ", ".join(FREIGABE_REIHENFOLGE)))
         fg = [f for f in FREIGABE_REIHENFOLGE if f in fg]
+        if ort == "notrufsaeule" and fg:
+            raise EingabeFehler("%s.freigabe: eine Notrufsäule hat keine Freigabe" % pf)
+        tasten = s.get("ruftasten")
+        if ort == "klingeltableau":
+            if isinstance(tasten, bool) or not isinstance(tasten, int) or not 1 <= tasten <= 999:
+                raise EingabeFehler("%s.ruftasten: ganze Zahl 1-999 erwartet "
+                                    "(Pflicht bei einbauort 'klingeltableau')" % pf)
+        elif tasten is not None:
+            raise EingabeFehler("%s.ruftasten: nur bei einbauort 'klingeltableau' zulässig" % pf)
+        ort_text = EINBAUORTE[ort]
+        if tasten:
+            ort_text += " (%d Ruftasten)" % tasten
         if "verteiler" in s:
             vref = s["verteiler"]
         elif len(vids) == 1:
@@ -279,7 +309,7 @@ def validieren(roh):
         if vref not in vids:
             raise EingabeFehler("%s.verteiler: '%s' ist kein definierter Verteiler" % (pf, vref))
         laenge = _n(s, "leitungslaenge_m", pf)
-        stationen.append({"id": sid, "typ": typ, "einbauort": ort,
+        stationen.append({"id": sid, "typ": typ, "einbauort": ort, "ort_text": ort_text,
                           "bezeichnung": _s(s, "bezeichnung", pf, "", 48),
                           "video": _b(s, "video", pf, False),
                           "zk": _b(s, "zugangskontrolle", pf, False),
@@ -599,7 +629,7 @@ def strang(c, modell, s, cx):
     text(c, "AUSSEN" if aussen else "INNEN", x + W_ST - 4, Y_ST_TOP - 11, 6.2, FB, C_WHITE, "r")
     text(c, ("Außensprechstelle" if aussen else "Innensprechstelle"), cx, Y_ST_TOP - 27, 6.5, FB,
          anker="m")
-    text(c, "an: " + EINBAUORTE[s["einbauort"]], cx, Y_ST_TOP - 36, 6.5, anker="m", max_w=W_ST - 6)
+    text(c, "an: " + s["ort_text"], cx, Y_ST_TOP - 36, 6.5, anker="m", max_w=W_ST - 6)
     yy = Y_ST_TOP - 47
     for z in umbrechen(s["bezeichnung"], F, 6.2, W_ST - 8, 2):
         text(c, z, cx, yy, 6.2, farbe=HexColor("#444444"), anker="m")
@@ -672,7 +702,7 @@ def schemaseite(c, modell, spalten, erste_ids):
 # --------------------------------------------------------------------------
 # Geraete- und Leitungsliste
 # --------------------------------------------------------------------------
-SPALTEN_LISTE = [("Pos.", 30), ("ID", 60), ("Typ", 80), ("Einbauort", 95), ("Bezeichnung", 215),
+SPALTEN_LISTE = [("Pos.", 30), ("ID", 60), ("Typ", 80), ("Einbauort", 130), ("Bezeichnung", 180),
                  ("Video", 38), ("ZK", 38), ("Freigabe", 190), ("Verteiler", 60), ("Länge", 50),
                  ("Leitung / Übertragung", 124), ("Speisung", 134)]
 
@@ -689,7 +719,7 @@ def listenzeilen(modell):
         fern = " (IP)" if s["typ"] == "innen" else ""
         zeilen.append([
             s["id"], "Außensprechstelle" if s["typ"] == "aussen" else "Innensprechstelle",
-            EINBAUORTE[s["einbauort"]], s["bezeichnung"],
+            s["ort_text"], s["bezeichnung"],
             "ja" if s["video"] else "nein", "ja" if s["zk"] else "nein",
             (", ".join(FREIGABE_KURZ[f] for f in s["freigabe"]) + fern) if s["freigabe"] else "-",
             s["verteiler"], fmt_m(s["laenge"]),
