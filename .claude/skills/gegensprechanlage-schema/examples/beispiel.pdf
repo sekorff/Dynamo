@@ -1,0 +1,3486 @@
+%PDF-1.4
+%“Œ‹ž ReportLab Generated PDF document (opensource)
+1 0 obj
+<<
+/F1 2 0 R /F2 3 0 R
+>>
+endobj
+2 0 obj
+<<
+/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
+>>
+endobj
+3 0 obj
+<<
+/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
+>>
+endobj
+4 0 obj
+<<
+/Contents 10 0 R /MediaBox [ 0 0 1190.55 841.89 ] /Parent 9 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
+
+>> 
+  /Type /Page
+>>
+endobj
+5 0 obj
+<<
+/Contents 11 0 R /MediaBox [ 0 0 1190.55 841.89 ] /Parent 9 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
+
+>> 
+  /Type /Page
+>>
+endobj
+6 0 obj
+<<
+/Contents 12 0 R /MediaBox [ 0 0 1190.55 841.89 ] /Parent 9 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
+
+>> 
+  /Type /Page
+>>
+endobj
+7 0 obj
+<<
+/PageMode /UseNone /Pages 9 0 R /Type /Catalog
+>>
+endobj
+8 0 obj
+<<
+/Author (Ingenieurb\374ro Beispiel) /CreationDate (D:20000101000000+00'00') /Creator (gegensprechanlage-schema) /Keywords () /ModDate (D:20000101000000+00'00') /Producer (ReportLab PDF Library - \(opensource\)) 
+  /Subject (Gegensprechanlage IP / PoE) /Title (Schema Gegensprechanlage - Neubau Verwaltungsgeb\344ude Musterstra\337e 1) /Trapped /False
+>>
+endobj
+9 0 obj
+<<
+/Count 3 /Kids [ 4 0 R 5 0 R 6 0 R ] /Type /Pages
+>>
+endobj
+10 0 obj
+<<
+/Length 29773
+>>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+1.2 w
+0 0 0 RG
+n 28 28 1134.55 785.89 re S
+1 w
+0 0 0 RG
+[] 0 d
+n 28 113 m 1162.55 113 l
+S
+[] 0 d
+1 w
+0 0 0 RG
+[] 0 d
+n 742.55 28 m 742.55 113 l
+S
+[] 0 d
+.6 w
+0 0 0 RG
+[] 0 d
+n 742.55 83 m 1162.55 83 l
+S
+[] 0 d
+.6 w
+0 0 0 RG
+[] 0 d
+n 742.55 56 m 1162.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 746.55 105 Tm (Projekt) Tj T* ET
+0 0 0 rg
+BT /F2 11 Tf 13.2 TL ET
+BT 1 0 0 1 746.55 90 Tm (Neubau Verwaltungsgeb\344ude Musterstra\337e 1) Tj T* ET
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 746.55 76 Tm (Planinhalt) Tj T* ET
+0 0 0 rg
+BT /F2 10 Tf 12 TL ET
+BT 1 0 0 1 746.55 62 Tm (Schema Gegensprechanlage \(IP / PoE\)) Tj T* ET
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 745.55 48 Tm (Bauherr) Tj T* ET
+0 0 0 rg
+BT /F2 6.75 Tf 8.1 TL ET
+BT 1 0 0 1 745.55 35 Tm (Muster Immobilien GmbH) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 832.55 28 m 832.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 835.55 48 Tm (Planer) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 835.55 35 Tm (Ingenieurb\374ro Beispiel) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 922.55 28 m 922.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 925.55 48 Tm (Projekt-Nr.) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 925.55 35 Tm (2026-042) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 982.55 28 m 982.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 985.55 48 Tm (Plan-Nr.) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 985.55 35 Tm (ELT-GSA-001) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 1052.55 28 m 1052.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 1055.55 48 Tm (Datum) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 1055.55 35 Tm (2026-11-18) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 1102.55 28 m 1102.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 1105.55 48 Tm (Index) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 1105.55 35 Tm (A) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 1127.55 28 m 1127.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 1130.55 48 Tm (Blatt) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 1130.55 35 Tm (1 / 3) Tj T* ET
+0 0 0 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 36 102 Tm (Legende Leitungen) Tj T* ET
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 36 94 m 66 94 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 72 92 Tm (Cat.7, IP-Datenleitung mit PoE \(bis 90 m\)) Tj T* ET
+2.2 w
+.878431 .482353 0 RG
+[] 0 d
+n 36 84.8 m 66 84.8 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 72 82.8 Tm (LWL OM4, Lichtwellenleiter \(\374ber 90 m\)) Tj T* ET
+1.2 w
+.776471 .156863 .156863 RG
+[] 0 d
+n 36 75.6 m 66 75.6 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 72 73.6 Tm (230 V AC, lokale Einspeisung PoE-Injektor) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 36 66.4 m 66 66.4 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 72 64.4 Tm (Freigabe lokal \374ber Relaiskontakt) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[1 2] 0 d
+n 36 57.2 m 66 57.2 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 72 55.2 Tm (Fernfreigabe \374ber IP \(Bedienung Innensprechstelle\)) Tj T* ET
+1.2 w
+.556863 .141176 .666667 RG
+[5 2 1 2] 0 d
+n 36 48 m 66 48 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 72 46 Tm (St\366rmeldungen an GLT) Tj T* ET
+1.4 w
+.180392 .490196 .196078 RG
+[] 0 d
+n 36 38.8 m 66 38.8 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 72 36.8 Tm (Anbindung TK-Anlage / W\344hlger\344t) Tj T* ET
+0 0 0 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 278 102 Tm (Legende Ger\344te) Tj T* ET
+.8 w
+.105882 .227451 .360784 RG
+.105882 .227451 .360784 rg
+[] 0 d
+n 278 88 30 8 re B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 314 89 Tm (Au\337ensprechstelle) Tj T* ET
+.8 w
+.180392 .419608 .309804 RG
+.180392 .419608 .309804 rg
+[] 0 d
+n 278 77 30 8 re B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 314 78 Tm (Innensprechstelle) Tj T* ET
+.6 w
+.007843 .466667 .741176 RG
+.007843 .466667 .741176 rg
+[] 0 d
+n
+280 64 m
+306 64 l
+307.1056 64 308 64.8944 308 66 c
+308 71 l
+308 72.1056 307.1056 73 306 73 c
+280 73 l
+278.8944 73 278 72.1056 278 71 c
+278 66 l
+278 64.8944 278.8944 64 280 64 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 283.3528 66.3 Tm (VIDEO) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 314 66 Tm (mit Videokamera / Bildschirm) Tj T* ET
+.6 w
+.415686 .105882 .603922 RG
+.415686 .105882 .603922 rg
+[] 0 d
+n
+280 52 m
+306 52 l
+307.1056 52 308 52.8944 308 54 c
+308 59 l
+308 60.1056 307.1056 61 306 61 c
+280 61 l
+278.8944 61 278 60.1056 278 59 c
+278 54 l
+278 52.8944 278.8944 52 280 52 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 288.8677 54.3 Tm (ZK) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 314 54 Tm (mit Zugangskontrolle \(Leser\)) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+1 1 1 rg
+[] 0 d
+n
+280 40 m
+306 40 l
+307.1056 40 308 40.8944 308 42 c
+308 47 l
+308 48.1056 307.1056 49 306 49 c
+280 49 l
+278.8944 49 278 48.1056 278 47 c
+278 42 l
+278 40.8944 278.8944 40 280 40 c
+h
+B*
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 289.0382 42.3 Tm (ZK) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+[] 0 d
+n 281 42 m 305 47 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 314 42 Tm (Ausstattung nicht vorhanden) Tj T* ET
+0 0 0 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 458 102 Tm (Planungsregeln) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 458 92 Tm (Vernetzung durchg\344ngig auf IP-Basis, Speisung der Sprechstellen \374ber PoE.) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 458 82.8 Tm (Leitungsl\344nge bis 90 m: Kupferleitung, PoE direkt vom Switch.) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 458 73.6 Tm (Leitungsl\344nge \374ber 90 m: LWL bis Medienkonverter \(MK\) am Einbauort,) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 458 64.4 Tm (PoE-Einspeisung lokal \374ber Injektor 230 V AC / PoE.) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 458 55.2 Tm (MK und Injektor ben\366tigen einen 230-V-Anschluss am Einbauort.) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 458 46 Tm (St\366rmeldungen werden zentral gesammelt und an die GLT \374bergeben.) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 458 36.8 Tm (Schema ohne Ma\337stab; Leitungsl\344ngen laut Eingabedaten.) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 505.275 742 180 56 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 8.5 Tf 10.2 TL ET
+BT 1 0 0 1 562.6817 786 Tm (Intercom-Server) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 539.0955 776 Tm (Zentrale Gegensprechanlage \(IP / SIP\)) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 558.9725 767.5 Tm (Technikraum EG, Rack 1) Tj T* ET
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 595.275 742 m 595.275 716 l
+S
+[] 0 d
+1 w
+.133333 .133333 .133333 RG
+.866667 .901961 .941176 rg
+[] 0 d
+n 525.275 690 140 26 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 573.3975 705 Tm (Core-Switch) Tj T* ET
+0 0 0 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 561.765 696 Tm (Technikraum EG, Rack 1) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 270 742 150 56 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 8.5 Tf 10.2 TL ET
+BT 1 0 0 1 323.75 786 Tm (TK-Anlage) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 324.4047 776 Tm (Telefonanlage) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 310.3225 767.5 Tm (Rufweiterleitung / T\374rruf) Tj T* ET
+1.4 w
+.180392 .490196 .196078 RG
+[] 0 d
+n 420 770 m 505.275 770 l
+S
+[] 0 d
+.180392 .490196 .196078 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 448.6844 774 Tm (SIP-Trunk) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 770 742 150 56 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 8.5 Tf 10.2 TL ET
+BT 1 0 0 1 824.4555 786 Tm (W\344hlger\344t) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 817.9048 776 Tm (eigenes W\344hlger\344t) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 811.4925 767.5 Tm (\334bertragung IP + Mobil) Tj T* ET
+1.4 w
+.180392 .490196 .196078 RG
+[] 0 d
+n 685.275 770 m 770 770 l
+S
+[] 0 d
+.180392 .490196 .196078 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 708.5167 774 Tm (Notruf / Alarm) Tj T* ET
+1.4 w
+.180392 .490196 .196078 RG
+[] 0 d
+n 920 786 m 990 786 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[] 0 d
+n
+996 774 m
+1134 774 l
+1137.317 774 1140 776.6832 1140 780 c
+1140 792 l
+1140 795.3168 1137.317 798 1134 798 c
+996 798 l
+992.6832 798 990 795.3168 990 792 c
+990 780 l
+990 776.6832 992.6832 774 996 774 c
+h
+B*
+[] 0 d
+0 0 0 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 1032.919 783 Tm (IP \(LAN / WAN\)) Tj T* ET
+1.4 w
+.180392 .490196 .196078 RG
+[] 0 d
+n 920 754 m 990 754 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[] 0 d
+n
+996 742 m
+1134 742 l
+1137.317 742 1140 744.6832 1140 748 c
+1140 760 l
+1140 763.3168 1137.317 766 1134 766 c
+996 766 l
+992.6832 766 990 763.3168 990 760 c
+990 748 l
+990 744.6832 992.6832 742 996 742 c
+h
+B*
+[] 0 d
+0 0 0 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 1023.97 751 Tm (Mobilfunk \(LTE / 5G\)) Tj T* ET
+.9 w
+.133333 .133333 .133333 RG
+[] 0 d
+n 1128 747 m 1128 761 l
+S
+[] 0 d
+.9 w
+.133333 .133333 .133333 RG
+[] 0 d
+n 1123 761 m 1128 755 l 1133 761 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 1020.382 732 Tm (Ziel: Notruf- und Serviceleitstelle) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 45 728 170 70 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 8.5 Tf 10.2 TL ET
+BT 1 0 0 1 121.5 786 Tm (GLT) Tj T* ET
+0 0 0 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 51 776 Tm (- Sammelst\366rung Anlage) Tj T* ET
+0 0 0 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 51 768.4 Tm (- Ausfall Sprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 51 760.8 Tm (- Verbindungsausfall LAN / LWL) Tj T* ET
+0 0 0 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 51 753.2 Tm (- Netzausfall 230 V / PoE) Tj T* ET
+1.2 w
+.556863 .141176 .666667 RG
+[5 2 1 2] 0 d
+n 525.275 742 m 525.275 722 l 227 722 l 227 748 l 215 748 l
+S
+[] 0 d
+.556863 .141176 .666667 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 322.5478 725 Tm (St\366rmeldungen: potentialfreie Kontakte) Tj T* ET
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 428.5 676 m 428.5 640 l
+S
+[] 0 d
+.121569 .372549 .74902 rg
+.121569 .372549 .74902 RG
+n
+430.3 676 m
+430.3 676.9941 429.4941 677.8 428.5 677.8 c
+427.5059 677.8 426.7 676.9941 426.7 676 c
+426.7 675.0059 427.5059 674.2 428.5 674.2 c
+429.4941 674.2 430.3 675.0059 430.3 676 c
+f*
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 433.5 652 Tm (Cat.7  5 m) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+.866667 .901961 .941176 rg
+[] 0 d
+n 45 614 767 26 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 384.7337 629 Tm (SW1  Etagenverteiler EG) Tj T* ET
+0 0 0 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 371.866 620 Tm (Technikraum EG  |  PoE-Switch, 230 V AC) Tj T* ET
+2 w
+.133333 .133333 .133333 RG
+[] 0 d
+n 428.5 676 m 595.275 676 l
+S
+[] 0 d
+2 w
+.133333 .133333 .133333 RG
+[] 0 d
+n 595.275 690 m 595.275 676 l
+S
+[] 0 d
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 95.5 614 m 95.5 470 l
+S
+[] 0 d
+.121569 .372549 .74902 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 100.5 552 Tm (Cat.7) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 100.5 544 Tm (35 m) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 100.5 536 Tm (PoE) Tj T* ET
+.121569 .372549 .74902 rg
+.121569 .372549 .74902 RG
+n
+97.3 614 m
+97.3 614.9941 96.49411 615.8 95.5 615.8 c
+94.50589 615.8 93.7 614.9941 93.7 614 c
+93.7 613.0059 94.50589 612.2 95.5 612.2 c
+96.49411 612.2 97.3 613.0059 97.3 614 c
+f*
+1.2 w
+.105882 .227451 .360784 RG
+1 1 1 rg
+[] 0 d
+n 46.5 372 98 98 re B*
+[] 0 d
+1.2 w
+.105882 .227451 .360784 RG
+.105882 .227451 .360784 rg
+[] 0 d
+n 46.5 454 98 16 re B*
+[] 0 d
+1 1 1 rg
+BT /F2 8 Tf 9.6 TL ET
+BT 1 0 0 1 50.5 458.5 Tm (AS01) Tj T* ET
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 114.6646 459 Tm (AUSSEN) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 66.42225 443 Tm (Au\337ensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 85.204 434 Tm (an: T\374r) Tj T* ET
+.266667 .266667 .266667 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 76.1994 423 Tm (Haupteingang) Tj T* ET
+.6 w
+.007843 .466667 .741176 RG
+.007843 .466667 .741176 rg
+[] 0 d
+n
+53.5 392 m
+91.5 392 l
+92.6056 392 93.5 392.8944 93.5 394 c
+93.5 402 l
+93.5 403.1056 92.6056 404 91.5 404 c
+53.5 404 l
+52.3944 404 51.5 403.1056 51.5 402 c
+51.5 394 l
+51.5 392.8944 52.3944 392 53.5 392 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 62.8528 395.8 Tm (VIDEO) Tj T* ET
+.6 w
+.415686 .105882 .603922 RG
+.415686 .105882 .603922 rg
+[] 0 d
+n
+99.5 392 m
+137.5 392 l
+138.6056 392 139.5 392.8944 139.5 394 c
+139.5 402 l
+139.5 403.1056 138.6056 404 137.5 404 c
+99.5 404 l
+98.3944 404 97.5 403.1056 97.5 402 c
+97.5 394 l
+97.5 392.8944 98.3944 392 99.5 392 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 114.3677 395.8 Tm (ZK) Tj T* ET
+0 0 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 63.655 379 Tm (Freigabe lokal \(Relais\)) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 52.5 356 m 60.5 356 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 60.5 346 84 20 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 88.7236 353.5 Tm (T\374r\366ffner) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 52.5 372 m 52.5 356 l
+S
+[] 0 d
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 206.5 614 m 206.5 470 l
+S
+[] 0 d
+.121569 .372549 .74902 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 211.5 552 Tm (Cat.7) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 211.5 544 Tm (62 m) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 211.5 536 Tm (PoE) Tj T* ET
+.121569 .372549 .74902 rg
+.121569 .372549 .74902 RG
+n
+208.3 614 m
+208.3 614.9941 207.4941 615.8 206.5 615.8 c
+205.5059 615.8 204.7 614.9941 204.7 614 c
+204.7 613.0059 205.5059 612.2 206.5 612.2 c
+207.4941 612.2 208.3 613.0059 208.3 614 c
+f*
+1.2 w
+.105882 .227451 .360784 RG
+1 1 1 rg
+[] 0 d
+n 157.5 372 98 98 re B*
+[] 0 d
+1.2 w
+.105882 .227451 .360784 RG
+.105882 .227451 .360784 rg
+[] 0 d
+n 157.5 454 98 16 re B*
+[] 0 d
+1 1 1 rg
+BT /F2 8 Tf 9.6 TL ET
+BT 1 0 0 1 161.5 458.5 Tm (AS02) Tj T* ET
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 225.6646 459 Tm (AUSSEN) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 177.4222 443 Tm (Au\337ensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 196.204 434 Tm (an: T\374r) Tj T* ET
+.266667 .266667 .266667 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 169.9665 423 Tm (Nebeneingang Lieferanten) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+1 1 1 rg
+[] 0 d
+n
+164.5 392 m
+202.5 392 l
+203.6056 392 204.5 392.8944 204.5 394 c
+204.5 402 l
+204.5 403.1056 203.6056 404 202.5 404 c
+164.5 404 l
+163.3944 404 162.5 403.1056 162.5 402 c
+162.5 394 l
+162.5 392.8944 163.3944 392 164.5 392 c
+h
+B*
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 173.8528 395.8 Tm (VIDEO) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+[] 0 d
+n 165.5 394 m 201.5 402 l
+S
+[] 0 d
+.6 w
+.619608 .619608 .619608 RG
+1 1 1 rg
+[] 0 d
+n
+210.5 392 m
+248.5 392 l
+249.6056 392 250.5 392.8944 250.5 394 c
+250.5 402 l
+250.5 403.1056 249.6056 404 248.5 404 c
+210.5 404 l
+209.3944 404 208.5 403.1056 208.5 402 c
+208.5 394 l
+208.5 392.8944 209.3944 392 210.5 392 c
+h
+B*
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 225.5382 395.8 Tm (ZK) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+[] 0 d
+n 211.5 394 m 247.5 402 l
+S
+[] 0 d
+0 0 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 174.655 379 Tm (Freigabe lokal \(Relais\)) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 163.5 356 m 171.5 356 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 171.5 346 84 20 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 199.7236 353.5 Tm (T\374r\366ffner) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 163.5 372 m 163.5 356 l
+S
+[] 0 d
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 317.5 614 m 317.5 470 l
+S
+[] 0 d
+.121569 .372549 .74902 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 322.5 552 Tm (Cat.7) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 322.5 544 Tm (88 m) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 322.5 536 Tm (PoE) Tj T* ET
+.121569 .372549 .74902 rg
+.121569 .372549 .74902 RG
+n
+319.3 614 m
+319.3 614.9941 318.4941 615.8 317.5 615.8 c
+316.5059 615.8 315.7 614.9941 315.7 614 c
+315.7 613.0059 316.5059 612.2 317.5 612.2 c
+318.4941 612.2 319.3 613.0059 319.3 614 c
+f*
+1.2 w
+.105882 .227451 .360784 RG
+1 1 1 rg
+[] 0 d
+n 268.5 372 98 98 re B*
+[] 0 d
+1.2 w
+.105882 .227451 .360784 RG
+.105882 .227451 .360784 rg
+[] 0 d
+n 268.5 454 98 16 re B*
+[] 0 d
+1 1 1 rg
+BT /F2 8 Tf 9.6 TL ET
+BT 1 0 0 1 272.5 458.5 Tm (AS03) Tj T* ET
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 336.6646 459 Tm (AUSSEN) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 288.4223 443 Tm (Au\337ensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 301.9617 434 Tm (an: Aufzug) Tj T* ET
+.266667 .266667 .266667 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 294.7522 423 Tm (Aufzug 1 Kabine) Tj T* ET
+.6 w
+.007843 .466667 .741176 RG
+.007843 .466667 .741176 rg
+[] 0 d
+n
+275.5 392 m
+313.5 392 l
+314.6056 392 315.5 392.8944 315.5 394 c
+315.5 402 l
+315.5 403.1056 314.6056 404 313.5 404 c
+275.5 404 l
+274.3944 404 273.5 403.1056 273.5 402 c
+273.5 394 l
+273.5 392.8944 274.3944 392 275.5 392 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 284.8528 395.8 Tm (VIDEO) Tj T* ET
+.6 w
+.415686 .105882 .603922 RG
+.415686 .105882 .603922 rg
+[] 0 d
+n
+321.5 392 m
+359.5 392 l
+360.6056 392 361.5 392.8944 361.5 394 c
+361.5 402 l
+361.5 403.1056 360.6056 404 359.5 404 c
+321.5 404 l
+320.3944 404 319.5 403.1056 319.5 402 c
+319.5 394 l
+319.5 392.8944 320.3944 392 321.5 392 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 336.3677 395.8 Tm (ZK) Tj T* ET
+0 0 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 285.655 379 Tm (Freigabe lokal \(Relais\)) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 274.5 356 m 282.5 356 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 282.5 346 84 20 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 299.0118 353.5 Tm (Aufzugsteuerung) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 274.5 372 m 274.5 356 l
+S
+[] 0 d
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 428.5 614 m 428.5 470 l
+S
+[] 0 d
+.121569 .372549 .74902 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 433.5 552 Tm (Cat.7) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 433.5 544 Tm (90 m) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 433.5 536 Tm (PoE) Tj T* ET
+.121569 .372549 .74902 rg
+.121569 .372549 .74902 RG
+n
+430.3 614 m
+430.3 614.9941 429.4941 615.8 428.5 615.8 c
+427.5059 615.8 426.7 614.9941 426.7 614 c
+426.7 613.0059 427.5059 612.2 428.5 612.2 c
+429.4941 612.2 430.3 613.0059 430.3 614 c
+f*
+1.2 w
+.105882 .227451 .360784 RG
+1 1 1 rg
+[] 0 d
+n 379.5 372 98 98 re B*
+[] 0 d
+1.2 w
+.105882 .227451 .360784 RG
+.105882 .227451 .360784 rg
+[] 0 d
+n 379.5 454 98 16 re B*
+[] 0 d
+1 1 1 rg
+BT /F2 8 Tf 9.6 TL ET
+BT 1 0 0 1 383.5 458.5 Tm (AS04) Tj T* ET
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 447.6646 459 Tm (AUSSEN) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 399.4223 443 Tm (Au\337ensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 392.7305 434 Tm (an: Vereinzelungsanlage) Tj T* ET
+.266667 .266667 .266667 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 405.4174 423 Tm (Drehkreuz Foyer) Tj T* ET
+.6 w
+.007843 .466667 .741176 RG
+.007843 .466667 .741176 rg
+[] 0 d
+n
+386.5 392 m
+424.5 392 l
+425.6056 392 426.5 392.8944 426.5 394 c
+426.5 402 l
+426.5 403.1056 425.6056 404 424.5 404 c
+386.5 404 l
+385.3944 404 384.5 403.1056 384.5 402 c
+384.5 394 l
+384.5 392.8944 385.3944 392 386.5 392 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 395.8528 395.8 Tm (VIDEO) Tj T* ET
+.6 w
+.415686 .105882 .603922 RG
+.415686 .105882 .603922 rg
+[] 0 d
+n
+432.5 392 m
+470.5 392 l
+471.6056 392 472.5 392.8944 472.5 394 c
+472.5 402 l
+472.5 403.1056 471.6056 404 470.5 404 c
+432.5 404 l
+431.3944 404 430.5 403.1056 430.5 402 c
+430.5 394 l
+430.5 392.8944 431.3944 392 432.5 392 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 447.3677 395.8 Tm (ZK) Tj T* ET
+0 0 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 396.655 379 Tm (Freigabe lokal \(Relais\)) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 385.5 356 m 393.5 356 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 393.5 346 84 20 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 404.6612 353.5 Tm (Vereinzelungsanlage) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 385.5 372 m 385.5 356 l
+S
+[] 0 d
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 539.5 614 m 539.5 470 l
+S
+[] 0 d
+.121569 .372549 .74902 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 544.5 552 Tm (Cat.7) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 544.5 544 Tm (20 m) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 544.5 536 Tm (PoE) Tj T* ET
+.121569 .372549 .74902 rg
+.121569 .372549 .74902 RG
+n
+541.3 614 m
+541.3 614.9941 540.4941 615.8 539.5 615.8 c
+538.5059 615.8 537.7 614.9941 537.7 614 c
+537.7 613.0059 538.5059 612.2 539.5 612.2 c
+540.4941 612.2 541.3 613.0059 541.3 614 c
+f*
+1.2 w
+.180392 .419608 .309804 RG
+1 1 1 rg
+[] 0 d
+n 490.5 372 98 98 re B*
+[] 0 d
+1.2 w
+.180392 .419608 .309804 RG
+.180392 .419608 .309804 rg
+[] 0 d
+n 490.5 454 98 16 re B*
+[] 0 d
+1 1 1 rg
+BT /F2 8 Tf 9.6 TL ET
+BT 1 0 0 1 494.5 458.5 Tm (IS01) Tj T* ET
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 565.2118 459 Tm (INNEN) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 511.8653 443 Tm (Innensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 529.204 434 Tm (an: T\374r) Tj T* ET
+.266667 .266667 .266667 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 527.0938 423 Tm (Empfang) Tj T* ET
+.6 w
+.007843 .466667 .741176 RG
+.007843 .466667 .741176 rg
+[] 0 d
+n
+497.5 392 m
+535.5 392 l
+536.6056 392 537.5 392.8944 537.5 394 c
+537.5 402 l
+537.5 403.1056 536.6056 404 535.5 404 c
+497.5 404 l
+496.3944 404 495.5 403.1056 495.5 402 c
+495.5 394 l
+495.5 392.8944 496.3944 392 497.5 392 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 506.8528 395.8 Tm (VIDEO) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+1 1 1 rg
+[] 0 d
+n
+543.5 392 m
+581.5 392 l
+582.6056 392 583.5 392.8944 583.5 394 c
+583.5 402 l
+583.5 403.1056 582.6056 404 581.5 404 c
+543.5 404 l
+542.3944 404 541.5 403.1056 541.5 402 c
+541.5 394 l
+541.5 392.8944 542.3944 392 543.5 392 c
+h
+B*
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 558.5382 395.8 Tm (ZK) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+[] 0 d
+n 544.5 394 m 580.5 402 l
+S
+[] 0 d
+0 0 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 510.325 379 Tm (Fernfreigabe \374ber IP) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[1 2] 0 d
+n 496.5 356 m 504.5 356 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[1 2] 0 d
+n
+509.5 346 m
+583.5 346 l
+586.264 346 588.5 348.236 588.5 351 c
+588.5 361 l
+588.5 363.764 586.264 366 583.5 366 c
+509.5 366 l
+506.736 366 504.5 363.764 504.5 361 c
+504.5 351 l
+504.5 348.236 506.736 346 509.5 346 c
+h
+B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 528.7556 353.5 Tm (Freigabe T\374r) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[1 2] 0 d
+n 496.5 330 m 504.5 330 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[1 2] 0 d
+n
+509.5 320 m
+583.5 320 l
+586.264 320 588.5 322.236 588.5 325 c
+588.5 335 l
+588.5 337.764 586.264 340 583.5 340 c
+509.5 340 l
+506.736 340 504.5 337.764 504.5 335 c
+504.5 325 l
+504.5 322.236 506.736 320 509.5 320 c
+h
+B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 528.7556 327.5 Tm (Freigabe Tor) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[1 2] 0 d
+n 496.5 304 m 504.5 304 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[1 2] 0 d
+n
+509.5 294 m
+583.5 294 l
+586.264 294 588.5 296.236 588.5 299 c
+588.5 309 l
+588.5 311.764 586.264 314 583.5 314 c
+509.5 314 l
+506.736 314 504.5 311.764 504.5 309 c
+504.5 299 l
+504.5 296.236 506.736 294 509.5 294 c
+h
+B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 520.3112 301.5 Tm (Freigabe Schranke) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[1 2] 0 d
+n 496.5 278 m 504.5 278 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[1 2] 0 d
+n
+509.5 268 m
+583.5 268 l
+586.264 268 588.5 270.236 588.5 273 c
+588.5 283 l
+588.5 285.764 586.264 288 583.5 288 c
+509.5 288 l
+506.736 288 504.5 285.764 504.5 283 c
+504.5 273 l
+504.5 270.236 506.736 268 509.5 268 c
+h
+B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 515.314 275.5 Tm (Freigabe Vereinzelung) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[1 2] 0 d
+n 496.5 252 m 504.5 252 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[1 2] 0 d
+n
+509.5 242 m
+583.5 242 l
+586.264 242 588.5 244.236 588.5 247 c
+588.5 257 l
+588.5 259.764 586.264 262 583.5 262 c
+509.5 262 l
+506.736 262 504.5 259.764 504.5 257 c
+504.5 247 l
+504.5 244.236 506.736 242 509.5 242 c
+h
+B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 523.7553 249.5 Tm (Freigabe Aufzug) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[1 2] 0 d
+n 496.5 372 m 496.5 252 l
+S
+[] 0 d
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 650.5 614 m 650.5 470 l
+S
+[] 0 d
+.121569 .372549 .74902 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 655.5 552 Tm (Cat.7) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 655.5 544 Tm (48 m) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 655.5 536 Tm (PoE) Tj T* ET
+.121569 .372549 .74902 rg
+.121569 .372549 .74902 RG
+n
+652.3 614 m
+652.3 614.9941 651.4941 615.8 650.5 615.8 c
+649.5059 615.8 648.7 614.9941 648.7 614 c
+648.7 613.0059 649.5059 612.2 650.5 612.2 c
+651.4941 612.2 652.3 613.0059 652.3 614 c
+f*
+1.2 w
+.180392 .419608 .309804 RG
+1 1 1 rg
+[] 0 d
+n 601.5 372 98 98 re B*
+[] 0 d
+1.2 w
+.180392 .419608 .309804 RG
+.180392 .419608 .309804 rg
+[] 0 d
+n 601.5 454 98 16 re B*
+[] 0 d
+1 1 1 rg
+BT /F2 8 Tf 9.6 TL ET
+BT 1 0 0 1 605.5 458.5 Tm (IS02) Tj T* ET
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 676.2118 459 Tm (INNEN) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 622.8652 443 Tm (Innensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 640.204 434 Tm (an: T\374r) Tj T* ET
+.266667 .266667 .266667 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 626.3789 423 Tm (Sekretariat 1. OG) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+1 1 1 rg
+[] 0 d
+n
+608.5 392 m
+646.5 392 l
+647.6056 392 648.5 392.8944 648.5 394 c
+648.5 402 l
+648.5 403.1056 647.6056 404 646.5 404 c
+608.5 404 l
+607.3944 404 606.5 403.1056 606.5 402 c
+606.5 394 l
+606.5 392.8944 607.3944 392 608.5 392 c
+h
+B*
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 617.8528 395.8 Tm (VIDEO) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+[] 0 d
+n 609.5 394 m 645.5 402 l
+S
+[] 0 d
+.6 w
+.619608 .619608 .619608 RG
+1 1 1 rg
+[] 0 d
+n
+654.5 392 m
+692.5 392 l
+693.6056 392 694.5 392.8944 694.5 394 c
+694.5 402 l
+694.5 403.1056 693.6056 404 692.5 404 c
+654.5 404 l
+653.3944 404 652.5 403.1056 652.5 402 c
+652.5 394 l
+652.5 392.8944 653.3944 392 654.5 392 c
+h
+B*
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 669.5382 395.8 Tm (ZK) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+[] 0 d
+n 655.5 394 m 691.5 402 l
+S
+[] 0 d
+0 0 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 621.325 379 Tm (Fernfreigabe \374ber IP) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[1 2] 0 d
+n 607.5 356 m 615.5 356 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[1 2] 0 d
+n
+620.5 346 m
+694.5 346 l
+697.264 346 699.5 348.236 699.5 351 c
+699.5 361 l
+699.5 363.764 697.264 366 694.5 366 c
+620.5 366 l
+617.736 366 615.5 363.764 615.5 361 c
+615.5 351 l
+615.5 348.236 617.736 346 620.5 346 c
+h
+B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 639.7556 353.5 Tm (Freigabe T\374r) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[1 2] 0 d
+n 607.5 372 m 607.5 356 l
+S
+[] 0 d
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 761.5 614 m 761.5 470 l
+S
+[] 0 d
+.121569 .372549 .74902 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 766.5 552 Tm (Cat.7) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 766.5 544 Tm (15 m) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 766.5 536 Tm (PoE) Tj T* ET
+.121569 .372549 .74902 rg
+.121569 .372549 .74902 RG
+n
+763.3 614 m
+763.3 614.9941 762.4941 615.8 761.5 615.8 c
+760.5059 615.8 759.7 614.9941 759.7 614 c
+759.7 613.0059 760.5059 612.2 761.5 612.2 c
+762.4941 612.2 763.3 613.0059 763.3 614 c
+f*
+1.2 w
+.180392 .419608 .309804 RG
+1 1 1 rg
+[] 0 d
+n 712.5 372 98 98 re B*
+[] 0 d
+1.2 w
+.180392 .419608 .309804 RG
+.180392 .419608 .309804 rg
+[] 0 d
+n 712.5 454 98 16 re B*
+[] 0 d
+1 1 1 rg
+BT /F2 8 Tf 9.6 TL ET
+BT 1 0 0 1 716.5 458.5 Tm (IS03) Tj T* ET
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 787.2118 459 Tm (INNEN) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 733.8652 443 Tm (Innensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 751.204 434 Tm (an: T\374r) Tj T* ET
+.266667 .266667 .266667 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 731.6966 423 Tm (Serverraum Schleuse) Tj T* ET
+.6 w
+.007843 .466667 .741176 RG
+.007843 .466667 .741176 rg
+[] 0 d
+n
+719.5 392 m
+757.5 392 l
+758.6056 392 759.5 392.8944 759.5 394 c
+759.5 402 l
+759.5 403.1056 758.6056 404 757.5 404 c
+719.5 404 l
+718.3944 404 717.5 403.1056 717.5 402 c
+717.5 394 l
+717.5 392.8944 718.3944 392 719.5 392 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 728.8528 395.8 Tm (VIDEO) Tj T* ET
+.6 w
+.415686 .105882 .603922 RG
+.415686 .105882 .603922 rg
+[] 0 d
+n
+765.5 392 m
+803.5 392 l
+804.6056 392 805.5 392.8944 805.5 394 c
+805.5 402 l
+805.5 403.1056 804.6056 404 803.5 404 c
+765.5 404 l
+764.3944 404 763.5 403.1056 763.5 402 c
+763.5 394 l
+763.5 392.8944 764.3944 392 765.5 392 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 780.3677 395.8 Tm (ZK) Tj T* ET
+.619608 .619608 .619608 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 742.156 379 Tm (ohne Freigabe) Tj T* ET
+ 
+endstream
+endobj
+11 0 obj
+<<
+/Length 23789
+>>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+1.2 w
+0 0 0 RG
+n 28 28 1134.55 785.89 re S
+1 w
+0 0 0 RG
+[] 0 d
+n 28 113 m 1162.55 113 l
+S
+[] 0 d
+1 w
+0 0 0 RG
+[] 0 d
+n 742.55 28 m 742.55 113 l
+S
+[] 0 d
+.6 w
+0 0 0 RG
+[] 0 d
+n 742.55 83 m 1162.55 83 l
+S
+[] 0 d
+.6 w
+0 0 0 RG
+[] 0 d
+n 742.55 56 m 1162.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 746.55 105 Tm (Projekt) Tj T* ET
+0 0 0 rg
+BT /F2 11 Tf 13.2 TL ET
+BT 1 0 0 1 746.55 90 Tm (Neubau Verwaltungsgeb\344ude Musterstra\337e 1) Tj T* ET
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 746.55 76 Tm (Planinhalt) Tj T* ET
+0 0 0 rg
+BT /F2 10 Tf 12 TL ET
+BT 1 0 0 1 746.55 62 Tm (Schema Gegensprechanlage \(IP / PoE\)) Tj T* ET
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 745.55 48 Tm (Bauherr) Tj T* ET
+0 0 0 rg
+BT /F2 6.75 Tf 8.1 TL ET
+BT 1 0 0 1 745.55 35 Tm (Muster Immobilien GmbH) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 832.55 28 m 832.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 835.55 48 Tm (Planer) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 835.55 35 Tm (Ingenieurb\374ro Beispiel) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 922.55 28 m 922.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 925.55 48 Tm (Projekt-Nr.) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 925.55 35 Tm (2026-042) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 982.55 28 m 982.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 985.55 48 Tm (Plan-Nr.) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 985.55 35 Tm (ELT-GSA-001) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 1052.55 28 m 1052.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 1055.55 48 Tm (Datum) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 1055.55 35 Tm (2026-11-18) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 1102.55 28 m 1102.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 1105.55 48 Tm (Index) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 1105.55 35 Tm (A) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 1127.55 28 m 1127.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 1130.55 48 Tm (Blatt) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 1130.55 35 Tm (2 / 3) Tj T* ET
+0 0 0 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 36 102 Tm (Legende Leitungen) Tj T* ET
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 36 94 m 66 94 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 72 92 Tm (Cat.7, IP-Datenleitung mit PoE \(bis 90 m\)) Tj T* ET
+2.2 w
+.878431 .482353 0 RG
+[] 0 d
+n 36 84.8 m 66 84.8 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 72 82.8 Tm (LWL OM4, Lichtwellenleiter \(\374ber 90 m\)) Tj T* ET
+1.2 w
+.776471 .156863 .156863 RG
+[] 0 d
+n 36 75.6 m 66 75.6 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 72 73.6 Tm (230 V AC, lokale Einspeisung PoE-Injektor) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 36 66.4 m 66 66.4 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 72 64.4 Tm (Freigabe lokal \374ber Relaiskontakt) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[1 2] 0 d
+n 36 57.2 m 66 57.2 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 72 55.2 Tm (Fernfreigabe \374ber IP \(Bedienung Innensprechstelle\)) Tj T* ET
+1.2 w
+.556863 .141176 .666667 RG
+[5 2 1 2] 0 d
+n 36 48 m 66 48 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 72 46 Tm (St\366rmeldungen an GLT) Tj T* ET
+1.4 w
+.180392 .490196 .196078 RG
+[] 0 d
+n 36 38.8 m 66 38.8 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 72 36.8 Tm (Anbindung TK-Anlage / W\344hlger\344t) Tj T* ET
+0 0 0 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 278 102 Tm (Legende Ger\344te) Tj T* ET
+.8 w
+.105882 .227451 .360784 RG
+.105882 .227451 .360784 rg
+[] 0 d
+n 278 88 30 8 re B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 314 89 Tm (Au\337ensprechstelle) Tj T* ET
+.8 w
+.180392 .419608 .309804 RG
+.180392 .419608 .309804 rg
+[] 0 d
+n 278 77 30 8 re B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 314 78 Tm (Innensprechstelle) Tj T* ET
+.6 w
+.007843 .466667 .741176 RG
+.007843 .466667 .741176 rg
+[] 0 d
+n
+280 64 m
+306 64 l
+307.1056 64 308 64.8944 308 66 c
+308 71 l
+308 72.1056 307.1056 73 306 73 c
+280 73 l
+278.8944 73 278 72.1056 278 71 c
+278 66 l
+278 64.8944 278.8944 64 280 64 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 283.3528 66.3 Tm (VIDEO) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 314 66 Tm (mit Videokamera / Bildschirm) Tj T* ET
+.6 w
+.415686 .105882 .603922 RG
+.415686 .105882 .603922 rg
+[] 0 d
+n
+280 52 m
+306 52 l
+307.1056 52 308 52.8944 308 54 c
+308 59 l
+308 60.1056 307.1056 61 306 61 c
+280 61 l
+278.8944 61 278 60.1056 278 59 c
+278 54 l
+278 52.8944 278.8944 52 280 52 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 288.8677 54.3 Tm (ZK) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 314 54 Tm (mit Zugangskontrolle \(Leser\)) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+1 1 1 rg
+[] 0 d
+n
+280 40 m
+306 40 l
+307.1056 40 308 40.8944 308 42 c
+308 47 l
+308 48.1056 307.1056 49 306 49 c
+280 49 l
+278.8944 49 278 48.1056 278 47 c
+278 42 l
+278 40.8944 278.8944 40 280 40 c
+h
+B*
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 289.0382 42.3 Tm (ZK) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+[] 0 d
+n 281 42 m 305 47 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 314 42 Tm (Ausstattung nicht vorhanden) Tj T* ET
+0 0 0 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 458 102 Tm (Planungsregeln) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 458 92 Tm (Vernetzung durchg\344ngig auf IP-Basis, Speisung der Sprechstellen \374ber PoE.) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 458 82.8 Tm (Leitungsl\344nge bis 90 m: Kupferleitung, PoE direkt vom Switch.) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 458 73.6 Tm (Leitungsl\344nge \374ber 90 m: LWL bis Medienkonverter \(MK\) am Einbauort,) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 458 64.4 Tm (PoE-Einspeisung lokal \374ber Injektor 230 V AC / PoE.) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 458 55.2 Tm (MK und Injektor ben\366tigen einen 230-V-Anschluss am Einbauort.) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 458 46 Tm (St\366rmeldungen werden zentral gesammelt und an die GLT \374bergeben.) Tj T* ET
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 458 36.8 Tm (Schema ohne Ma\337stab; Leitungsl\344ngen laut Eingabedaten.) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 505.275 742 180 56 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 8.5 Tf 10.2 TL ET
+BT 1 0 0 1 562.6817 786 Tm (Intercom-Server) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 539.0955 776 Tm (Zentrale Gegensprechanlage \(IP / SIP\)) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 558.9725 767.5 Tm (Technikraum EG, Rack 1) Tj T* ET
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 595.275 742 m 595.275 716 l
+S
+[] 0 d
+1 w
+.133333 .133333 .133333 RG
+.866667 .901961 .941176 rg
+[] 0 d
+n 525.275 690 140 26 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 573.3975 705 Tm (Core-Switch) Tj T* ET
+0 0 0 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 561.765 696 Tm (Technikraum EG, Rack 1) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 270 742 150 56 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 8.5 Tf 10.2 TL ET
+BT 1 0 0 1 323.75 786 Tm (TK-Anlage) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 324.4047 776 Tm (Telefonanlage) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 310.3225 767.5 Tm (Rufweiterleitung / T\374rruf) Tj T* ET
+1.4 w
+.180392 .490196 .196078 RG
+[] 0 d
+n 420 770 m 505.275 770 l
+S
+[] 0 d
+.180392 .490196 .196078 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 448.6844 774 Tm (SIP-Trunk) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 770 742 150 56 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 8.5 Tf 10.2 TL ET
+BT 1 0 0 1 824.4555 786 Tm (W\344hlger\344t) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 817.9048 776 Tm (eigenes W\344hlger\344t) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 811.4925 767.5 Tm (\334bertragung IP + Mobil) Tj T* ET
+1.4 w
+.180392 .490196 .196078 RG
+[] 0 d
+n 685.275 770 m 770 770 l
+S
+[] 0 d
+.180392 .490196 .196078 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 708.5167 774 Tm (Notruf / Alarm) Tj T* ET
+1.4 w
+.180392 .490196 .196078 RG
+[] 0 d
+n 920 786 m 990 786 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[] 0 d
+n
+996 774 m
+1134 774 l
+1137.317 774 1140 776.6832 1140 780 c
+1140 792 l
+1140 795.3168 1137.317 798 1134 798 c
+996 798 l
+992.6832 798 990 795.3168 990 792 c
+990 780 l
+990 776.6832 992.6832 774 996 774 c
+h
+B*
+[] 0 d
+0 0 0 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 1032.919 783 Tm (IP \(LAN / WAN\)) Tj T* ET
+1.4 w
+.180392 .490196 .196078 RG
+[] 0 d
+n 920 754 m 990 754 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[] 0 d
+n
+996 742 m
+1134 742 l
+1137.317 742 1140 744.6832 1140 748 c
+1140 760 l
+1140 763.3168 1137.317 766 1134 766 c
+996 766 l
+992.6832 766 990 763.3168 990 760 c
+990 748 l
+990 744.6832 992.6832 742 996 742 c
+h
+B*
+[] 0 d
+0 0 0 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 1023.97 751 Tm (Mobilfunk \(LTE / 5G\)) Tj T* ET
+.9 w
+.133333 .133333 .133333 RG
+[] 0 d
+n 1128 747 m 1128 761 l
+S
+[] 0 d
+.9 w
+.133333 .133333 .133333 RG
+[] 0 d
+n 1123 761 m 1128 755 l 1133 761 l
+S
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 1020.382 732 Tm (Ziel: Notruf- und Serviceleitstelle) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 45 728 170 70 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 8.5 Tf 10.2 TL ET
+BT 1 0 0 1 121.5 786 Tm (GLT) Tj T* ET
+0 0 0 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 51 776 Tm (- Sammelst\366rung Anlage) Tj T* ET
+0 0 0 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 51 768.4 Tm (- Ausfall Sprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 51 760.8 Tm (- Verbindungsausfall LAN / LWL) Tj T* ET
+0 0 0 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 51 753.2 Tm (- Netzausfall 230 V / PoE) Tj T* ET
+1.2 w
+.556863 .141176 .666667 RG
+[5 2 1 2] 0 d
+n 525.275 742 m 525.275 722 l 227 722 l 227 748 l 215 748 l
+S
+[] 0 d
+.556863 .141176 .666667 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 322.5478 725 Tm (St\366rmeldungen: potentialfreie Kontakte) Tj T* ET
+2.2 w
+.878431 .482353 0 RG
+[] 0 d
+n 262 676 m 262 640 l
+S
+[] 0 d
+.878431 .482353 0 rg
+.878431 .482353 0 RG
+n
+263.8 676 m
+263.8 676.9941 262.9941 677.8 262 677.8 c
+261.0059 677.8 260.2 676.9941 260.2 676 c
+260.2 675.0059 261.0059 674.2 262 674.2 c
+262.9941 674.2 263.8 675.0059 263.8 676 c
+f*
+.878431 .482353 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 267 652 Tm (LWL OM4  180 m) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+.866667 .901961 .941176 rg
+[] 0 d
+n 45 614 434 26 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 212.1925 629 Tm (SW2  Verteiler Au\337enanlage) Tj T* ET
+0 0 0 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 193.861 620 Tm (Pf\366rtnerhaus  |  PoE-Switch, 230 V AC, SFP-Uplink) Tj T* ET
+2 w
+.133333 .133333 .133333 RG
+[] 0 d
+n 262 676 m 595.275 676 l
+S
+[] 0 d
+2 w
+.133333 .133333 .133333 RG
+[] 0 d
+n 595.275 690 m 595.275 676 l
+S
+[] 0 d
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 95.5 614 m 95.5 470 l
+S
+[] 0 d
+.121569 .372549 .74902 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 100.5 552 Tm (Cat.7) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 100.5 544 Tm (25 m) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 100.5 536 Tm (PoE) Tj T* ET
+.121569 .372549 .74902 rg
+.121569 .372549 .74902 RG
+n
+97.3 614 m
+97.3 614.9941 96.49411 615.8 95.5 615.8 c
+94.50589 615.8 93.7 614.9941 93.7 614 c
+93.7 613.0059 94.50589 612.2 95.5 612.2 c
+96.49411 612.2 97.3 613.0059 97.3 614 c
+f*
+1.2 w
+.105882 .227451 .360784 RG
+1 1 1 rg
+[] 0 d
+n 46.5 372 98 98 re B*
+[] 0 d
+1.2 w
+.105882 .227451 .360784 RG
+.105882 .227451 .360784 rg
+[] 0 d
+n 46.5 454 98 16 re B*
+[] 0 d
+1 1 1 rg
+BT /F2 8 Tf 9.6 TL ET
+BT 1 0 0 1 50.5 458.5 Tm (AS05) Tj T* ET
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 114.6646 459 Tm (AUSSEN) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 66.42225 443 Tm (Au\337ensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 76.351 434 Tm (an: Schranke) Tj T* ET
+.266667 .266667 .266667 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 71.8966 423 Tm (Zufahrt Parkplatz) Tj T* ET
+.6 w
+.007843 .466667 .741176 RG
+.007843 .466667 .741176 rg
+[] 0 d
+n
+53.5 392 m
+91.5 392 l
+92.6056 392 93.5 392.8944 93.5 394 c
+93.5 402 l
+93.5 403.1056 92.6056 404 91.5 404 c
+53.5 404 l
+52.3944 404 51.5 403.1056 51.5 402 c
+51.5 394 l
+51.5 392.8944 52.3944 392 53.5 392 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 62.8528 395.8 Tm (VIDEO) Tj T* ET
+.6 w
+.415686 .105882 .603922 RG
+.415686 .105882 .603922 rg
+[] 0 d
+n
+99.5 392 m
+137.5 392 l
+138.6056 392 139.5 392.8944 139.5 394 c
+139.5 402 l
+139.5 403.1056 138.6056 404 137.5 404 c
+99.5 404 l
+98.3944 404 97.5 403.1056 97.5 402 c
+97.5 394 l
+97.5 392.8944 98.3944 392 99.5 392 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 114.3677 395.8 Tm (ZK) Tj T* ET
+0 0 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 63.655 379 Tm (Freigabe lokal \(Relais\)) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 52.5 356 m 60.5 356 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 60.5 346 84 20 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 71.6643 353.5 Tm (Schrankensteuerung) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 52.5 372 m 52.5 356 l
+S
+[] 0 d
+2.2 w
+.878431 .482353 0 RG
+[] 0 d
+n 206.5 614 m 206.5 576 l
+S
+[] 0 d
+.878431 .482353 0 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 211.5 600 Tm (LWL OM4) Tj T* ET
+.878431 .482353 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 211.5 592 Tm (140 m) Tj T* ET
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[] 0 d
+n 170.5 556 72 20 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 182.494 568 Tm (Medienkonverter) Tj T* ET
+0 0 0 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 190.451 560 Tm (LWL / Kupfer) Tj T* ET
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 206.5 556 m 206.5 530 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[] 0 d
+n 170.5 506 72 24 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 188.83 520 Tm (PoE-Injektor) Tj T* ET
+0 0 0 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 187.239 511 Tm (230 V AC / PoE) Tj T* ET
+1.2 w
+.776471 .156863 .156863 RG
+[] 0 d
+n 170.5 566 m 160.5 566 l 160.5 518 l 170.5 518 l
+S
+[] 0 d
+1.2 w
+.776471 .156863 .156863 RG
+[] 0 d
+n 160.5 542 m 154.5 542 l
+S
+[] 0 d
+.776471 .156863 .156863 rg
+.776471 .156863 .156863 RG
+n
+162 542 m
+162 542.8284 161.3284 543.5 160.5 543.5 c
+159.6716 543.5 159 542.8284 159 542 c
+159 541.1716 159.6716 540.5 160.5 540.5 c
+161.3284 540.5 162 541.1716 162 542 c
+f*
+.776471 .156863 .156863 rg
+BT /F2 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 145.1285 546 Tm (230 V) Tj T* ET
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 206.5 506 m 206.5 470 l
+S
+[] 0 d
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 211.5 485 Tm (PoE) Tj T* ET
+.878431 .482353 0 rg
+.878431 .482353 0 RG
+n
+208.3 614 m
+208.3 614.9941 207.4941 615.8 206.5 615.8 c
+205.5059 615.8 204.7 614.9941 204.7 614 c
+204.7 613.0059 205.5059 612.2 206.5 612.2 c
+207.4941 612.2 208.3 613.0059 208.3 614 c
+f*
+1.2 w
+.105882 .227451 .360784 RG
+1 1 1 rg
+[] 0 d
+n 157.5 372 98 98 re B*
+[] 0 d
+1.2 w
+.105882 .227451 .360784 RG
+.105882 .227451 .360784 rg
+[] 0 d
+n 157.5 454 98 16 re B*
+[] 0 d
+1 1 1 rg
+BT /F2 8 Tf 9.6 TL ET
+BT 1 0 0 1 161.5 458.5 Tm (AS06) Tj T* ET
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 225.6646 459 Tm (AUSSEN) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 177.4222 443 Tm (Au\337ensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 196.204 434 Tm (an: Tor) Tj T* ET
+.266667 .266667 .266667 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 175.1404 423 Tm (Schiebetor Anlieferung) Tj T* ET
+.6 w
+.007843 .466667 .741176 RG
+.007843 .466667 .741176 rg
+[] 0 d
+n
+164.5 392 m
+202.5 392 l
+203.6056 392 204.5 392.8944 204.5 394 c
+204.5 402 l
+204.5 403.1056 203.6056 404 202.5 404 c
+164.5 404 l
+163.3944 404 162.5 403.1056 162.5 402 c
+162.5 394 l
+162.5 392.8944 163.3944 392 164.5 392 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 173.8528 395.8 Tm (VIDEO) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+1 1 1 rg
+[] 0 d
+n
+210.5 392 m
+248.5 392 l
+249.6056 392 250.5 392.8944 250.5 394 c
+250.5 402 l
+250.5 403.1056 249.6056 404 248.5 404 c
+210.5 404 l
+209.3944 404 208.5 403.1056 208.5 402 c
+208.5 394 l
+208.5 392.8944 209.3944 392 210.5 392 c
+h
+B*
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 225.5382 395.8 Tm (ZK) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+[] 0 d
+n 211.5 394 m 247.5 402 l
+S
+[] 0 d
+0 0 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 174.655 379 Tm (Freigabe lokal \(Relais\)) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 163.5 356 m 171.5 356 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 171.5 346 84 20 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 199.7236 353.5 Tm (T\374r\366ffner) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 163.5 330 m 171.5 330 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 171.5 320 84 20 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 193.5205 327.5 Tm (Torsteuerung) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 163.5 372 m 163.5 330 l
+S
+[] 0 d
+2.2 w
+.878431 .482353 0 RG
+[] 0 d
+n 317.5 614 m 317.5 576 l
+S
+[] 0 d
+.878431 .482353 0 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 322.5 600 Tm (LWL OM4) Tj T* ET
+.878431 .482353 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 322.5 592 Tm (210 m) Tj T* ET
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[] 0 d
+n 281.5 556 72 20 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 293.494 568 Tm (Medienkonverter) Tj T* ET
+0 0 0 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 301.451 560 Tm (LWL / Kupfer) Tj T* ET
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 317.5 556 m 317.5 530 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[] 0 d
+n 281.5 506 72 24 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 299.83 520 Tm (PoE-Injektor) Tj T* ET
+0 0 0 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 298.239 511 Tm (230 V AC / PoE) Tj T* ET
+1.2 w
+.776471 .156863 .156863 RG
+[] 0 d
+n 281.5 566 m 271.5 566 l 271.5 518 l 281.5 518 l
+S
+[] 0 d
+1.2 w
+.776471 .156863 .156863 RG
+[] 0 d
+n 271.5 542 m 265.5 542 l
+S
+[] 0 d
+.776471 .156863 .156863 rg
+.776471 .156863 .156863 RG
+n
+273 542 m
+273 542.8284 272.3284 543.5 271.5 543.5 c
+270.6716 543.5 270 542.8284 270 542 c
+270 541.1716 270.6716 540.5 271.5 540.5 c
+272.3284 540.5 273 541.1716 273 542 c
+f*
+.776471 .156863 .156863 rg
+BT /F2 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 256.1285 546 Tm (230 V) Tj T* ET
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 317.5 506 m 317.5 470 l
+S
+[] 0 d
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 322.5 485 Tm (PoE) Tj T* ET
+.878431 .482353 0 rg
+.878431 .482353 0 RG
+n
+319.3 614 m
+319.3 614.9941 318.4941 615.8 317.5 615.8 c
+316.5059 615.8 315.7 614.9941 315.7 614 c
+315.7 613.0059 316.5059 612.2 317.5 612.2 c
+318.4941 612.2 319.3 613.0059 319.3 614 c
+f*
+1.2 w
+.105882 .227451 .360784 RG
+1 1 1 rg
+[] 0 d
+n 268.5 372 98 98 re B*
+[] 0 d
+1.2 w
+.105882 .227451 .360784 RG
+.105882 .227451 .360784 rg
+[] 0 d
+n 268.5 454 98 16 re B*
+[] 0 d
+1 1 1 rg
+BT /F2 8 Tf 9.6 TL ET
+BT 1 0 0 1 272.5 458.5 Tm (AS07) Tj T* ET
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 336.6646 459 Tm (AUSSEN) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 288.4223 443 Tm (Au\337ensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 298.351 434 Tm (an: Schranke) Tj T* ET
+.266667 .266667 .266667 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 292.173 423 Tm (Ausfahrt Parkplatz) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+1 1 1 rg
+[] 0 d
+n
+275.5 392 m
+313.5 392 l
+314.6056 392 315.5 392.8944 315.5 394 c
+315.5 402 l
+315.5 403.1056 314.6056 404 313.5 404 c
+275.5 404 l
+274.3944 404 273.5 403.1056 273.5 402 c
+273.5 394 l
+273.5 392.8944 274.3944 392 275.5 392 c
+h
+B*
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 284.8528 395.8 Tm (VIDEO) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+[] 0 d
+n 276.5 394 m 312.5 402 l
+S
+[] 0 d
+.6 w
+.415686 .105882 .603922 RG
+.415686 .105882 .603922 rg
+[] 0 d
+n
+321.5 392 m
+359.5 392 l
+360.6056 392 361.5 392.8944 361.5 394 c
+361.5 402 l
+361.5 403.1056 360.6056 404 359.5 404 c
+321.5 404 l
+320.3944 404 319.5 403.1056 319.5 402 c
+319.5 394 l
+319.5 392.8944 320.3944 392 321.5 392 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 336.3677 395.8 Tm (ZK) Tj T* ET
+0 0 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 285.655 379 Tm (Freigabe lokal \(Relais\)) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 274.5 356 m 282.5 356 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 282.5 346 84 20 re B*
+[] 0 d
+0 0 0 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 293.6643 353.5 Tm (Schrankensteuerung) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[4 2] 0 d
+n 274.5 372 m 274.5 356 l
+S
+[] 0 d
+1.4 w
+.121569 .372549 .74902 RG
+[] 0 d
+n 428.5 614 m 428.5 470 l
+S
+[] 0 d
+.121569 .372549 .74902 rg
+BT /F1 6 Tf 7.2 TL ET
+BT 1 0 0 1 433.5 552 Tm (Cat.7) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 433.5 544 Tm (8 m) Tj T* ET
+.121569 .372549 .74902 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 433.5 536 Tm (PoE) Tj T* ET
+.121569 .372549 .74902 rg
+.121569 .372549 .74902 RG
+n
+430.3 614 m
+430.3 614.9941 429.4941 615.8 428.5 615.8 c
+427.5059 615.8 426.7 614.9941 426.7 614 c
+426.7 613.0059 427.5059 612.2 428.5 612.2 c
+429.4941 612.2 430.3 613.0059 430.3 614 c
+f*
+1.2 w
+.180392 .419608 .309804 RG
+1 1 1 rg
+[] 0 d
+n 379.5 372 98 98 re B*
+[] 0 d
+1.2 w
+.180392 .419608 .309804 RG
+.180392 .419608 .309804 rg
+[] 0 d
+n 379.5 454 98 16 re B*
+[] 0 d
+1 1 1 rg
+BT /F2 8 Tf 9.6 TL ET
+BT 1 0 0 1 383.5 458.5 Tm (IS04) Tj T* ET
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 454.2118 459 Tm (INNEN) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 400.8653 443 Tm (Innensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 418.204 434 Tm (an: T\374r) Tj T* ET
+.266667 .266667 .266667 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 417.4733 423 Tm (Pf\366rtner) Tj T* ET
+.6 w
+.007843 .466667 .741176 RG
+.007843 .466667 .741176 rg
+[] 0 d
+n
+386.5 392 m
+424.5 392 l
+425.6056 392 426.5 392.8944 426.5 394 c
+426.5 402 l
+426.5 403.1056 425.6056 404 424.5 404 c
+386.5 404 l
+385.3944 404 384.5 403.1056 384.5 402 c
+384.5 394 l
+384.5 392.8944 385.3944 392 386.5 392 c
+h
+B*
+[] 0 d
+1 1 1 rg
+BT /F2 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 395.8528 395.8 Tm (VIDEO) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+1 1 1 rg
+[] 0 d
+n
+432.5 392 m
+470.5 392 l
+471.6056 392 472.5 392.8944 472.5 394 c
+472.5 402 l
+472.5 403.1056 471.6056 404 470.5 404 c
+432.5 404 l
+431.3944 404 430.5 403.1056 430.5 402 c
+430.5 394 l
+430.5 392.8944 431.3944 392 432.5 392 c
+h
+B*
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 447.5382 395.8 Tm (ZK) Tj T* ET
+.6 w
+.619608 .619608 .619608 RG
+[] 0 d
+n 433.5 394 m 469.5 402 l
+S
+[] 0 d
+0 0 0 rg
+BT /F2 6 Tf 7.2 TL ET
+BT 1 0 0 1 399.325 379 Tm (Fernfreigabe \374ber IP) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[1 2] 0 d
+n 385.5 356 m 393.5 356 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[1 2] 0 d
+n
+398.5 346 m
+472.5 346 l
+475.264 346 477.5 348.236 477.5 351 c
+477.5 361 l
+477.5 363.764 475.264 366 472.5 366 c
+398.5 366 l
+395.736 366 393.5 363.764 393.5 361 c
+393.5 351 l
+393.5 348.236 395.736 346 398.5 346 c
+h
+B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 417.7556 353.5 Tm (Freigabe Tor) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[1 2] 0 d
+n 385.5 330 m 393.5 330 l
+S
+[] 0 d
+.8 w
+.133333 .133333 .133333 RG
+1 1 1 rg
+[1 2] 0 d
+n
+398.5 320 m
+472.5 320 l
+475.264 320 477.5 322.236 477.5 325 c
+477.5 335 l
+477.5 337.764 475.264 340 472.5 340 c
+398.5 340 l
+395.736 340 393.5 337.764 393.5 335 c
+393.5 325 l
+393.5 322.236 395.736 320 398.5 320 c
+h
+B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 409.3112 327.5 Tm (Freigabe Schranke) Tj T* ET
+1 w
+.133333 .133333 .133333 RG
+[1 2] 0 d
+n 385.5 372 m 385.5 330 l
+S
+[] 0 d
+ 
+endstream
+endobj
+12 0 obj
+<<
+/Length 17920
+>>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+1.2 w
+0 0 0 RG
+n 28 28 1134.55 785.89 re S
+1 w
+0 0 0 RG
+[] 0 d
+n 28 113 m 1162.55 113 l
+S
+[] 0 d
+1 w
+0 0 0 RG
+[] 0 d
+n 742.55 28 m 742.55 113 l
+S
+[] 0 d
+.6 w
+0 0 0 RG
+[] 0 d
+n 742.55 83 m 1162.55 83 l
+S
+[] 0 d
+.6 w
+0 0 0 RG
+[] 0 d
+n 742.55 56 m 1162.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 746.55 105 Tm (Projekt) Tj T* ET
+0 0 0 rg
+BT /F2 11 Tf 13.2 TL ET
+BT 1 0 0 1 746.55 90 Tm (Neubau Verwaltungsgeb\344ude Musterstra\337e 1) Tj T* ET
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 746.55 76 Tm (Planinhalt) Tj T* ET
+0 0 0 rg
+BT /F2 10 Tf 12 TL ET
+BT 1 0 0 1 746.55 62 Tm (Gegensprechanlage - Ger\344te- und Leitungsliste) Tj T* ET
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 745.55 48 Tm (Bauherr) Tj T* ET
+0 0 0 rg
+BT /F2 6.75 Tf 8.1 TL ET
+BT 1 0 0 1 745.55 35 Tm (Muster Immobilien GmbH) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 832.55 28 m 832.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 835.55 48 Tm (Planer) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 835.55 35 Tm (Ingenieurb\374ro Beispiel) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 922.55 28 m 922.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 925.55 48 Tm (Projekt-Nr.) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 925.55 35 Tm (2026-042) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 982.55 28 m 982.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 985.55 48 Tm (Plan-Nr.) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 985.55 35 Tm (ELT-GSA-001) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 1052.55 28 m 1052.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 1055.55 48 Tm (Datum) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 1055.55 35 Tm (2026-11-18) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 1102.55 28 m 1102.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 1105.55 48 Tm (Index) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 1105.55 35 Tm (A) Tj T* ET
+.6 w
+0 0 0 RG
+[] 0 d
+n 1127.55 28 m 1127.55 56 l
+S
+[] 0 d
+.619608 .619608 .619608 rg
+BT /F1 5.5 Tf 6.6 TL ET
+BT 1 0 0 1 1130.55 48 Tm (Blatt) Tj T* ET
+0 0 0 rg
+BT /F2 7.5 Tf 9 TL ET
+BT 1 0 0 1 1130.55 35 Tm (3 / 3) Tj T* ET
+0 0 0 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 36 102 Tm (Summen) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 36 91 Tm (Au\337ensprechstellen) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 232.386 91 Tm (7) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 36 81.4 Tm (Innensprechstellen) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 232.386 81.4 Tm (4) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 36 71.8 Tm (davon mit Video) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 232.386 71.8 Tm (8) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 36 62.2 Tm (davon mit Zugangskontrolle) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 232.386 62.2 Tm (6) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 36 52.6 Tm (Freigaben gesamt) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 228.772 52.6 Tm (16) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 36 43 Tm (PoE-Switches) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 232.386 43 Tm (2) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 276 91 Tm (PoE-Ports belegt \(Kupfer\)) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 472.386 91 Tm (9) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 276 81.4 Tm (LWL-Strecken Sprechstellen) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 472.386 81.4 Tm (2) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 276 71.8 Tm (LWL-Uplinks Verteiler) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 472.386 71.8 Tm (1) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 276 62.2 Tm (Medienkonverter LWL / Kupfer) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 472.386 62.2 Tm (2) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 276 52.6 Tm (PoE-Injektoren 230 V) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 472.386 52.6 Tm (2) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 276 43 Tm (230-V-Anschl\374sse am Einbauort) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 472.386 43 Tm (2) Tj T* ET
+.8 w
+.105882 .227451 .360784 RG
+.105882 .227451 .360784 rg
+[] 0 d
+n 38 783.89 1114 16 re B*
+[] 0 d
+1 1 1 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 41 788.89 Tm (Pos.) Tj T* ET
+1 1 1 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 71 788.89 Tm (ID) Tj T* ET
+1 1 1 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 131 788.89 Tm (Typ) Tj T* ET
+1 1 1 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 211 788.89 Tm (Einbauort) Tj T* ET
+1 1 1 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 306 788.89 Tm (Bezeichnung) Tj T* ET
+1 1 1 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 521 788.89 Tm (Video) Tj T* ET
+1 1 1 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 559 788.89 Tm (ZK) Tj T* ET
+1 1 1 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 597 788.89 Tm (Freigabe) Tj T* ET
+1 1 1 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 787 788.89 Tm (Verteiler) Tj T* ET
+1 1 1 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 847 788.89 Tm (L\344nge) Tj T* ET
+1 1 1 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 897 788.89 Tm (Leitung / \334bertragung) Tj T* ET
+1 1 1 rg
+BT /F2 7 Tf 8.4 TL ET
+BT 1 0 0 1 1021 788.89 Tm (Speisung) Tj T* ET
+.1 w
+.952941 .960784 .968627 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 38 769.89 1114 14 re B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 41 773.89 Tm (1) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 71 773.89 Tm (SW1) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 131 773.89 Tm (PoE-Switch) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 211 773.89 Tm (Technikraum EG) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 306 773.89 Tm (Etagenverteiler EG) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 787 773.89 Tm (Core) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 847 773.89 Tm (5 m) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 897 773.89 Tm (Cat.7) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 1021 773.89 Tm (230 V AC) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 41 759.89 Tm (2) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 71 759.89 Tm (SW2) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 131 759.89 Tm (PoE-Switch) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 211 759.89 Tm (Pf\366rtnerhaus) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 306 759.89 Tm (Verteiler Au\337enanlage) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 787 759.89 Tm (Core) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 847 759.89 Tm (180 m) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 897 759.89 Tm (LWL OM4 \(SFP\)) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 1021 759.89 Tm (230 V AC) Tj T* ET
+.1 w
+.952941 .960784 .968627 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 38 741.89 1114 14 re B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 41 745.89 Tm (3) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 71 745.89 Tm (AS01) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 131 745.89 Tm (Au\337ensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 211 745.89 Tm (T\374r) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 306 745.89 Tm (Haupteingang) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 521 745.89 Tm (ja) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 559 745.89 Tm (ja) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 597 745.89 Tm (T\374r) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 787 745.89 Tm (SW1) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 847 745.89 Tm (35 m) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 897 745.89 Tm (Cat.7) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 1021 745.89 Tm (PoE vom Switch) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 41 731.89 Tm (4) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 71 731.89 Tm (AS02) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 131 731.89 Tm (Au\337ensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 211 731.89 Tm (T\374r) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 306 731.89 Tm (Nebeneingang Lieferanten) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 521 731.89 Tm (nein) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 559 731.89 Tm (nein) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 597 731.89 Tm (T\374r) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 787 731.89 Tm (SW1) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 847 731.89 Tm (62 m) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 897 731.89 Tm (Cat.7) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 1021 731.89 Tm (PoE vom Switch) Tj T* ET
+.1 w
+.952941 .960784 .968627 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 38 713.89 1114 14 re B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 41 717.89 Tm (5) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 71 717.89 Tm (AS03) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 131 717.89 Tm (Au\337ensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 211 717.89 Tm (Aufzug) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 306 717.89 Tm (Aufzug 1 Kabine) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 521 717.89 Tm (ja) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 559 717.89 Tm (ja) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 597 717.89 Tm (Aufzug) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 787 717.89 Tm (SW1) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 847 717.89 Tm (88 m) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 897 717.89 Tm (Cat.7) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 1021 717.89 Tm (PoE vom Switch) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 41 703.89 Tm (6) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 71 703.89 Tm (AS04) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 131 703.89 Tm (Au\337ensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 211 703.89 Tm (Vereinzelungsanlage) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 306 703.89 Tm (Drehkreuz Foyer) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 521 703.89 Tm (ja) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 559 703.89 Tm (ja) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 597 703.89 Tm (Vereinzelung) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 787 703.89 Tm (SW1) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 847 703.89 Tm (90 m) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 897 703.89 Tm (Cat.7) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 1021 703.89 Tm (PoE vom Switch) Tj T* ET
+.1 w
+.952941 .960784 .968627 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 38 685.89 1114 14 re B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 41 689.89 Tm (7) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 71 689.89 Tm (IS01) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 131 689.89 Tm (Innensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 211 689.89 Tm (T\374r) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 306 689.89 Tm (Empfang) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 521 689.89 Tm (ja) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 559 689.89 Tm (nein) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 597 689.89 Tm (T\374r, Tor, Schranke, Vereinzelung, Aufzug \(IP\)) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 787 689.89 Tm (SW1) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 847 689.89 Tm (20 m) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 897 689.89 Tm (Cat.7) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 1021 689.89 Tm (PoE vom Switch) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 41 675.89 Tm (8) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 71 675.89 Tm (IS02) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 131 675.89 Tm (Innensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 211 675.89 Tm (T\374r) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 306 675.89 Tm (Sekretariat 1. OG) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 521 675.89 Tm (nein) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 559 675.89 Tm (nein) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 597 675.89 Tm (T\374r \(IP\)) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 787 675.89 Tm (SW1) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 847 675.89 Tm (48 m) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 897 675.89 Tm (Cat.7) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 1021 675.89 Tm (PoE vom Switch) Tj T* ET
+.1 w
+.952941 .960784 .968627 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 38 657.89 1114 14 re B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 41 661.89 Tm (9) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 71 661.89 Tm (IS03) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 131 661.89 Tm (Innensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 211 661.89 Tm (T\374r) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 306 661.89 Tm (Serverraum Schleuse) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 521 661.89 Tm (ja) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 559 661.89 Tm (ja) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 597 661.89 Tm (-) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 787 661.89 Tm (SW1) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 847 661.89 Tm (15 m) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 897 661.89 Tm (Cat.7) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 1021 661.89 Tm (PoE vom Switch) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 41 647.89 Tm (10) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 71 647.89 Tm (AS05) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 131 647.89 Tm (Au\337ensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 211 647.89 Tm (Schranke) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 306 647.89 Tm (Zufahrt Parkplatz) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 521 647.89 Tm (ja) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 559 647.89 Tm (ja) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 597 647.89 Tm (Schranke) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 787 647.89 Tm (SW2) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 847 647.89 Tm (25 m) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 897 647.89 Tm (Cat.7) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 1021 647.89 Tm (PoE vom Switch) Tj T* ET
+.1 w
+.952941 .960784 .968627 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 38 629.89 1114 14 re B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 41 633.89 Tm (11) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 71 633.89 Tm (AS06) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 131 633.89 Tm (Au\337ensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 211 633.89 Tm (Tor) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 306 633.89 Tm (Schiebetor Anlieferung) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 521 633.89 Tm (ja) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 559 633.89 Tm (nein) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 597 633.89 Tm (T\374r, Tor) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 787 633.89 Tm (SW2) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 847 633.89 Tm (140 m) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 897 633.89 Tm (LWL OM4 + Medienkonv.) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 1021 633.89 Tm (PoE-Injektor 230 V lokal) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 41 619.89 Tm (12) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 71 619.89 Tm (AS07) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 131 619.89 Tm (Au\337ensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 211 619.89 Tm (Schranke) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 306 619.89 Tm (Ausfahrt Parkplatz) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 521 619.89 Tm (nein) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 559 619.89 Tm (ja) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 597 619.89 Tm (Schranke) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 787 619.89 Tm (SW2) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 847 619.89 Tm (210 m) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 897 619.89 Tm (LWL OM4 + Medienkonv.) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 1021 619.89 Tm (PoE-Injektor 230 V lokal) Tj T* ET
+.1 w
+.952941 .960784 .968627 RG
+.952941 .960784 .968627 rg
+[] 0 d
+n 38 601.89 1114 14 re B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 41 605.89 Tm (13) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 71 605.89 Tm (IS04) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 131 605.89 Tm (Innensprechstelle) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 211 605.89 Tm (T\374r) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 306 605.89 Tm (Pf\366rtner) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 521 605.89 Tm (ja) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 559 605.89 Tm (nein) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 597 605.89 Tm (Tor, Schranke \(IP\)) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 787 605.89 Tm (SW2) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 847 605.89 Tm (8 m) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 897 605.89 Tm (Cat.7) Tj T* ET
+0 0 0 rg
+BT /F1 6.8 Tf 8.16 TL ET
+BT 1 0 0 1 1021 605.89 Tm (PoE vom Switch) Tj T* ET
+.6 w
+.133333 .133333 .133333 RG
+[] 0 d
+n 38 601.89 m 1152 601.89 l
+S
+[] 0 d
+ 
+endstream
+endobj
+xref
+0 13
+0000000000 65535 f 
+0000000061 00000 n 
+0000000102 00000 n 
+0000000209 00000 n 
+0000000321 00000 n 
+0000000522 00000 n 
+0000000723 00000 n 
+0000000924 00000 n 
+0000000992 00000 n 
+0000001364 00000 n 
+0000001435 00000 n 
+0000031261 00000 n 
+0000055103 00000 n 
+trailer
+<<
+/ID 
+[<87e7bb422f6c8e042adef36a8b798695><87e7bb422f6c8e042adef36a8b798695>]
+% ReportLab generated PDF document -- digest (opensource)
+
+/Info 8 0 R
+/Root 7 0 R
+/Size 13
+>>
+startxref
+73076
+%%EOF

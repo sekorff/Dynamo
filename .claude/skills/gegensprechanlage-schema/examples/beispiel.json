@@ -1,0 +1,66 @@
+{
+  "projekt": {
+    "name": "Neubau Verwaltungsgebäude Musterstraße 1",
+    "nummer": "2026-042",
+    "bauherr": "Muster Immobilien GmbH",
+    "planer": "Ingenieurbüro Beispiel",
+    "datum": "2026-11-18",
+    "index": "A",
+    "plan_nr": "ELT-GSA-001"
+  },
+  "netz": {
+    "kupfer_typ": "Cat.7",
+    "lwl_typ": "LWL OM4"
+  },
+  "zentrale": {
+    "server": { "bezeichnung": "Intercom-Server", "ort": "Technikraum EG, Rack 1" },
+    "core_switch": { "bezeichnung": "Core-Switch", "ort": "Technikraum EG, Rack 1" },
+    "tk_anlage": { "vorhanden": true, "bezeichnung": "TK-Anlage", "schnittstelle": "SIP-Trunk" },
+    "waehlgeraet": {
+      "vorhanden": true,
+      "bezeichnung": "Wählgerät",
+      "wege": ["ip", "mobil"],
+      "ziel": "Notruf- und Serviceleitstelle"
+    },
+    "glt": {
+      "vorhanden": true,
+      "bezeichnung": "GLT",
+      "schnittstelle": "potentialfreie Kontakte",
+      "meldungen": [
+        "Sammelstörung Anlage",
+        "Ausfall Sprechstelle",
+        "Verbindungsausfall LAN / LWL",
+        "Netzausfall 230 V / PoE"
+      ]
+    }
+  },
+  "verteiler": [
+    { "id": "SW1", "bezeichnung": "Etagenverteiler EG", "ort": "Technikraum EG", "uplink_laenge_m": 5 },
+    { "id": "SW2", "bezeichnung": "Verteiler Außenanlage", "ort": "Pförtnerhaus", "uplink_laenge_m": 180 }
+  ],
+  "sprechstellen": [
+    { "id": "AS01", "typ": "aussen", "einbauort": "tuer", "bezeichnung": "Haupteingang",
+      "video": true, "zugangskontrolle": true, "freigabe": ["tuer"], "verteiler": "SW1", "leitungslaenge_m": 35 },
+    { "id": "AS02", "typ": "aussen", "einbauort": "tuer", "bezeichnung": "Nebeneingang Lieferanten",
+      "video": false, "zugangskontrolle": false, "freigabe": ["tuer"], "verteiler": "SW1", "leitungslaenge_m": 62 },
+    { "id": "AS03", "typ": "aussen", "einbauort": "aufzug", "bezeichnung": "Aufzug 1 Kabine",
+      "video": true, "zugangskontrolle": true, "freigabe": ["aufzug"], "verteiler": "SW1", "leitungslaenge_m": 88 },
+    { "id": "AS04", "typ": "aussen", "einbauort": "vereinzelung", "bezeichnung": "Drehkreuz Foyer",
+      "video": true, "zugangskontrolle": true, "freigabe": ["vereinzelung"], "verteiler": "SW1", "leitungslaenge_m": 90 },
+    { "id": "IS01", "typ": "innen", "einbauort": "tuer", "bezeichnung": "Empfang",
+      "video": true, "zugangskontrolle": false,
+      "freigabe": ["tuer", "tor", "schranke", "vereinzelung", "aufzug"], "verteiler": "SW1", "leitungslaenge_m": 20 },
+    { "id": "IS02", "typ": "innen", "einbauort": "tuer", "bezeichnung": "Sekretariat 1. OG",
+      "video": false, "zugangskontrolle": false, "freigabe": ["tuer"], "verteiler": "SW1", "leitungslaenge_m": 48 },
+    { "id": "IS03", "typ": "innen", "einbauort": "tuer", "bezeichnung": "Serverraum Schleuse",
+      "video": true, "zugangskontrolle": true, "freigabe": [], "verteiler": "SW1", "leitungslaenge_m": 15 },
+    { "id": "AS05", "typ": "aussen", "einbauort": "schranke", "bezeichnung": "Zufahrt Parkplatz",
+      "video": true, "zugangskontrolle": true, "freigabe": ["schranke"], "verteiler": "SW2", "leitungslaenge_m": 25 },
+    { "id": "AS06", "typ": "aussen", "einbauort": "tor", "bezeichnung": "Schiebetor Anlieferung",
+      "video": true, "zugangskontrolle": false, "freigabe": ["tor", "tuer"], "verteiler": "SW2", "leitungslaenge_m": 140 },
+    { "id": "AS07", "typ": "aussen", "einbauort": "schranke", "bezeichnung": "Ausfahrt Parkplatz",
+      "video": false, "zugangskontrolle": true, "freigabe": ["schranke"], "verteiler": "SW2", "leitungslaenge_m": 210 },
+    { "id": "IS04", "typ": "innen", "einbauort": "tuer", "bezeichnung": "Pförtner",
+      "video": true, "zugangskontrolle": false, "freigabe": ["tor", "schranke"], "verteiler": "SW2", "leitungslaenge_m": 8 }
+  ]
+}
