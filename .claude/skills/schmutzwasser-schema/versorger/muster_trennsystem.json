@@ -1,0 +1,22 @@
+{
+  "name": "Muster-Stadtentwässerung (Beispielprofil)",
+  "satzung": "Entwässerungssatzung – Musterwerte, durch echte Vorgaben ersetzen",
+  "entwaesserungssystem": "trenn",
+  "rueckstauebene": "Straßenoberkante an der Anschlussstelle",
+  "uebergabeschacht": {
+    "erforderlich": true,
+    "dn_min": 1000,
+    "lage": "auf dem Grundstück, max. 2 m hinter der Grundstücksgrenze"
+  },
+  "anschlusskanal_dn_min": 150,
+  "probenahme_an_uebergabe": false,
+  "fettabscheider": { "pflicht_bei_fetthaltig": true, "probenahme_erforderlich": true },
+  "staerkeabscheider": { "pflicht_bei_staerkehaltig": true, "ablauf_ueber_fettabscheider": "zulaessig" },
+  "leichtfluessigkeitsabscheider": { "min_klasse": "I", "probenahme_erforderlich": true, "warnanlage_erforderlich": true },
+  "whg": { "min_klasse": "I", "rueckhaltung_erforderlich": true, "absperrung_erforderlich": true, "probenahme_erforderlich": true },
+  "grauwassernutzung": { "zulaessig": true, "anzeigepflicht": true, "zaehler_erforderlich": true },
+  "hebeanlage": { "doppelanlage_bei_gewerbe": true },
+  "hinweise": [
+    "Niederschlagswasser ist getrennt abzuleiten und nicht Gegenstand dieses Schemas."
+  ]
+}

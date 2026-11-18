@@ -1,0 +1,10 @@
+{
+  "projekt": { "name": "Mehrfamilienhaus", "standort": "Beispielweg 3", "datum": "2026-11-18" },
+  "versorger": "muster_mischsystem",
+  "uebergabe": { "schacht": false, "anschlusskanal_dn": 150 },
+  "straenge": [
+    { "id": "S1", "bezeichnung": "Wohnungen EG-3.OG", "abwasserart": "haeuslich", "dn": 100, "quellen": ["WC", "Bad", "Küche"] },
+    { "id": "S2", "bezeichnung": "Waschküche KG", "abwasserart": "grauwasser", "dn": 70, "quellen": ["Waschmaschinen", "Ausguss"], "unter_rueckstauebene": true,
+      "komponenten": [ { "typ": "hebeanlage", "foerderstrom_ls": 2, "foerderhoehe_m": 4, "druckleitung_dn": 40 } ] }
+  ]
+}

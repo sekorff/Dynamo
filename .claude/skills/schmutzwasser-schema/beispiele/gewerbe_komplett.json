@@ -1,0 +1,61 @@
+{
+  "projekt": {
+    "name": "Neubau Autohaus mit Bistro",
+    "standort": "Musterstraße 1, 12345 Musterstadt",
+    "bauherr": "Muster GmbH",
+    "plan_nr": "SW-001",
+    "index": "a",
+    "datum": "2026-11-18",
+    "bearbeiter": "TGA-Planung"
+  },
+  "blatt": "A3",
+  "versorger": "muster_trennsystem",
+  "uebergabe": { "schacht": true, "dn": 1000, "anschlusskanal_dn": 150, "bezeichnung": "Übergabeschacht ÜS1" },
+  "sammelleitung_dn": 150,
+  "straenge": [
+    {
+      "id": "S1", "bezeichnung": "Sanitär EG/OG", "abwasserart": "haeuslich", "dn": 100,
+      "quellen": ["WC", "Urinale", "Ausgussbecken"]
+    },
+    {
+      "id": "S2", "bezeichnung": "Sanitär UG", "abwasserart": "haeuslich", "dn": 100,
+      "quellen": ["WC Personal", "Bodenabläufe Technik"],
+      "unter_rueckstauebene": true,
+      "komponenten": [
+        { "typ": "hebeanlage", "ausfuehrung": "doppel", "foerderstrom_ls": 4, "foerderhoehe_m": 6, "druckleitung_dn": 80 }
+      ]
+    },
+    {
+      "id": "S3", "bezeichnung": "Duschen / Waschtische", "abwasserart": "grauwasser", "dn": 100,
+      "quellen": ["Duschen Umkleide", "Handwaschbecken"],
+      "komponenten": [
+        { "typ": "grauwasseranlage", "kapazitaet_l_d": 1500, "verwendung": ["WC-Spülung", "Bewässerung"], "hinweis": "Überlauf in SW; DIN EN 16941-2" }
+      ]
+    },
+    {
+      "id": "S4", "bezeichnung": "Kartoffelschälraum", "abwasserart": "staerkehaltig", "dn": 100,
+      "quellen": ["Kartoffelschälmaschine"],
+      "komponenten": [ { "typ": "staerkeabscheider", "nenngroesse": 1, "volumen_l": 300 } ],
+      "ziel": { "strang": "S5", "vor": "FA1" }
+    },
+    {
+      "id": "S5", "bezeichnung": "Bistro-Küche UG", "abwasserart": "fetthaltig", "dn": 100,
+      "quellen": ["Spülmaschine", "Kochkessel", "Bodenabläufe Küche"],
+      "unter_rueckstauebene": true,
+      "komponenten": [
+        { "typ": "fettabscheider", "id": "FA1", "ns": 4, "schlammfang_l": 400, "fettspeicher_l": 160 },
+        { "typ": "probenahme" },
+        { "typ": "hebeanlage", "ausfuehrung": "doppel", "foerderstrom_ls": 5, "foerderhoehe_m": 5, "druckleitung_dn": 80 }
+      ]
+    },
+    {
+      "id": "S6", "bezeichnung": "Waschhalle / Werkstatt", "abwasserart": "mineraloelhaltig", "dn": 150,
+      "quellen": ["Waschplatz", "Bodenabläufe Werkstatt"],
+      "komponenten": [
+        { "typ": "koaleszenzabscheider", "ns": 6, "schlammfang_l": 1200 },
+        { "typ": "probenahme" }
+      ]
+    }
+  ],
+  "hinweise": [ "Lüftungsleitungen der Abscheider und Hebeanlagen getrennt über Dach führen." ]
+}

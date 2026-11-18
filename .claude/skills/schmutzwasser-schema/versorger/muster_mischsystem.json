@@ -1,0 +1,16 @@
+{
+  "name": "Muster-Abwasserbetrieb Mischsystem (Beispielprofil)",
+  "satzung": "Entwässerungssatzung – Musterwerte, durch echte Vorgaben ersetzen",
+  "entwaesserungssystem": "misch",
+  "rueckstauebene": "Straßenoberkante an der Anschlussstelle + 10 cm",
+  "uebergabeschacht": { "erforderlich": false, "dn_min": 1000, "lage": "auf dem Grundstück" },
+  "anschlusskanal_dn_min": 150,
+  "probenahme_an_uebergabe": false,
+  "fettabscheider": { "pflicht_bei_fetthaltig": true, "probenahme_erforderlich": true },
+  "staerkeabscheider": { "pflicht_bei_staerkehaltig": true, "ablauf_ueber_fettabscheider": "unzulaessig" },
+  "leichtfluessigkeitsabscheider": { "min_klasse": "II", "probenahme_erforderlich": true, "warnanlage_erforderlich": false },
+  "whg": { "min_klasse": "I", "rueckhaltung_erforderlich": true, "absperrung_erforderlich": true, "probenahme_erforderlich": true },
+  "grauwassernutzung": { "zulaessig": false, "anzeigepflicht": true, "zaehler_erforderlich": true },
+  "hebeanlage": { "doppelanlage_bei_gewerbe": false },
+  "hinweise": []
+}
