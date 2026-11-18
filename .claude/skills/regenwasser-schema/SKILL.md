@@ -66,6 +66,17 @@ Unbekannte Schlüssel sind Fehler. Alle Abschnitte außer `daecher` sind optiona
 Jede Dachfläche wird immer mit A = 1000 m² angegeben (fest im Skript, kein
 Konfigurationsschlüssel; `flaeche_m2` ist ein Fehler).
 
+**Dachabläufe:** Nennweite fest DN 100. Jeder Ablauf erhält die maximal
+anschließbare Fläche `A_max = Q · 10000 / (r(5,5) · Cs)` (auf ganze m²
+abgerundet); die Anzahl je Dach ist `aufrunden(1000 / A_max)`. Beides steht in
+der Dachbeschriftung.
+
+| Schlüssel | Standard | Bedeutung |
+|---|---|---|
+| `dachablauf.abflussvermoegen_l_s` | 4,5 | Q je Ablauf DN 100 (Mindestwert DIN EN 1253-1); Herstellerwert einsetzen, wenn bekannt |
+| `dachablauf.regenspende_r5_5_l_s_ha` | 300 | Standortwert nach KOSTRA-DWD erfragen; fehlt er, erscheint ein Hinweis im Plan |
+| `daecher[].abflussbeiwert` | 1,0 / 0,5 / 0,2 | Cs; Standard nach Begrünung keine / extensiv / intensiv (DIN 1986-100 Tab. 9) |
+
 Reihenfolge der Kette ist fest: Dachabläufe → Fallleitungen → Sammelleitung
 (→ Rinne) → Zisterne → Stauraumkanal → Rückhaltebecken → Drosselschacht →
 Übergabeschacht → Grundstücksgrenze → Einleitstelle.

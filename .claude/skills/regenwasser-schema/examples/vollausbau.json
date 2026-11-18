@@ -17,16 +17,68 @@
     "rueckstauebene": "Straßenoberkante + 10 cm"
   },
   "daecher": [
-    {"name": "Dach A", "typ": "retentionsdach", "begruenung": "extensiv", "pv": true, "retentionsvolumen_m3": 18},
-    {"name": "Dach B", "typ": "retentionsdach", "begruenung": "intensiv", "pv": false, "retentionsvolumen_m3": 12},
-    {"name": "Dach C", "typ": "schwammdach", "begruenung": "extensiv", "pv": true, "retentionsvolumen_m3": 10},
-    {"name": "Dach D", "typ": "standard", "begruenung": "keine", "pv": true}
+    {
+      "name": "Dach A",
+      "typ": "retentionsdach",
+      "begruenung": "extensiv",
+      "pv": true,
+      "retentionsvolumen_m3": 18
+    },
+    {
+      "name": "Dach B",
+      "typ": "retentionsdach",
+      "begruenung": "intensiv",
+      "pv": false,
+      "retentionsvolumen_m3": 12
+    },
+    {
+      "name": "Dach C",
+      "typ": "schwammdach",
+      "begruenung": "extensiv",
+      "pv": true,
+      "retentionsvolumen_m3": 10
+    },
+    {
+      "name": "Dach D",
+      "typ": "standard",
+      "begruenung": "keine",
+      "pv": true
+    }
   ],
   "notueberlauf": true,
-  "rinne": {"vorhanden": true, "ueberdimensioniert": true, "bezeichnung": "NW 300, L = 25 m", "volumen_m3": 2.0},
-  "stauraumkanal": {"aktiv": true, "dn": 800, "laenge_m": 40},
-  "rueckhaltebecken": {"aktiv": true, "volumen_m3": 50, "bauart": "unterirdisch"},
-  "drosselschacht": {"aktiv": true, "drosselabfluss_l_s": 5.0},
-  "uebergabeschacht": {"aktiv": true},
-  "regenwassernutzung": {"aktiv": true, "zisterne_m3": 15, "verwendung": ["Bewässerung Außenanlagen", "Dachbewässerung", "WC-Spülung"]}
+  "rinne": {
+    "vorhanden": true,
+    "ueberdimensioniert": true,
+    "bezeichnung": "NW 300, L = 25 m",
+    "volumen_m3": 2.0
+  },
+  "stauraumkanal": {
+    "aktiv": true,
+    "dn": 800,
+    "laenge_m": 40
+  },
+  "rueckhaltebecken": {
+    "aktiv": true,
+    "volumen_m3": 50,
+    "bauart": "unterirdisch"
+  },
+  "drosselschacht": {
+    "aktiv": true,
+    "drosselabfluss_l_s": 5.0
+  },
+  "uebergabeschacht": {
+    "aktiv": true
+  },
+  "regenwassernutzung": {
+    "aktiv": true,
+    "zisterne_m3": 15,
+    "verwendung": [
+      "Bewässerung Außenanlagen",
+      "Dachbewässerung",
+      "WC-Spülung"
+    ]
+  },
+  "dachablauf": {
+    "regenspende_r5_5_l_s_ha": 300
+  }
 }

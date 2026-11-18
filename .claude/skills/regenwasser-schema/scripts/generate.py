@@ -71,6 +71,10 @@ SCHEMA = {
         "aktiv": ("bool", False), "drosselabfluss_l_s": ("num?", None),
     },
     "uebergabeschacht": {"aktiv": ("bool", False)},
+    "dachablauf": {
+        "abflussvermoegen_l_s": ("num?", 4.5),
+        "regenspende_r5_5_l_s_ha": ("num?", 300.0),
+    },
     "regenwassernutzung": {
         "aktiv": ("bool", False), "zisterne_m3": ("num?", None),
         "verwendung": ("list", []),
@@ -82,7 +86,23 @@ DACH_SCHEMA = {
     "begruenung": (BEGRUENUNG, "keine"),
     "pv": ("bool", False),
     "retentionsvolumen_m3": ("num?", None),
+    "abflussbeiwert": ("num?", None),
 }
+# Dachablauf: Nennweite fest DN 100. Standardwerte: Abflussvermoegen 4,5 l/s
+# (Mindestwert DIN EN 1253-1 fuer DN 100), Spitzenabflussbeiwerte Cs nach
+# DIN 1986-100 Tab. 9 (unbegruent 1,0 / extensiv 0,5 / intensiv 0,2).
+DACHABLAUF_DN = 100
+CS_STANDARD = {"keine": 1.0, "extensiv": 0.5, "intensiv": 0.2}
+
+
+def dachablauf(cfg, d):
+    """(Cs, max. Flaeche je Ablauf DN 100 in m2, Anzahl Ablaeufe) - fest gerundet."""
+    a = cfg["dachablauf"]
+    cs = d["abflussbeiwert"] if d["abflussbeiwert"] is not None \
+        else CS_STANDARD[d["begruenung"]]
+    amax = int(math.floor(a["abflussvermoegen_l_s"] * 10000.0
+                          / (a["regenspende_r5_5_l_s_ha"] * cs) + 1e-9))
+    return cs, amax, int(math.ceil(DACHFLAECHE_M2 / float(amax) - 1e-9))
 TOP_KEYS = set(SCHEMA) | {"daecher", "notueberlauf"}
 
 
@@ -170,6 +190,13 @@ def normalize(raw):
         nue = True
     cfg["notueberlauf"] = nue
 
+    for k in ("abflussvermoegen_l_s", "regenspende_r5_5_l_s_ha"):
+        if not cfg["dachablauf"][k]:
+            errors.append("dachablauf.%s: Zahl > 0 erwartet" % k)
+            cfg["dachablauf"][k] = SCHEMA["dachablauf"][k][1]
+    if "regenspende_r5_5_l_s_ha" not in (raw.get("dachablauf") or {}):
+        warnings.append("Regenspende r(5,5) nicht angegeben - Standardwert 300 l/(s·ha) "
+                        "angesetzt; Standortwert (KOSTRA-DWD) einsetzen.")
     daecher = raw.get("daecher")
     if not isinstance(daecher, list) or not 1 <= len(daecher) <= MAX_DAECHER:
         errors.append("daecher: Liste mit 1 bis %d Dachflächen erwartet" % MAX_DAECHER)
@@ -182,6 +209,9 @@ def normalize(raw):
         if dd["typ"] != "standard" and dd["begruenung"] == "keine":
             errors.append("daecher[%d]: %s erfordert begruenung 'extensiv' oder 'intensiv'"
                           % (i, DACHTYPEN[dd["typ"]]))
+        if dd["abflussbeiwert"] is not None and not 0 < dd["abflussbeiwert"] <= 1:
+            errors.append("daecher[%d].abflussbeiwert: Wert > 0 und <= 1 erwartet" % i)
+            dd["abflussbeiwert"] = None
         if dd["pv"] and dd["begruenung"] == "intensiv":
             warnings.append("%s: PV auf Intensivbegrünung - Verschattung, Aufständerung "
                             "und Pflegewege abstimmen." % dd["name"])
@@ -519,11 +549,14 @@ def draw_roofs(z, cfg):
         # Beschriftung
         lines = [d["name"], DACHTYPEN[d["typ"]], BEGRUENUNG[d["begruenung"]],
                  "mit PV" if d["pv"] else "ohne PV"]
-        lines.append("A = %s m²" % de_int(DACHFLAECHE_M2))
+        cs, amax, anz = dachablauf(cfg, d)
+        lines.append("A = %s m², Cs = %s" % (de_int(DACHFLAECHE_M2), de(cs)))
+        lines.append("%d x Dachablauf DN %d" % (anz, DACHABLAUF_DN))
+        lines.append("je max. %d m²" % amax)
         if d["typ"] != "standard" and d["retentionsvolumen_m3"]:
             lines.append("V = %s m³" % de(d["retentionsvolumen_m3"]))
         for j, s in enumerate(lines):
-            z.text(cx, 268.0 - j * 3.6, s, 2.6, FB if j == 0 else F, BLACK, "c",
+            z.text(cx, 273.0 - j * 3.6, s, 2.6, FB if j == 0 else F, BLACK, "c",
                    maxw=w - 2.0)
     return drains
 
@@ -783,6 +816,9 @@ def draw_vorgaben(z, cfg):
          else "nicht gefordert"),
         ("Rückstauebene", v["rueckstauebene"] or "-"),
         ("Dachfläche gesamt", "%s m²" % de_int(DACHFLAECHE_M2 * len(cfg["daecher"]))),
+        ("Dachablauf DN %d" % DACHABLAUF_DN, "%s l/s bei r(5,5) = %s l/(s·ha)" % (
+            de(cfg["dachablauf"]["abflussvermoegen_l_s"]),
+            de_int(cfg["dachablauf"]["regenspende_r5_5_l_s_ha"]))),
         ("Rückhaltevolumen vorh.", "%s m³" % de(rueckhaltevolumen(cfg))),
         ("Drosselabfluss", "%s l/s" % de(dr["drosselabfluss_l_s"]) if dr["aktiv"]
          else "ungedrosselt"),
@@ -792,7 +828,7 @@ def draw_vorgaben(z, cfg):
     if v["bemerkung"]:
         rows.append(("Bemerkung", v["bemerkung"]))
     for i, (k, val) in enumerate(rows):
-        y = 59.5 - i * 4.4
+        y = 59.5 - i * 4.1
         if i == 6:
             z.line(x0 + 2, y + 3.3, x1 - 2, y + 3.3, LGREY, 0.2)
         z.text(x0 + 2, y, k + ":", 2.5, F, GREY)
