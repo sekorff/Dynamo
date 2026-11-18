@@ -1,0 +1,32 @@
+{
+  "projekt": {
+    "name": "Neubau Verwaltungsgebäude Musterstraße 1",
+    "standort": "12345 Musterstadt",
+    "plan_nr": "RW-001",
+    "index": "a",
+    "datum": "2026-11-18",
+    "bearbeiter": "TGA"
+  },
+  "versorger": {
+    "name": "Stadtentwässerung Musterstadt",
+    "einleitstelle": "regenwasserkanal",
+    "einleitbeschraenkung_l_s": 5.0,
+    "rueckhaltevolumen_min_m3": 60,
+    "uebergabeschacht_gefordert": true,
+    "regenwassernutzung_zulaessig": true,
+    "rueckstauebene": "Straßenoberkante + 10 cm"
+  },
+  "daecher": [
+    {"name": "Dach A", "typ": "retentionsdach", "begruenung": "extensiv", "pv": true, "flaeche_m2": 600, "retentionsvolumen_m3": 18},
+    {"name": "Dach B", "typ": "retentionsdach", "begruenung": "intensiv", "pv": false, "flaeche_m2": 250, "retentionsvolumen_m3": 12},
+    {"name": "Dach C", "typ": "schwammdach", "begruenung": "extensiv", "pv": true, "flaeche_m2": 400, "retentionsvolumen_m3": 10},
+    {"name": "Dach D", "typ": "standard", "begruenung": "keine", "pv": true, "flaeche_m2": 300}
+  ],
+  "notueberlauf": true,
+  "rinne": {"vorhanden": true, "ueberdimensioniert": true, "bezeichnung": "NW 300, L = 25 m", "volumen_m3": 2.0},
+  "stauraumkanal": {"aktiv": true, "dn": 800, "laenge_m": 40},
+  "rueckhaltebecken": {"aktiv": true, "volumen_m3": 50, "bauart": "unterirdisch"},
+  "drosselschacht": {"aktiv": true, "drosselabfluss_l_s": 5.0},
+  "uebergabeschacht": {"aktiv": true},
+  "regenwassernutzung": {"aktiv": true, "zisterne_m3": 15, "verwendung": ["Bewässerung Außenanlagen", "Dachbewässerung", "WC-Spülung"]}
+}

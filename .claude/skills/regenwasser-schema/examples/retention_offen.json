@@ -1,0 +1,11 @@
+{
+  "projekt": {"name": "Quartier Am Anger - Haus 3", "standort": "Beispielstadt", "plan_nr": "RW-020", "datum": "2026-11-18", "bearbeiter": "MM"},
+  "versorger": {"name": "Wasserverband Beispielstadt", "einleitstelle": "gewaesser", "einleitbeschraenkung_l_s": 2.5, "rueckhaltevolumen_min_m3": 30},
+  "daecher": [
+    {"name": "Dach Nord", "typ": "retentionsdach", "begruenung": "intensiv", "pv": false, "flaeche_m2": 350, "retentionsvolumen_m3": 14},
+    {"name": "Dach Süd", "typ": "schwammdach", "begruenung": "extensiv", "pv": true, "flaeche_m2": 420, "retentionsvolumen_m3": 9}
+  ],
+  "rinne": {"vorhanden": true},
+  "rueckhaltebecken": {"aktiv": true, "volumen_m3": 35, "bauart": "offen"},
+  "drosselschacht": {"aktiv": true, "drosselabfluss_l_s": 2.5}
+}
