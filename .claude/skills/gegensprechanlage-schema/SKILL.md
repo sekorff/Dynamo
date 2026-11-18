@@ -1,6 +1,6 @@
 ---
 name: gegensprechanlage-schema
-description: Erzeugt deterministisch ein Gegensprechanlagen-Schema (Intercom / Türsprechanlage) als PDF im Format DIN A3 quer. Verwenden, wenn ein Schema, Strangschema oder Übersichtsplan einer IP-Gegensprechanlage gefragt ist - mit Außen- und Innensprechstellen an Türen, Toren, Schranken, Vereinzelungsanlagen, Aufzügen, Pollern, Schleusen, Rampen, Kassenautomaten, Notrufsäulen, Klingeltableaus, Fluchttüren, Paketanlagen und Drehtüren, Innensprechstellen an Pforte, Leitstand, Wohnung/Büro, Etagenruf, Schleuseninnenraum, Aufzugvorraum und Tiefgarage, Software-Clients/Apps, Zusatzgeräten, mit/ohne Video und Zugangskontrolle, Freigaben, PoE-Speisung, LWL-Strecken über 90 m mit Medienkonverter und PoE-Injektor 230 V, TK-Anlage, Wählgerät (IP/Mobilfunk) und Störmeldungen an die GLT.
+description: Erzeugt deterministisch ein Gegensprechanlagen-Schema (Intercom / Türsprechanlage) als PDF im Format DIN A3 quer. Verwenden, wenn ein Schema, Strangschema oder Übersichtsplan einer IP-Gegensprechanlage gefragt ist - mit Außen- und Innensprechstellen an Türen, Toren, Schranken, Vereinzelungsanlagen, Aufzügen, Pollern, Schleusen, Rampen, Kassenautomaten, Notrufsäulen, Klingeltableaus, Fluchttüren, Paketanlagen und Drehtüren, Innensprechstellen an Pforte, Leitstand, Wohnung/Büro, Etagenruf, Schleuseninnenraum, Aufzugvorraum und Tiefgarage, Software-Clients/Apps, Zusatzgeräten, mit/ohne Video und Zugangskontrolle, Freigaben, PoE-Speisung, LWL-Strecken über 90 m mit Medienkonverter und PoE-Injektor 230 V, TK-Anlage, Wählgerät (IP/Mobilfunk), Störmeldungen an die GLT sowie Geräteliste und Schnittstellenliste mit Zuständigkeit der Gewerke nach DIN 276 (Koordination, Anschluss, Inbetriebnahme).
 ---
 
 # Gegensprechanlage-Schema (PDF)
@@ -44,7 +44,7 @@ Voraussetzung: Python 3 und `reportlab` (`pip install reportlab`).
 | Zusatzgeräte | Etagentaster, Zweitwecker, Signalleuchte - nur an Innensprechstellen |
 | Software-Client / App | PC, Smartphone oder Tablet; eigene Gruppe ohne PoE-Port und ohne Leitung; Fernfreigabe über IP |
 | Zentrale | Intercom-Server, TK-Anlage, eigenes Wählgerät (IP und/oder Mobilfunk), Störmeldungen an GLT |
-| Blattaufteilung | 10 Sprechstellen je Schemablatt; Verteiler bleiben zusammen, sofern sie auf ein Blatt passen; danach Geräte- und Leitungsliste mit Summen |
+| Blattaufteilung | 10 Sprechstellen je Schemablatt; Verteiler bleiben zusammen, sofern sie auf ein Blatt passen; danach Geräte- und Leitungsliste, darunter Schnittstellenliste und Gewerkeübersicht nach DIN 276, mit Summen |
 
 Die Grenze von 90 m ist fest (genau 90 m gilt noch als Kupfer).
 Reihenfolge im Plan: Verteiler in Eingabereihenfolge, darin Sprechstellen in Eingabereihenfolge;
@@ -116,6 +116,33 @@ Keine Freigabe zulässig bei `notrufsaeule` und `etagenruf`.
 Übliche Zuordnung Einbauort zu Freigabe: `rampe` -> `tor`, `kassenautomat` -> `schranke`,
 `paketanlage` -> `tuer`, `klingeltableau` -> `tuer`. Aufzugnotruf, WC-Notruf und
 Notfall-/Gefahren-Sprechanlagen sind eigene Anlagen und gehören nicht in dieses Schema.
+
+### `schnittstellen` (optional)
+
+Unter der Geräteliste erzeugt der Generator eine Schnittstellenliste. Je Schnittstelle sind
+Gegengewerk sowie die Kostengruppe nach DIN 276 für Koordination, Anschluss und Inbetriebnahme
+festgelegt. Es erscheinen nur Schnittstellen, die in der Anlage vorkommen.
+
+Die Standardzuordnung ist ein Vorschlag (Gegensprechanlage = KG 452). Sie ist nicht mit dem
+Normtext abgeglichen und muss je Projekt mit der Kostengliederung und den Leistungsgrenzen
+der Ausschreibung geprüft werden. Abweichungen werden in der JSON überschrieben, nie im Skript:
+
+```json
+"schnittstellen": {
+  "freigabe_schranke": { "gegengewerk": "KG 458 Parkierungsanlage", "anschluss": "KG 458" },
+  "glt": { "koordination": "KG 452" }
+}
+```
+
+Felder je Schnittstelle: `gegengewerk`, `koordination`, `anschluss`, `inbetriebnahme` (freier Text,
+maximal 44 Zeichen). Schlüssel: `netz_poe`, `netz_lwl`, `strom_lokal`, `strom_zentral`, `server_netz`,
+`client_netz`, `tk_anlage`, `waehlgeraet_ip`, `waehlgeraet_mobil`, `glt`, `zugangskontrolle`,
+`freigabe_tuer`, `freigabe_tor`, `freigabe_schranke`, `freigabe_vereinzelung`, `freigabe_aufzug`,
+`freigabe_poller`, `freigabe_schleuse`, `freigabe_fluchttuer`, `freigabe_drehtuer`,
+`einbau_aufzug`, `einbau_kassenautomat`, `einbau_paketanlage`.
+
+Fernfreigaben von Innensprechstellen und Clients sowie Zusatzgeräte liegen innerhalb der
+Gegensprechanlage und sind keine Gewerkeschnittstellen.
 
 ## Dateien
 

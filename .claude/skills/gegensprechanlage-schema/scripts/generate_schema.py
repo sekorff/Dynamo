@@ -30,7 +30,6 @@ except ImportError:  # pragma: no cover
 # --------------------------------------------------------------------------
 MAX_KUPFER_M = 90.0          # > 90 m -> LWL + Medienkonverter + PoE-Injektor 230 V
 SPALTEN_PRO_SEITE = 10
-ZEILEN_PRO_LISTENSEITE = 40
 
 EINBAUORTE = {
     "tuer": "Tür",
@@ -91,6 +90,45 @@ AKTOR = {
 FREIGABE_REIHENFOLGE = ("tuer", "tor", "schranke", "vereinzelung", "aufzug",
                         "poller", "schleuse", "fluchttuer", "drehtuer")
 WAEHL_WEGE = {"ip": "IP (LAN / WAN)", "mobil": "Mobilfunk (LTE / 5G)"}
+# Gewerke nach DIN 276 (Kostengruppen) - Katalog fuer die Schnittstellenliste
+KG_KATALOG = [
+    ("KG 334", "Außenwandöffnungen", "Außentüren, Tore und Drehtüren im Gebäude samt Antrieb und Steuerung"),
+    ("KG 344", "Innenwandöffnungen", "Innentüren, Schleusen- und Fluchttüren samt Steuerung"),
+    ("KG 381", "Allgemeine Einbauten", "Briefkasten- und Paketanlagen"),
+    ("KG 444", "Niederspannungsinstallationsanlagen", "230-V-Stromkreise und Anschlüsse"),
+    ("KG 451", "Telekommunikationsanlagen", "TK-Anlage"),
+    ("KG 452", "Such- und Signalanlagen", "Gegensprechanlage (dieses Gewerk): Server, Sprechstellen, Wählgerät"),
+    ("KG 456", "Gefahrenmelde- und Alarmanlagen", "Zugangskontrollanlage"),
+    ("KG 457", "Datenübertragungsnetze", "Switches, Kupfer- und LWL-Verkabelung, Medienkonverter"),
+    ("KG 461", "Aufzugsanlagen", "Aufzugsteuerung und Kabinentableau"),
+    ("KG 470", "Nutzungsspezifische und verfahrenstechnische Anlagen", "Parkierungsanlage, Kassenautomaten"),
+    ("KG 480", "Gebäude- und Anlagenautomation", "GLT / Gebäudeautomation"),
+    ("KG 531", "Einfriedungen (Außenanlagen)", "Tore, Schranken, Poller und Vereinzelungsanlagen im Außenbereich"),
+]
+GEGENGEWERK_FREIGABE = {
+    "tuer": "KG 334 / 344 Türen",
+    "tor": "KG 334 / 531 Toranlage",
+    "schranke": "KG 531 Schrankenanlage",
+    "vereinzelung": "KG 344 / 531 Vereinzelungsanlage",
+    "aufzug": "KG 461 Aufzugsanlage",
+    "poller": "KG 531 Polleranlage",
+    "schleuse": "KG 334 / 344 Schleusentüren",
+    "fluchttuer": "KG 334 / 344 Fluchttüranlage",
+    "drehtuer": "KG 334 Drehtüranlage",
+}
+EINBAU_FREMD = {     # Einbauort -> (Gegengewerk, Uebergabepunkt, KG Anschluss)
+    "aufzug": ("KG 461 Aufzugsanlage", "Einbau in Kabinen- / Ruftableau, Leitung über Hängekabel", "KG 461"),
+    "kassenautomat": ("KG 470 Parkierungsanlage", "Einbau in Automat / Säule des Herstellers", "KG 470"),
+    "paketanlage": ("KG 381 Briefkasten- / Paketanlage", "Einbau in Anlagenmodul des Herstellers", "KG 381"),
+}
+SCHNITT_FELDER = ("gegengewerk", "koordination", "anschluss", "inbetriebnahme")
+SCHNITT_KEYS = (["netz_poe", "netz_lwl", "strom_lokal", "strom_zentral", "server_netz",
+                 "client_netz", "tk_anlage", "waehlgeraet_ip", "waehlgeraet_mobil", "glt",
+                 "zugangskontrolle"]
+                + ["freigabe_" + f for f in ("tuer", "tor", "schranke", "vereinzelung", "aufzug",
+                                             "poller", "schleuse", "fluchttuer", "drehtuer")]
+                + ["einbau_aufzug", "einbau_kassenautomat", "einbau_paketanlage"])
+
 DEFAULT_MELDUNGEN = [
     "Sammelstörung Anlage",
     "Ausfall Sprechstelle",
@@ -190,7 +228,8 @@ def _id(d, pfad):
 
 
 def validieren(roh):
-    _obj(roh, "wurzel", {"projekt", "netz", "zentrale", "verteiler", "sprechstellen"},
+    _obj(roh, "wurzel", {"projekt", "netz", "zentrale", "verteiler", "sprechstellen",
+                         "schnittstellen"},
          ("projekt", "verteiler", "sprechstellen"))
 
     p = _obj(roh["projekt"], "projekt",
@@ -259,6 +298,13 @@ def validieren(roh):
                                     "potentialfreie Kontakte", 34),
                 "meldungen": meld},
     }
+
+    ueber = {}
+    for key, wert in sorted(_obj(roh.get("schnittstellen", {}), "schnittstellen",
+                                 set(SCHNITT_KEYS)).items()):
+        pf = "schnittstellen.%s" % key
+        _obj(wert, pf, set(SCHNITT_FELDER))
+        ueber[key] = {f: _s(wert, f, pf, maxlen=44) for f in SCHNITT_FELDER if f in wert}
 
     ids = set()
     if not isinstance(roh["verteiler"], list) or not roh["verteiler"]:
@@ -397,7 +443,8 @@ def validieren(roh):
                         "uplink_laenge_m": 0.0, "lwl": False, "client": True})
     spalten = [s for v in gruppen for s in stationen if s["verteiler"] == v["id"]]
     return {"projekt": projekt, "netz": netz, "zentrale": zentrale,
-            "verteiler": verteiler, "gruppen": gruppen, "spalten": spalten}
+            "verteiler": verteiler, "gruppen": gruppen, "spalten": spalten,
+            "schnittstellen": ueber}
 
 # --------------------------------------------------------------------------
 # Zeichenhilfen
@@ -865,25 +912,150 @@ def summen(c, modell):
         text(c, str(wert), x + 190, yy, 6.5, FB, anker="r")
 
 
-def listenseite(c, modell, zeilen):
+# --------------------------------------------------------------------------
+# Schnittstellenliste (Gewerke nach DIN 276)
+# --------------------------------------------------------------------------
+SPALTEN_SCHNITT = [("Nr.", 30), ("Schnittstelle", 170), ("Betroffene Geräte", 204),
+                   ("Gegenstelle / Gegengewerk", 170), ("Art / Übergabepunkt", 220),
+                   ("Anz.", 32), ("Koordination", 96), ("Anschluss", 96), ("Inbetriebnahme", 96)]
+SPALTEN_KG = [("Kostengruppe", 80), ("Bezeichnung nach DIN 276", 300),
+              ("Leistungsumfang in diesem Projekt", 734)]
+
+
+def schnittstellenzeilen(modell):
+    z = modell["zentrale"]
+    sp = modell["spalten"]
+    hw = [s for s in sp if s["typ"] != "client"]
+    zeilen = []
+
+    def neu(key, name, geraete, gegen, art, koord="KG 452", anschluss="KG 452", ibn="KG 452",
+            anzahl=None):
+        if not geraete:
+            return
+        u = modell["schnittstellen"].get(key, {})
+        zeilen.append([name, ", ".join(geraete), u.get("gegengewerk", gegen), art,
+                       str(len(geraete) if anzahl is None else anzahl),
+                       u.get("koordination", koord), u.get("anschluss", anschluss),
+                       u.get("inbetriebnahme", ibn)])
+
+    netz = "KG 457 Datenübertragungsnetz"
+    strom = "KG 444 Niederspannungsinstallation"
+    lwl = [s["id"] for s in hw if s["lwl"]]
+    neu("netz_poe", "Sprechstelle - Datennetz (PoE)", [s["id"] for s in hw if not s["lwl"]], netz,
+        "RJ45 am PoE-Switch-Port, Übergabe an Datendose / Patchfeld", anschluss="KG 457")
+    neu("netz_lwl", "Sprechstelle - Datennetz (LWL-Strecke)", lwl, netz,
+        "LWL bis Medienkonverter am Einbauort, Übergabe RJ45", anschluss="KG 457", ibn="KG 457")
+    neu("strom_lokal", "230-V-Einspeisung Medienkonverter / PoE-Injektor", lwl, strom,
+        "230 V AC, Abzweigdose / Steckdose am Einbauort", anschluss="KG 444", ibn="KG 444")
+    neu("strom_zentral", "230-V-Versorgung Server und PoE-Switches",
+        ["Server"] + [v["id"] for v in modell["verteiler"]], strom,
+        "230 V AC, Stromkreis im Technikraum / Verteiler", anschluss="KG 444", ibn="KG 444")
+    neu("server_netz", "Intercom-Server - Core-Switch", ["Server"], netz,
+        "RJ45 / IP, VLAN und Adressierung", anschluss="KG 457")
+    neu("client_netz", "Software-Client - IP-Netz", [s["id"] for s in sp if s["typ"] == "client"],
+        "Nutzer-IT / KG 457", "LAN / WLAN / Mobilfunk, Endgerät bauseits", anschluss="Nutzer-IT")
+    if z["tk_anlage"]["vorhanden"]:
+        neu("tk_anlage", "Intercom-Server - TK-Anlage", ["Server"], "KG 451 TK-Anlage",
+            z["tk_anlage"]["schnittstelle"] + ", Rufnummernplan", anschluss="KG 451")
+    if z["waehlgeraet"]["vorhanden"]:
+        ziel = z["waehlgeraet"]["ziel"]
+        if "ip" in z["waehlgeraet"]["wege"]:
+            neu("waehlgeraet_ip", "Wählgerät - Übertragungsweg IP", ["Wählgerät"],
+                "KG 457 / Provider, " + ziel, "IP über LAN / WAN, Freischaltung Firewall")
+        if "mobil" in z["waehlgeraet"]["wege"]:
+            neu("waehlgeraet_mobil", "Wählgerät - Übertragungsweg Mobilfunk", ["Wählgerät"],
+                "Bauherr / Provider, " + ziel, "LTE / 5G, SIM-Karte bauseits")
+    if z["glt"]["vorhanden"]:
+        neu("glt", "Störmeldungen - GLT", ["Server"], "KG 480 Gebäudeautomation",
+            z["glt"]["schnittstelle"] + ", Übergabeklemmen an der Zentrale",
+            koord="KG 480", anschluss="KG 480", ibn="KG 480", anzahl=len(z["glt"]["meldungen"]))
+    neu("zugangskontrolle", "Leser Zugangskontrolle in Sprechstelle",
+        [s["id"] for s in hw if s["zk"]], "KG 456 Zugangskontrollanlage",
+        "Leser in der Sprechstelle, Anbindung an ZK-Zentrale",
+        koord="KG 456", anschluss="KG 456", ibn="KG 456")
+    for f in FREIGABE_REIHENFOLGE:
+        fremd = "KG 461" if f == "aufzug" else "KG 452"
+        neu("freigabe_" + f, "Freigabe " + FREIGABE_KURZ[f] + " (Relaiskontakt)",
+            [s["id"] for s in hw if s["typ"] == "aussen" and f in s["freigabe"]],
+            GEGENGEWERK_FREIGABE[f],
+            "potentialfreier Kontakt, Übergabeklemme " + AKTOR[f], anschluss=fremd, ibn=fremd)
+    for ort in ("aufzug", "kassenautomat", "paketanlage"):
+        gegen, art, kg = EINBAU_FREMD[ort]
+        neu("einbau_" + ort, "Einbau Sprechstelle in " + EINBAUORTE[ort],
+            [s["id"] for s in hw if s["typ"] == "aussen" and s["einbauort"] == ort],
+            gegen, art, anschluss=kg)
+    return [[str(i + 1)] + zl for i, zl in enumerate(zeilen)]
+
+
+# --------------------------------------------------------------------------
+# Listenblaetter: Tabellen fliessen untereinander, Kopf wird je Blatt wiederholt
+# --------------------------------------------------------------------------
+LISTE_OBEN = Y1 - 12
+LISTE_UNTEN = Y0 + FUSS_H + 8
+LISTE_X = COL_X0 - 2
+
+
+def listen_fluss(modell):
+    tabellen = [
+        ("Geräte- und Leitungsliste", SPALTEN_LISTE, listenzeilen(modell), False),
+        ("Schnittstellenliste - Zuständigkeit der Gewerke nach DIN 276 (Kostengruppen)",
+         SPALTEN_SCHNITT, schnittstellenzeilen(modell), True),
+        ("Gewerke nach DIN 276 (Kostengruppen)", SPALTEN_KG, [list(k) for k in KG_KATALOG], False),
+    ]
+    seiten = [[]]
+    y = LISTE_OBEN
+    for titel, spalten, zeilen, umbruch in tabellen:
+        fertig = []
+        for zl in zeilen:
+            if umbruch:
+                zellen = [umbrechen(w, F, 6.8, b - 6, 40) or [""] for w, (_, b) in zip(zl, spalten)]
+            else:
+                zellen = [[w] for w in zl]
+            fertig.append((zellen, 14 + 8 * (max(len(z) for z in zellen) - 1)))
+        if seiten[-1]:
+            y -= 16
+        kopf_offen = False
+        for n, (zellen, h) in enumerate(fertig):
+            if y - h - (0 if kopf_offen else 34) < LISTE_UNTEN:
+                seiten.append([])
+                y = LISTE_OBEN
+                kopf_offen = False
+            if not kopf_offen:
+                seiten[-1].append(("titel", y, titel + ("  (Fortsetzung)" if n else "")))
+                seiten[-1].append(("kopf", y - 34, spalten))
+                y -= 34
+                kopf_offen = True
+            y -= h
+            seiten[-1].append(("zeile", y, spalten, zellen, h, n % 2 == 0))
+    return seiten
+
+
+def listenseite(c, modell, ops):
     summen(c, modell)
-    y = Y1 - 30
-    x = COL_X0 - 2
-    breite = sum(b for _, b in SPALTEN_LISTE)
-    box(c, x, y, breite, 16, fill=C_AUSSEN, stroke=C_AUSSEN)
-    xx = x
-    for kopf_txt, b in SPALTEN_LISTE:
-        text(c, kopf_txt, xx + 3, y + 5, 7, FB, C_WHITE, max_w=b - 6)
-        xx += b
-    for n, z in enumerate(zeilen):
-        y -= 14
-        if n % 2 == 0:
-            box(c, x, y, breite, 14, fill=C_FILL, stroke=C_FILL, lw=0.1)
-        xx = x
-        for wert, (_, b) in zip(z, SPALTEN_LISTE):
-            text(c, wert, xx + 3, y + 4, 6.8, max_w=b - 6)
-            xx += b
-    linie(c, [(x, y), (x + breite, y)], C_LINE, 0.6)
+    x = LISTE_X
+    for op in ops:
+        if op[0] == "titel":
+            text(c, op[2], x, op[1] - 12, 9, FB)
+        elif op[0] == "kopf":
+            breite = sum(b for _, b in op[2])
+            box(c, x, op[1], breite, 16, fill=C_AUSSEN, stroke=C_AUSSEN)
+            xx = x
+            for kopf_txt, b in op[2]:
+                text(c, kopf_txt, xx + 3, op[1] + 5, 7, FB, C_WHITE, max_w=b - 6)
+                xx += b
+        else:
+            _, y, spalten, zellen, h, grau = op
+            breite = sum(b for _, b in spalten)
+            if grau:
+                box(c, x, y, breite, h, fill=C_FILL, stroke=C_FILL, lw=0.1)
+            linie(c, [(x, y), (x + breite, y)], C_GREY, 0.3)
+            xx = x
+            for zelle, (_, b) in zip(zellen, spalten):
+                yy = y + h - 10
+                for zeile in zelle:
+                    text(c, zeile, xx + 3, yy, 6.8, max_w=b - 6)
+                    yy -= 8
+                xx += b
 
 
 # --------------------------------------------------------------------------
@@ -902,9 +1074,7 @@ def erzeugen(modell, ziel):
             if len(seiten[-1]) == SPALTEN_PRO_SEITE:
                 seiten.append([])
             seiten[-1].append(s)
-    zeilen = listenzeilen(modell)
-    listen = [zeilen[i:i + ZEILEN_PRO_LISTENSEITE]
-              for i in range(0, len(zeilen), ZEILEN_PRO_LISTENSEITE)]
+    listen = listen_fluss(modell)
     blaetter = len(seiten) + len(listen)
     erste_ids = {}
     for s in sp:
@@ -924,7 +1094,7 @@ def erzeugen(modell, ziel):
         c.showPage()
     for teil in listen:
         blatt += 1
-        rahmen(c, modell, "Gegensprechanlage - Geräte- und Leitungsliste", blatt, blaetter)
+        rahmen(c, modell, "Gegensprechanlage - Geräte-, Leitungs- und Schnittstellenliste", blatt, blaetter)
         listenseite(c, modell, teil)
         c.showPage()
     c.save()
