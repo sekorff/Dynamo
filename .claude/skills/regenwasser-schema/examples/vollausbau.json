@@ -17,10 +17,10 @@
     "rueckstauebene": "Straßenoberkante + 10 cm"
   },
   "daecher": [
-    {"name": "Dach A", "typ": "retentionsdach", "begruenung": "extensiv", "pv": true, "flaeche_m2": 600, "retentionsvolumen_m3": 18},
-    {"name": "Dach B", "typ": "retentionsdach", "begruenung": "intensiv", "pv": false, "flaeche_m2": 250, "retentionsvolumen_m3": 12},
-    {"name": "Dach C", "typ": "schwammdach", "begruenung": "extensiv", "pv": true, "flaeche_m2": 400, "retentionsvolumen_m3": 10},
-    {"name": "Dach D", "typ": "standard", "begruenung": "keine", "pv": true, "flaeche_m2": 300}
+    {"name": "Dach A", "typ": "retentionsdach", "begruenung": "extensiv", "pv": true, "retentionsvolumen_m3": 18},
+    {"name": "Dach B", "typ": "retentionsdach", "begruenung": "intensiv", "pv": false, "retentionsvolumen_m3": 12},
+    {"name": "Dach C", "typ": "schwammdach", "begruenung": "extensiv", "pv": true, "retentionsvolumen_m3": 10},
+    {"name": "Dach D", "typ": "standard", "begruenung": "keine", "pv": true}
   ],
   "notueberlauf": true,
   "rinne": {"vorhanden": true, "ueberdimensioniert": true, "bezeichnung": "NW 300, L = 25 m", "volumen_m3": 2.0},

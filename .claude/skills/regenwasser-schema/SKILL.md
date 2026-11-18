@@ -53,7 +53,7 @@ Unbekannte Schlüssel sind Fehler. Alle Abschnitte außer `daecher` sind optiona
 | `daecher[].typ` | `standard` \| `schwammdach` \| `retentionsdach` | Dachaufbau |
 | `daecher[].begruenung` | `keine` \| `extensiv` \| `intensiv` | Schwamm-/Retentionsdach verlangen `extensiv` oder `intensiv` |
 | `daecher[].pv` | bool | mit / ohne PV |
-| `daecher[].flaeche_m2`, `.retentionsvolumen_m3` | Zahl \| `null` | Beschriftung; Volumen zählt zum Rückhalt |
+| `daecher[].retentionsvolumen_m3` | Zahl \| `null` | Beschriftung; zählt zum Rückhalt |
 | `notueberlauf` | bool (Standard `true`) | Notüberlauf über Attika |
 | `rinne.vorhanden`, `.ueberdimensioniert` | bool | Entwässerungsrinne, optional als Rückhalt |
 | `rinne.bezeichnung`, `.volumen_m3` | Text, Zahl | z. B. „NW 300, L = 25 m“; Volumen zählt zum Rückhalt |
@@ -62,6 +62,9 @@ Unbekannte Schlüssel sind Fehler. Alle Abschnitte außer `daecher` sind optiona
 | `drosselschacht.aktiv`, `.drosselabfluss_l_s` | bool, Zahl | Drosselschacht |
 | `uebergabeschacht.aktiv` | bool | Übergabeschacht vor der Grundstücksgrenze |
 | `regenwassernutzung.aktiv`, `.zisterne_m3`, `.verwendung[]` | bool, Zahl, Texte | Zisterne mit Filter, Pumpe, Betriebswasserzentrale (max. 5 Verwendungen) |
+
+Jede Dachfläche wird immer mit A = 1000 m² angegeben (fest im Skript, kein
+Konfigurationsschlüssel; `flaeche_m2` ist ein Fehler).
 
 Reihenfolge der Kette ist fest: Dachabläufe → Fallleitungen → Sammelleitung
 (→ Rinne) → Zisterne → Stauraumkanal → Rückhaltebecken → Drosselschacht →

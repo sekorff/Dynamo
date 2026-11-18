@@ -38,6 +38,7 @@ BEGRUENUNG = {"keine": "ohne Begrünung", "extensiv": "extensiv begrünt",
               "intensiv": "intensiv begrünt"}
 BAUARTEN = {"unterirdisch": "unterirdisch", "offen": "offenes Becken"}
 MAX_DAECHER = 4
+DACHFLAECHE_M2 = 1000   # feste Angabe je Dachflaeche (nicht konfigurierbar)
 
 # key -> (typ, default); typ: str | num | num? | bool | enum-dict | list
 SCHEMA = {
@@ -80,7 +81,6 @@ DACH_SCHEMA = {
     "typ": (DACHTYPEN, "standard"),
     "begruenung": (BEGRUENUNG, "keine"),
     "pv": ("bool", False),
-    "flaeche_m2": ("num?", None),
     "retentionsvolumen_m3": ("num?", None),
 }
 TOP_KEYS = set(SCHEMA) | {"daecher", "notueberlauf"}
@@ -519,8 +519,7 @@ def draw_roofs(z, cfg):
         # Beschriftung
         lines = [d["name"], DACHTYPEN[d["typ"]], BEGRUENUNG[d["begruenung"]],
                  "mit PV" if d["pv"] else "ohne PV"]
-        if d["flaeche_m2"] is not None:
-            lines.append("A = %s m²" % de_int(d["flaeche_m2"]))
+        lines.append("A = %s m²" % de_int(DACHFLAECHE_M2))
         if d["typ"] != "standard" and d["retentionsvolumen_m3"]:
             lines.append("V = %s m³" % de(d["retentionsvolumen_m3"]))
         for j, s in enumerate(lines):
@@ -773,7 +772,6 @@ def draw_vorgaben(z, cfg):
     z.text(x0 + 2, 65.0, "Vorgaben Versorger / Anlagenkenndaten", 3.0, FB)
     n = cfg["regenwassernutzung"]
     dr = cfg["drosselschacht"]
-    flaechen = [d["flaeche_m2"] for d in cfg["daecher"] if d["flaeche_m2"] is not None]
     rows = [
         ("Versorger", v["name"] or "-"),
         ("Einleitstelle", EINLEITSTELLEN[v["einleitstelle"]]),
@@ -784,7 +782,7 @@ def draw_vorgaben(z, cfg):
         ("Übergabeschacht", "gefordert" if v["uebergabeschacht_gefordert"]
          else "nicht gefordert"),
         ("Rückstauebene", v["rueckstauebene"] or "-"),
-        ("Dachfläche gesamt", "%s m²" % de_int(sum(flaechen)) if flaechen else "-"),
+        ("Dachfläche gesamt", "%s m²" % de_int(DACHFLAECHE_M2 * len(cfg["daecher"]))),
         ("Rückhaltevolumen vorh.", "%s m³" % de(rueckhaltevolumen(cfg))),
         ("Drosselabfluss", "%s l/s" % de(dr["drosselabfluss_l_s"]) if dr["aktiv"]
          else "ungedrosselt"),

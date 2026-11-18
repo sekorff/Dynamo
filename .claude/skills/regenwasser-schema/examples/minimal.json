@@ -2,7 +2,7 @@
   "projekt": {"name": "Lagerhalle Nord", "standort": "Beispielort", "plan_nr": "RW-010", "datum": "2026-11-18"},
   "versorger": {"name": "Gemeindewerke Beispielort", "einleitstelle": "mischwasserkanal", "uebergabeschacht_gefordert": true},
   "daecher": [
-    {"name": "Hallendach", "typ": "standard", "begruenung": "keine", "pv": false, "flaeche_m2": 1200}
+    {"name": "Hallendach", "typ": "standard", "begruenung": "keine", "pv": false}
   ],
   "uebergabeschacht": {"aktiv": true}
 }
