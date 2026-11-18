@@ -1,0 +1,79 @@
+{
+  "projekt": {
+    "name": "Neubau Büro- und Laborgebäude",
+    "standort": "Musterstraße 1, 12345 Musterstadt",
+    "plan_nr": "TW-S-001",
+    "index": "a",
+    "datum": "18.11.2026",
+    "bearbeiter": "TGA"
+  },
+  "versorger": {
+    "name": "Stadtwerke Musterstadt",
+    "versorgungsdruck_min_bar": 4.0,
+    "versorgungsdruck_max_bar": 6.0,
+    "hausanschluss_dn": 80,
+    "dea_anschluss": "mittelbar",
+    "vorgaben": [
+      "Druckerhöhungsanlagen nur mittelbar über Vorbehälter mit freiem Auslauf",
+      "Rückspülfilter unmittelbar nach der Wasserzähleranlage"
+    ]
+  },
+  "geschosse": [
+    {"name": "UG", "hoehe_m": 3.5},
+    {"name": "EG", "hoehe_m": 4.0},
+    {"name": "1.OG", "hoehe_m": 3.5},
+    {"name": "2.OG", "hoehe_m": 3.5},
+    {"name": "3.OG", "hoehe_m": 3.5},
+    {"name": "4.OG", "hoehe_m": 3.5},
+    {"name": "5.OG", "hoehe_m": 3.5},
+    {"name": "6.OG", "hoehe_m": 3.5},
+    {"name": "7.OG", "hoehe_m": 3.5},
+    {"name": "Dach", "hoehe_m": 3.0}
+  ],
+  "druckstufen": [
+    {
+      "name": "Druckstufe 1",
+      "von": "UG",
+      "bis": "1.OG",
+      "wwb": "zentral",
+      "straenge": [
+        {"name": "S1.1", "nutzung": "Sanitär", "aussenzapfstellen": ["EG"]},
+        {"name": "S1.2", "nutzung": "Küche"}
+      ]
+    },
+    {
+      "name": "Druckstufe 2",
+      "von": "2.OG",
+      "bis": "5.OG",
+      "wwb": "dezentral",
+      "straenge": [
+        {"name": "S2.1", "nutzung": "Sanitär"},
+        {"name": "S2.2", "nutzung": "Teeküchen"}
+      ]
+    },
+    {
+      "name": "Druckstufe 3",
+      "von": "6.OG",
+      "bis": "Dach",
+      "wwb": "zentral",
+      "straenge": [
+        {"name": "S3.1", "nutzung": "Sanitär", "aussenzapfstellen": ["Dach"], "adiabate_kuehlung": ["Dach"]}
+      ]
+    }
+  ],
+  "wasseraufbereitung": {
+    "enthaertung": true,
+    "osmose": {
+      "verbraucher": [
+        {"name": "Dampfbefeuchter RLT", "geschoss": "UG"},
+        {"name": "Spülmaschine Labor", "geschoss": "2.OG"}
+      ]
+    },
+    "ve_wasser": {
+      "verbraucher": [
+        {"name": "Laborzapfstellen", "geschoss": "1.OG"},
+        {"name": "Laborzapfstellen", "geschoss": "3.OG"}
+      ]
+    }
+  }
+}

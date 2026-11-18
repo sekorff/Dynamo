@@ -1,0 +1,30 @@
+{
+  "projekt": {
+    "name": "Wohnhaus mit 6 Wohneinheiten",
+    "standort": "Beispielweg 5, 54321 Beispielstadt",
+    "datum": "18.11.2026"
+  },
+  "versorger": {
+    "name": "Wasserwerke Beispielstadt",
+    "versorgungsdruck_min_bar": 4.0,
+    "versorgungsdruck_max_bar": 4.8
+  },
+  "geschosse": [
+    {"name": "KG", "hoehe_m": 2.6},
+    {"name": "EG", "hoehe_m": 2.9},
+    {"name": "1.OG", "hoehe_m": 2.9},
+    {"name": "2.OG", "hoehe_m": 2.9}
+  ],
+  "druckstufen": [
+    {
+      "name": "Druckstufe 1",
+      "von": "KG",
+      "bis": "2.OG",
+      "wwb": "dezentral",
+      "straenge": [
+        {"name": "S1", "nutzung": "Bad/WC", "aussenzapfstellen": ["EG"]},
+        {"name": "S2", "nutzung": "Küche"}
+      ]
+    }
+  ]
+}
