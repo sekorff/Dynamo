@@ -74,8 +74,30 @@ der Dachbeschriftung.
 | Schlüssel | Standard | Bedeutung |
 |---|---|---|
 | `dachablauf.abflussvermoegen_l_s` | 4,5 | Q je Ablauf DN 100 (Mindestwert DIN EN 1253-1); Herstellerwert einsetzen, wenn bekannt |
-| `dachablauf.regenspende_r5_5_l_s_ha` | 300 | Standortwert nach KOSTRA-DWD erfragen; fehlt er, erscheint ein Hinweis im Plan |
+| `dachablauf.regenspende_r5_5_l_s_ha` | KOSTRA r(5,5), sonst 300 | nur angeben, wenn keine KOSTRA-Tabelle vorliegt; ein Widerspruch zu `kostra` ist ein Fehler |
 | `daecher[].abflussbeiwert` | 1,0 / 0,5 / 0,2 | Cs; Standard nach Begrünung keine / extensiv / intensiv (DIN 1986-100 Tab. 9) |
+
+**Regenspenden (KOSTRA) und Überflutungsnachweis.** Die Regenspenden sind
+standortabhängig und werden nie geschätzt oder aus dem Gedächtnis ergänzt: Der
+Nutzer liefert die Werte seines Rasterfelds aus der aktuellen KOSTRA-DWD-Tabelle
+(derzeit KOSTRA-DWD-2020). Ohne Werte bleibt der Nachweis leer und der Plan
+trägt einen roten Hinweis.
+
+| Schlüssel | Standard | Bedeutung |
+|---|---|---|
+| `kostra.datensatz` | `KOSTRA-DWD-2020` | Bezeichnung des Datensatzes |
+| `kostra.rasterfeld` | leer | z. B. „Spalte 123 / Zeile 45“ |
+| `kostra.regenspenden_l_s_ha` | – | `{"<D in min>": {"<T in a>": r}}`; T aus 1, 2, 3, 5, 10, 20, 30, 50, 100; max. 6 Dauerstufen. Für den Nachweis nötig: D = 5, 10, 15 mit T = 2, 30, 100 |
+| `ueberflutung.wiederkehrzeit_a` | 30 | maßgebender Nachweis: 30 oder 100 (beide werden dargestellt) |
+| `ueberflutung.befestigte_flaeche_m2`, `.befestigte_flaeche_cs` | 0 / 1,0 | weitere angeschlossene befestigte Fläche |
+| `ueberflutung.schadlos_ueberflutbar_m3` | 0 | Volumen, das schadlos auf dem Grundstück überflutet werden darf |
+
+Dargestellt werden oben rechts die Regenspendentabelle bis T = 100 a und der
+Nachweis: `V = (r(D,T) · A_ges / 10000 − Q_ab) · D · 60 / 1000` für D = 5, 10,
+15 min, größter Wert maßgebend, verglichen mit Rückhalteräumen + schadlos
+überflutbarem Volumen. `Q_ab` ist der Drosselabfluss, ohne Drossel
+`Σ r(D,2) · A · Cs / 10000`. Die Tabellenwerte werden auf Monotonie geprüft
+(r steigt mit T, fällt mit D); Verstöße sind Fehler.
 
 Reihenfolge der Kette ist fest: Dachabläufe → Fallleitungen → Sammelleitung
 (→ Rinne) → Zisterne → Stauraumkanal → Rückhaltebecken → Drosselschacht →
@@ -94,10 +116,12 @@ Fehler (kein PDF):
 
 Hinweise (im PDF rot): Drossel ohne Rückhalteraum, Rückhalteraum ohne Drossel,
 PV auf Intensivbegrünung, Übergabeschacht bei Versickerung, Mischwasserkanal
-(Rückstausicherung).
+(Rückstausicherung), fehlende/unvollständige KOSTRA-Werte, maßgebender
+Überflutungsnachweis nicht erfüllt.
 
 ## Grenzen
 
 Prinzipschema ohne Maßstab. Es ersetzt keine Bemessung (DIN 1986-100,
-DIN EN 12056-3, DWA-A 117/138) und keinen Überflutungsnachweis; das steht auch
-auf dem Plan. Mehr als vier Dachflächen: auf mehrere Schemata aufteilen.
+DIN EN 12056-3, DWA-A 117/138); der Überflutungsnachweis ist ein Überschlag in
+Anlehnung an DIN 1986-100 und vom Fachplaner zu prüfen. Das steht auch auf dem
+Plan. Mehr als vier Dachflächen: auf mehrere Schemata aufteilen.

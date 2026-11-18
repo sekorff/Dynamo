@@ -71,9 +71,15 @@ SCHEMA = {
         "aktiv": ("bool", False), "drosselabfluss_l_s": ("num?", None),
     },
     "uebergabeschacht": {"aktiv": ("bool", False)},
+    "ueberflutung": {
+        "befestigte_flaeche_m2": ("num?", 0.0),
+        "befestigte_flaeche_cs": ("num?", 1.0),
+        "schadlos_ueberflutbar_m3": ("num?", 0.0),
+        "wiederkehrzeit_a": ("num?", 30),
+    },
     "dachablauf": {
         "abflussvermoegen_l_s": ("num?", 4.5),
-        "regenspende_r5_5_l_s_ha": ("num?", 300.0),
+        "regenspende_r5_5_l_s_ha": ("num?", None),
     },
     "regenwassernutzung": {
         "aktiv": ("bool", False), "zisterne_m3": ("num?", None),
@@ -95,6 +101,11 @@ DACHABLAUF_DN = 100
 CS_STANDARD = {"keine": 1.0, "extensiv": 0.5, "intensiv": 0.2}
 
 
+def dachablauf_cs(d):
+    return d["abflussbeiwert"] if d["abflussbeiwert"] is not None \
+        else CS_STANDARD[d["begruenung"]]
+
+
 def dachablauf(cfg, d):
     """(Cs, max. Flaeche je Ablauf DN 100 in m2, Anzahl Ablaeufe) - fest gerundet."""
     a = cfg["dachablauf"]
@@ -103,7 +114,98 @@ def dachablauf(cfg, d):
     amax = int(math.floor(a["abflussvermoegen_l_s"] * 10000.0
                           / (a["regenspende_r5_5_l_s_ha"] * cs) + 1e-9))
     return cs, amax, int(math.ceil(DACHFLAECHE_M2 / float(amax) - 1e-9))
-TOP_KEYS = set(SCHEMA) | {"daecher", "notueberlauf"}
+TOP_KEYS = set(SCHEMA) | {"daecher", "notueberlauf", "kostra"}
+KOSTRA_T = (1, 2, 3, 5, 10, 20, 30, 50, 100)      # Wiederkehrzeiten [a]
+KOSTRA_D_MAX = 6                                  # max. Dauerstufen in der Tabelle
+NACHWEIS_D = (5, 10, 15)                          # Dauerstufen Ueberflutungsnachweis
+R55_STANDARD = 300.0
+
+
+def check_kostra(raw, errors):
+    """kostra: {datensatz, rasterfeld, regenspenden_l_s_ha: {"D": {"T": r}}}."""
+    out = {"datensatz": "KOSTRA-DWD-2020", "rasterfeld": "", "r": {}}
+    if raw is None:
+        return out
+    if not isinstance(raw, dict):
+        errors.append("kostra: Objekt erwartet")
+        return out
+    for k in sorted(set(raw) - {"datensatz", "rasterfeld", "regenspenden_l_s_ha"}):
+        errors.append("kostra.%s: unbekannter Schlüssel" % k)
+    for k in ("datensatz", "rasterfeld"):
+        if k in raw:
+            if isinstance(raw[k], str):
+                out[k] = raw[k]
+            else:
+                errors.append("kostra.%s: Text erwartet" % k)
+    tab = raw.get("regenspenden_l_s_ha", {})
+    if not isinstance(tab, dict):
+        errors.append("kostra.regenspenden_l_s_ha: Objekt {Dauer: {Wiederkehrzeit: r}} erwartet")
+        return out
+    for dk in sorted(tab, key=str):
+        row = tab[dk]
+        if not str(dk).isdigit() or int(dk) <= 0 or not isinstance(row, dict):
+            errors.append("kostra.regenspenden_l_s_ha.%s: Dauerstufe in Minuten mit "
+                          "Objekt {T: r} erwartet" % dk)
+            continue
+        for tk in sorted(row, key=str):
+            if not str(tk).isdigit() or int(tk) not in KOSTRA_T:
+                errors.append("kostra.regenspenden_l_s_ha.%s.%s: Wiederkehrzeit muss eine "
+                              "von %s sein" % (dk, tk, ", ".join(map(str, KOSTRA_T))))
+            elif not _is_num(row[tk]) or row[tk] <= 0:
+                errors.append("kostra.regenspenden_l_s_ha.%s.%s: Zahl > 0 erwartet" % (dk, tk))
+            else:
+                out["r"].setdefault(int(dk), {})[int(tk)] = float(row[tk])
+    if len(out["r"]) > KOSTRA_D_MAX:
+        errors.append("kostra: höchstens %d Dauerstufen" % KOSTRA_D_MAX)
+    # Plausibilitaet: r steigt mit T und faellt mit D
+    ds = sorted(out["r"])
+    for d in ds:
+        ts = sorted(out["r"][d])
+        for a, b in zip(ts, ts[1:]):
+            if out["r"][d][b] < out["r"][d][a]:
+                errors.append("kostra: r(%d,%d) < r(%d,%d) - Tabellenwerte prüfen" % (d, b, d, a))
+    for a, b in zip(ds, ds[1:]):
+        for t in sorted(set(out["r"][a]) & set(out["r"][b])):
+            if out["r"][b][t] > out["r"][a][t]:
+                errors.append("kostra: r(%d,%d) > r(%d,%d) - Tabellenwerte prüfen" % (b, t, a, t))
+    return out
+
+
+def ueberflutung(cfg):
+    """Ueberflutungsnachweis in Anlehnung an DIN 1986-100 (Gl. 20/21).
+
+    V(D,T) = (r(D,T) * A_ges / 10000 - Q_ab) * D * 60 / 1000   [m3]
+    Q_ab = Drosselabfluss, sonst Summe r(D,2) * A_i * Cs_i / 10000.
+    """
+    u, r = cfg["ueberflutung"], cfg["kostra"]["r"]
+    a_dach = DACHFLAECHE_M2 * len(cfg["daecher"])
+    a_ges = a_dach + u["befestigte_flaeche_m2"]
+    dr = cfg["drosselschacht"]
+    rows = []
+    for d in NACHWEIS_D:
+        rd = r.get(d, {})
+        if dr["aktiv"] and dr["drosselabfluss_l_s"]:
+            q = dr["drosselabfluss_l_s"]
+        elif 2 in rd:
+            q = sum(rd[2] * DACHFLAECHE_M2 * dachablauf_cs(x) for x in cfg["daecher"])
+            q = (q + rd[2] * u["befestigte_flaeche_m2"] * u["befestigte_flaeche_cs"]) / 10000.0
+        else:
+            q = None
+        vol = {}
+        for t in (30, 100):
+            if t in rd and q is not None:
+                vol[t] = max(0.0, (rd[t] * a_ges / 10000.0 - q) * d * 60.0 / 1000.0)
+        rows.append({"d": d, "r": rd, "q": q, "v": vol})
+    v_vorh = rueckhaltevolumen(cfg) + u["schadlos_ueberflutbar_m3"]
+    res = {}
+    for t in (30, 100):
+        if all(t in row["v"] for row in rows):
+            best = max(rows, key=lambda row: (row["v"][t], -row["d"]))
+            res[t] = {"v": best["v"][t], "d": best["d"],
+                      "ok": best["v"][t] <= v_vorh + 1e-9}
+    return {"a_ges": a_ges, "rows": rows, "v_vorh": v_vorh, "res": res,
+            "gedrosselt": bool(dr["aktiv"] and dr["drosselabfluss_l_s"])}
+
 
 
 def _is_num(v):
@@ -190,13 +292,35 @@ def normalize(raw):
         nue = True
     cfg["notueberlauf"] = nue
 
-    for k in ("abflussvermoegen_l_s", "regenspende_r5_5_l_s_ha"):
-        if not cfg["dachablauf"][k]:
-            errors.append("dachablauf.%s: Zahl > 0 erwartet" % k)
-            cfg["dachablauf"][k] = SCHEMA["dachablauf"][k][1]
-    if "regenspende_r5_5_l_s_ha" not in (raw.get("dachablauf") or {}):
-        warnings.append("Regenspende r(5,5) nicht angegeben - Standardwert 300 l/(s·ha) "
-                        "angesetzt; Standortwert (KOSTRA-DWD) einsetzen.")
+    cfg["kostra"] = check_kostra(raw.get("kostra"), errors)
+    da = cfg["dachablauf"]
+    if not da["abflussvermoegen_l_s"]:
+        errors.append("dachablauf.abflussvermoegen_l_s: Zahl > 0 erwartet")
+        da["abflussvermoegen_l_s"] = 4.5
+    r55_kostra = cfg["kostra"]["r"].get(5, {}).get(5)
+    if da["regenspende_r5_5_l_s_ha"] is None:
+        if r55_kostra is not None:
+            da["regenspende_r5_5_l_s_ha"] = r55_kostra
+        else:
+            da["regenspende_r5_5_l_s_ha"] = R55_STANDARD
+            warnings.append("Regenspende r(5,5) nicht angegeben - Standardwert 300 l/(s·ha) "
+                            "angesetzt; Standortwert (KOSTRA-DWD) einsetzen.")
+    elif da["regenspende_r5_5_l_s_ha"] <= 0:
+        errors.append("dachablauf.regenspende_r5_5_l_s_ha: Zahl > 0 erwartet")
+        da["regenspende_r5_5_l_s_ha"] = R55_STANDARD
+    elif r55_kostra is not None and abs(r55_kostra - da["regenspende_r5_5_l_s_ha"]) > 1e-9:
+        errors.append("dachablauf.regenspende_r5_5_l_s_ha widerspricht kostra r(5,5) = %s"
+                      % de(r55_kostra))
+    u = cfg["ueberflutung"]
+    if u["wiederkehrzeit_a"] not in (30, 100):
+        errors.append("ueberflutung.wiederkehrzeit_a: 30 oder 100 erwartet")
+        u["wiederkehrzeit_a"] = 30
+    if u["befestigte_flaeche_cs"] is None or not 0 < u["befestigte_flaeche_cs"] <= 1:
+        errors.append("ueberflutung.befestigte_flaeche_cs: Wert > 0 und <= 1 erwartet")
+        u["befestigte_flaeche_cs"] = 1.0
+    for k in ("befestigte_flaeche_m2", "schadlos_ueberflutbar_m3"):
+        if u[k] is None:
+            u[k] = 0.0
     daecher = raw.get("daecher")
     if not isinstance(daecher, list) or not 1 <= len(daecher) <= MAX_DAECHER:
         errors.append("daecher: Liste mit 1 bis %d Dachflächen erwartet" % MAX_DAECHER)
@@ -264,6 +388,17 @@ def normalize(raw):
     if v["einleitstelle"] == "mischwasserkanal":
         warnings.append("Einleitung in Mischwasserkanal: Rückstausicherung gemäß "
                         "Rückstauebene vorsehen.")
+    if not errors:
+        n = ueberflutung(cfg)
+        t = cfg["ueberflutung"]["wiederkehrzeit_a"]
+        if not cfg["kostra"]["r"]:
+            warnings.append("KOSTRA-Regenspenden fehlen - Überflutungsnachweis nicht geführt.")
+        elif t not in n["res"]:
+            warnings.append("Überflutungsnachweis T = %d a unvollständig: r(D,2) und r(D,%d) "
+                            "für D = 5, 10, 15 min erforderlich." % (t, t))
+        elif not n["res"][t]["ok"]:
+            warnings.append("Überflutungsnachweis T = %d a nicht erfüllt: erforderlich %s m³, "
+                            "vorhanden %s m³." % (t, de(n["res"][t]["v"]), de(n["v_vorh"])))
     return cfg, errors, warnings
 
 
@@ -842,7 +977,8 @@ def draw_hinweise(z, warnings):
     notes = list(warnings) + [
         "Prinzipschema ohne Maßstab; ersetzt keine hydraulische Bemessung "
         "(DIN 1986-100, DIN EN 12056-3, DWA-A 117 / DWA-A 138).",
-        "Überflutungsnachweis und Notentwässerung nach DIN 1986-100 führen.",
+        "Überflutungsnachweis: Überschlag in Anlehnung an DIN 1986-100 mit den "
+        "eingetragenen KOSTRA-Werten; durch Fachplaner zu prüfen.",
         "Vorgaben des Versorgers / der Entwässerungssatzung sind vor Ausführung "
         "zu bestätigen.",
     ]
@@ -882,6 +1018,83 @@ def draw_titleblock(z, cfg):
     cell(x0 + 90, 10, "Bearbeiter / Maßstab", (p["bearbeiter"] + "  o. M.").strip(), 30)
 
 
+GREEN_OK = (0.05, 0.50, 0.15)
+
+
+def draw_nachweis(z, cfg):
+    """Regenspendentabelle (KOSTRA) und Ueberflutungsnachweis, oben rechts."""
+    k, n, u = cfg["kostra"], ueberflutung(cfg), cfg["ueberflutung"]
+    x0, x1, y = 246.0, 408.0, 279.5
+    w = x1 - x0
+    titel = "Regenspenden r(D,T) in l/(s·ha) - %s" % k["datensatz"]
+    if k["rasterfeld"]:
+        titel += ", Rasterfeld %s" % k["rasterfeld"]
+    z.text(x0, y, titel, 2.8, FB, BLACK, maxw=w)
+    rh, c0 = 4.2, 26.0
+    if not k["r"]:
+        z.text(x0, y - 5.0, "Keine KOSTRA-Werte angegeben - Tabelle und Überflutungsnachweis "
+               "nicht geführt.", 2.5, F, RED, maxw=w)
+        return
+
+    def table(ytop, head, rows, bold_cols=()):
+        cw = (w - c0) / (len(head) - 1)
+        z.rect(x0, ytop - rh, w, rh, None, (0.90, 0.92, 0.95))
+        for i, row in enumerate([head] + rows):
+            yb = ytop - (i + 1) * rh
+            for j, cell in enumerate(row):
+                cx = x0 + c0 / 2.0 if j == 0 else x0 + c0 + (j - 0.5) * cw
+                z.text(cx, yb + 1.2, cell, 2.4, FB if (i == 0 or j == 0 or j in bold_cols)
+                       else F, BLACK, "c", maxw=(c0 if j == 0 else cw) - 1.0)
+            z.line(x0, yb, x1, yb, LGREY, 0.15)
+        z.rect(x0, ytop - (len(rows) + 1) * rh, w, (len(rows) + 1) * rh, BLACK, None, 0.3)
+        z.line(x0 + c0, ytop, x0 + c0, ytop - (len(rows) + 1) * rh, BLACK, 0.2)
+        return ytop - (len(rows) + 1) * rh
+
+    head = ["D [min] \\ T [a]"] + [str(t) for t in KOSTRA_T]
+    rows = [[str(d)] + [de(k["r"][d][t]) if t in k["r"][d] else "-" for t in KOSTRA_T]
+            for d in sorted(k["r"])]
+    y = table(y - 2.0, head, rows) - 6.5
+
+    z.text(x0, y, "Überflutungsnachweis (in Anlehnung an DIN 1986-100)", 2.8, FB)
+    y -= 4.0
+    z.text(x0, y, "V = (r(D,T) · A_ges / 10000 - Q_ab) · D · 60 / 1000;  A_ges = %s m²;  Q_ab = %s"
+           % (de_int(n["a_ges"]), "Drosselabfluss" if n["gedrosselt"]
+              else "Summe r(D,2) · A · Cs / 10000"), 2.4, F, BLACK, maxw=w)
+    head = ["D [min]", "r(D,2)", "Q_ab [l/s]", "r(D,30)", "V30 [m³]", "r(D,100)", "V100 [m³]"]
+    rows = []
+    for row in n["rows"]:
+        rd = row["r"]
+        rows.append([str(row["d"]), de(rd.get(2)), de(row["q"]), de(rd.get(30)),
+                     de(row["v"].get(30)), de(rd.get(100)), de(row["v"].get(100))])
+    y = table(y - 2.0, head, rows, (4, 6)) - 4.5
+    z.text(x0, y, "V_vorh = %s m³ (Rückhalteräume %s m³ + schadlos überflutbare Fläche %s m³)"
+           % (de(n["v_vorh"]), de(rueckhaltevolumen(cfg)), de(u["schadlos_ueberflutbar_m3"])),
+           2.4, F, BLACK, maxw=w)
+    for t in (30, 100):
+        y -= 3.8
+        massg = " (maßgebend)" if t == u["wiederkehrzeit_a"] else ""
+        if t not in n["res"]:
+            z.text(x0, y, "T = %d a%s: nicht geführt - KOSTRA-Werte unvollständig" % (t, massg),
+                   2.5, FB, GREY, maxw=w)
+            continue
+        e = n["res"][t]
+        z.text(x0, y, "T = %d a%s: V_erf = %s m³ (D = %d min) %s V_vorh = %s m³ - %s"
+               % (t, massg, de(e["v"]), e["d"], "<=" if e["ok"] else ">", de(n["v_vorh"]),
+                  "erfüllt" if e["ok"] else "NICHT erfüllt"),
+               2.5, FB, GREEN_OK if e["ok"] else RED, maxw=w)
+
+
+def draw_ueberflutungsflaeche(z, cfg):
+    v = cfg["ueberflutung"]["schadlos_ueberflutbar_m3"]
+    if not v:
+        return
+    xr = 406.0 if cfg["versorger"]["einleitstelle"] == "versickerung" else X_GRENZE - 2.0
+    z.rect(206.0, Y_GOK + 0.3, xr - 206.0, 1.6, None, WATER)
+    z.line(206.0, Y_GOK + 1.9, xr, Y_GOK + 1.9, BLUE, 0.2, (1.2, 0.8))
+    z.text(xr, Y_GOK + 13.5, "Überflutungsfläche (schadlos), V = %s m³" % de(v), 2.4, F,
+           BLUE, "r")
+
+
 def render(cfg, warnings, out_path):
     c = canvas.Canvas(out_path, pagesize=(W * mm, H * mm), invariant=1, pageCompression=1)
     c.setTitle("Regenwasseranlage - Prinzipschema")
@@ -892,9 +1105,11 @@ def render(cfg, warnings, out_path):
     z = Z(c)
     z.rect(20, 10, 390, 277, BLACK, None, 0.7)
     draw_site(z)
+    draw_ueberflutungsflaeche(z, cfg)
     draw_building(z, cfg)
     drains = draw_roofs(z, cfg)
     draw_chain(z, cfg, drains)
+    draw_nachweis(z, cfg)
     z.rect(20, 10, 390, STRIP - 10, None, WHITE)
     draw_legend(z)
     draw_vorgaben(z, cfg)

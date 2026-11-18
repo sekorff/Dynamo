@@ -1,11 +1,85 @@
 {
-  "projekt": {"name": "Quartier Am Anger - Haus 3", "standort": "Beispielstadt", "plan_nr": "RW-020", "datum": "2026-11-18", "bearbeiter": "MM"},
-  "versorger": {"name": "Wasserverband Beispielstadt", "einleitstelle": "gewaesser", "einleitbeschraenkung_l_s": 2.5, "rueckhaltevolumen_min_m3": 30},
+  "projekt": {
+    "name": "Quartier Am Anger - Haus 3",
+    "standort": "Beispielstadt",
+    "plan_nr": "RW-020",
+    "datum": "2026-11-18",
+    "bearbeiter": "MM"
+  },
+  "versorger": {
+    "name": "Wasserverband Beispielstadt",
+    "einleitstelle": "gewaesser",
+    "einleitbeschraenkung_l_s": 2.5,
+    "rueckhaltevolumen_min_m3": 30
+  },
   "daecher": [
-    {"name": "Dach Nord", "typ": "retentionsdach", "begruenung": "intensiv", "pv": false, "retentionsvolumen_m3": 14},
-    {"name": "Dach Süd", "typ": "schwammdach", "begruenung": "extensiv", "pv": true, "retentionsvolumen_m3": 9}
+    {
+      "name": "Dach Nord",
+      "typ": "retentionsdach",
+      "begruenung": "intensiv",
+      "pv": false,
+      "retentionsvolumen_m3": 14
+    },
+    {
+      "name": "Dach Süd",
+      "typ": "schwammdach",
+      "begruenung": "extensiv",
+      "pv": true,
+      "retentionsvolumen_m3": 9
+    }
   ],
-  "rinne": {"vorhanden": true},
-  "rueckhaltebecken": {"aktiv": true, "volumen_m3": 35, "bauart": "offen"},
-  "drosselschacht": {"aktiv": true, "drosselabfluss_l_s": 2.5}
+  "rinne": {
+    "vorhanden": true
+  },
+  "rueckhaltebecken": {
+    "aktiv": true,
+    "volumen_m3": 35,
+    "bauart": "offen"
+  },
+  "drosselschacht": {
+    "aktiv": true,
+    "drosselabfluss_l_s": 2.5
+  },
+  "kostra": {
+    "datensatz": "KOSTRA-DWD-2020",
+    "rasterfeld": "Beispielwerte (kein realer Standort)",
+    "regenspenden_l_s_ha": {
+      "5": {
+        "1": 180,
+        "2": 233,
+        "3": 263,
+        "5": 303,
+        "10": 357,
+        "20": 413,
+        "30": 447,
+        "50": 493,
+        "100": 557
+      },
+      "10": {
+        "1": 127,
+        "2": 163,
+        "3": 185,
+        "5": 213,
+        "10": 250,
+        "20": 290,
+        "30": 313,
+        "50": 345,
+        "100": 390
+      },
+      "15": {
+        "1": 100,
+        "2": 129,
+        "3": 146,
+        "5": 168,
+        "10": 198,
+        "20": 229,
+        "30": 248,
+        "50": 273,
+        "100": 309
+      }
+    }
+  },
+  "ueberflutung": {
+    "wiederkehrzeit_a": 30
+  }
 }

@@ -78,7 +78,48 @@
       "WC-Spülung"
     ]
   },
-  "dachablauf": {
-    "regenspende_r5_5_l_s_ha": 300
+  "kostra": {
+    "datensatz": "KOSTRA-DWD-2020",
+    "rasterfeld": "Beispielwerte (kein realer Standort)",
+    "regenspenden_l_s_ha": {
+      "5": {
+        "1": 180,
+        "2": 233,
+        "3": 263,
+        "5": 303,
+        "10": 357,
+        "20": 413,
+        "30": 447,
+        "50": 493,
+        "100": 557
+      },
+      "10": {
+        "1": 127,
+        "2": 163,
+        "3": 185,
+        "5": 213,
+        "10": 250,
+        "20": 290,
+        "30": 313,
+        "50": 345,
+        "100": 390
+      },
+      "15": {
+        "1": 100,
+        "2": 129,
+        "3": 146,
+        "5": 168,
+        "10": 198,
+        "20": 229,
+        "30": 248,
+        "50": 273,
+        "100": 309
+      }
+    }
+  },
+  "ueberflutung": {
+    "befestigte_flaeche_m2": 500,
+    "schadlos_ueberflutbar_m3": 15,
+    "wiederkehrzeit_a": 100
   }
 }
