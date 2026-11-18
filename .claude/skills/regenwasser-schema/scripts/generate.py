@@ -114,7 +114,8 @@ def dachablauf(cfg, d):
     amax = int(math.floor(a["abflussvermoegen_l_s"] * 10000.0
                           / (a["regenspende_r5_5_l_s_ha"] * cs) + 1e-9))
     return cs, amax, int(math.ceil(DACHFLAECHE_M2 / float(amax) - 1e-9))
-TOP_KEYS = set(SCHEMA) | {"daecher", "notueberlauf", "kostra"}
+TOP_KEYS = set(SCHEMA) | {"daecher", "notueberlauf", "kostra", "geraete_zusatz",
+                             "schnittstellen_zusatz"}
 KOSTRA_T = (1, 2, 3, 5, 10, 20, 30, 50, 100)      # Wiederkehrzeiten [a]
 KOSTRA_D_MAX = 6                                  # max. Dauerstufen in der Tabelle
 NACHWEIS_D = (5, 10, 15)                          # Dauerstufen Ueberflutungsnachweis
@@ -291,6 +292,10 @@ def normalize(raw):
         errors.append("notueberlauf: true/false erwartet")
         nue = True
     cfg["notueberlauf"] = nue
+    cfg["geraete_zusatz"] = check_zusatz(raw.get("geraete_zusatz"), "geraete_zusatz",
+                                         GERAETE_KEYS, errors)
+    cfg["schnittstellen_zusatz"] = check_zusatz(raw.get("schnittstellen_zusatz"),
+                                                "schnittstellen_zusatz", SCHNITT_KEYS, errors)
 
     cfg["kostra"] = check_kostra(raw.get("kostra"), errors)
     da = cfg["dachablauf"]
@@ -1095,6 +1100,294 @@ def draw_ueberflutungsflaeche(z, cfg):
            BLUE, "r")
 
 
+# --------------------------------------------------------------------------
+# Seite 2 ff.: Geraetetabelle und Schnittstellenliste (DIN 276)
+# --------------------------------------------------------------------------
+
+GERAETE_KEYS = ("bezeichnung", "anzahl", "kenndaten", "kg", "bemerkung")
+SCHNITT_KEYS = ("schnittstelle", "kg", "gegengewerk", "koordination", "anschluss",
+                "inbetriebnahme")
+
+
+def check_zusatz(raw, name, keys, errors):
+    out = []
+    if raw is None:
+        return out
+    if not isinstance(raw, list):
+        errors.append("%s: Liste erwartet" % name)
+        return out
+    for i, item in enumerate(raw):
+        if not isinstance(item, dict) or set(item) - set(keys) or \
+                not all(isinstance(v, str) for v in item.values()):
+            errors.append("%s[%d]: Objekt mit Textfeldern %s erwartet"
+                          % (name, i, ", ".join(keys)))
+            continue
+        out.append([item.get(k, "") for k in keys])
+    return out
+
+
+def geraete_rows(cfg):
+    """Feste Reihenfolge: Dach -> Gebaeude -> Grundstueck. Spalten wie GERAETE_KEYS."""
+    rows = []
+    a = cfg["dachablauf"]
+    for d in cfg["daecher"]:
+        cs, amax, anz = dachablauf(cfg, d)
+        rows.append(["Dachablauf DN %d - %s" % (DACHABLAUF_DN, d["name"]), str(anz),
+                     "Q = %s l/s je Ablauf; max. %d m² je Ablauf; Cs = %s; r(5,5) = %s l/(s·ha)"
+                     % (de(a["abflussvermoegen_l_s"]), amax, de(cs),
+                        de_int(a["regenspende_r5_5_l_s_ha"])),
+                     "411", "mit Ablaufdrossel (Retentionsdach)"
+                     if d["typ"] == "retentionsdach" else ""])
+        if d["typ"] != "standard":
+            rows.append(["%s - %s" % ("Retentionsdach-Aufbau (Retentionsboxen)"
+                                      if d["typ"] == "retentionsdach"
+                                      else "Schwammdach-Aufbau (Speicherschicht)", d["name"]),
+                         "1", "A = %d m²; %s%s" % (
+                             DACHFLAECHE_M2, BEGRUENUNG[d["begruenung"]],
+                             "; V = %s m³" % de(d["retentionsvolumen_m3"])
+                             if d["retentionsvolumen_m3"] else ""),
+                         "363", "Leistung Dachabdichtung / Dachbegrünung"])
+    rows.append(["Fallleitung Regenwasser", str(len(cfg["daecher"])),
+                 "je Dachfläche ein Strang (Schema); Dimension nach Bemessung", "411", ""])
+    if cfg["notueberlauf"]:
+        rows.append(["Notüberlauf über Attika", "n. Bem.",
+                     "freier Auslauf auf schadlos überflutbare Fläche", "411", ""])
+    r = cfg["rinne"]
+    if r["vorhanden"]:
+        rows.append(["Entwässerungsrinne" + (", überdimensioniert (Rückhalt)"
+                                             if r["ueberdimensioniert"] else ""), "1",
+                     "; ".join(x for x in [r["bezeichnung"],
+                                           "V = %s m³" % de(r["volumen_m3"])
+                                           if r["ueberdimensioniert"] and r["volumen_m3"]
+                                           else ""] if x) or "-", "551", ""])
+    n = cfg["regenwassernutzung"]
+    if n["aktiv"]:
+        rows.append(["Regenwasserfilter", "1", "vor Zisterne", "552", ""])
+        rows.append(["Zisterne", "1", "V = %s m³; mit Überlauf zur Entwässerung"
+                     % de(n["zisterne_m3"]), "552", "zählt nicht als Rückhaltevolumen"])
+        rows.append(["Betriebswasserpumpe", "1", "Förderdaten nach Bemessung", "412", ""])
+        rows.append(["Betriebswasserzentrale mit Trinkwassernachspeisung", "1",
+                     "freier Auslauf DIN EN 1717 Typ AA; Verwendung: %s"
+                     % ", ".join(n["verwendung"][:5] or ["Bewässerung"]), "412",
+                     "Leitungen und Zapfstellen als Betriebswasser kennzeichnen"])
+    s = cfg["stauraumkanal"]
+    if s["aktiv"]:
+        rows.append(["Stauraumkanal (überdimensionierte Leitung)", "1",
+                     "DN %s; L = %s m; V = %s m³" % (de_int(s["dn"]), de(s["laenge_m"]),
+                                                     de(stauraum_volumen(cfg))), "551", ""])
+    b = cfg["rueckhaltebecken"]
+    if b["aktiv"]:
+        rows.append(["Regenrückhaltebecken", "1", "V = %s m³; %s"
+                     % (de(b["volumen_m3"]), BAUARTEN[b["bauart"]]), "551", ""])
+    if cfg["drosselschacht"]["aktiv"]:
+        rows.append(["Drosselschacht mit Drosselorgan", "1", "Qdr = %s l/s"
+                     % de(cfg["drosselschacht"]["drosselabfluss_l_s"]), "551",
+                     "Einstellwert protokollieren"])
+    if cfg["uebergabeschacht"]["aktiv"]:
+        rows.append(["Übergabeschacht", "1", "Kontrolle / Probenahme vor Grundstücksgrenze",
+                     "551", ""])
+    if cfg["versorger"]["einleitstelle"] == "versickerung":
+        rows.append(["Versickerungsanlage (Rigole)", "1", "Bemessung nach DWA-A 138", "551", ""])
+    return rows + cfg["geraete_zusatz"]
+
+
+def schnittstellen_rows(cfg):
+    """Spalten wie SCHNITT_KEYS. Zeilen erscheinen nur fuer vorhandene Komponenten."""
+    v = cfg["versorger"]
+    rows = [
+        ["Dachablauf / Dachabdichtung", "411", "Dachabdichtung (KG 363)",
+         "Lage, Anzahl und Höhe der Abläufe DN %d, Gefälle, Anschlussflansch" % DACHABLAUF_DN,
+         "Einbau Ablaufkörper und Rohranschluss: Sanitär; Eindichten: Dachabdichtung",
+         "Dichtheitsprüfung Leitung: Sanitär; gemeinsame Sichtabnahme der Eindichtung"],
+        ["Fall- und Sammelleitung / Durchdringungen", "411",
+         "Rohbau (KG 330/350), Brandschutz",
+         "Aussparungen, Kernbohrungen, Schächte, Schall- und Brandschutzanforderungen",
+         "Aussparungen: Rohbau; Leitungen und Abschottungen: Sanitär",
+         "Dichtheitsprüfung: Sanitär; Abnahme Abschottungen mit Brandschutz"],
+        ["Grundleitungen / Gründung, Erdbau", "411 / 551",
+         "Rohbau Gründung (KG 320), Erdbau (KG 510)",
+         "Trassen, Höhen, Durchführungen Bodenplatte, Übergabepunkt Gebäude/Außenanlage",
+         "Gräben und Verfüllung: Erdbau; Rohrverlegung: Sanitär / Tiefbau",
+         "Dichtheitsprüfung DIN EN 1610 und Kamerabefahrung vor Verfüllung/Abnahme"],
+    ]
+    if cfg["notueberlauf"]:
+        rows.append(["Notüberlauf / Attika, Fassade", "411",
+                     "Dachabdichtung (KG 363), Fassade (KG 330)",
+                     "Lage und Höhe der Notüberläufe, freier Auslauf, Aufstauhöhe (Statik)",
+                     "Öffnung Attika: Rohbau/Fassade; Eindichten: Dachabdichtung",
+                     "Sichtprüfung Höhenlage; Nachweis Notentwässerung: Sanitärplanung"])
+    if any(d["typ"] != "standard" or d["begruenung"] != "keine" for d in cfg["daecher"]):
+        rows.append(["Retentions-/Schwammdach, Dachbegrünung", "411",
+                     "Dachbegrünung (KG 363), Tragwerk (KG 361)",
+                     "Anstauhöhe, Lastannahmen Wasser/Substrat, Drosselabfluss je Ablauf, "
+                     "Kontrollschächte, Kiesstreifen",
+                     "Retentionsaufbau und Begrünung: Dachbegrünung; Ablaufdrossel: Sanitär",
+                     "Einstellung Ablaufdrosseln protokollieren; gemeinsame Abnahme, "
+                     "Übergabe Pflegeanweisung"])
+    if any(d["pv"] for d in cfg["daecher"]):
+        rows.append(["Dachentwässerung / PV-Anlage", "411",
+                     "Elektro, Eigenstromversorgung (KG 442)",
+                     "Aufständerung, Auflast, Abstand zu Abläufen und Notüberläufen, "
+                     "Wartungswege, Kabelführung",
+                     "PV-Montage und Kabel: Elektro; keine Durchdringung ohne Abstimmung "
+                     "Dachabdichtung",
+                     "Inbetriebnahme PV: Elektro; Sichtprüfung freie Abläufe: Sanitär"])
+    if cfg["rinne"]["vorhanden"]:
+        rows.append(["Entwässerungsrinne / Beläge", "551",
+                     "Außenanlagen, Oberbau (KG 530)",
+                     "Lage, Belastungsklasse, Gefälle der Flächen, Anschlusshöhe",
+                     "Rinne setzen: Außenanlagen; Anschluss an Sammelleitung: Tiefbau/Sanitär",
+                     "Spülung und Funktionsprüfung nach Belagsfertigstellung"])
+    n = cfg["regenwassernutzung"]
+    if n["aktiv"]:
+        rows.append(["Betriebswasser / Trinkwasser", "412", "Trinkwasserinstallation (KG 412)",
+                     "Nachspeisung über freien Auslauf Typ AA, Kennzeichnung, keine "
+                     "Verbindung zum Trinkwassernetz",
+                     "Trinkwasserzuleitung bis Nachspeisung: Trinkwasser; ab Zentrale: "
+                     "Regenwassernutzung",
+                     "Druck- und Dichtheitsprüfung, Funktionsprüfung Nachspeisung, "
+                     "Anzeige beim Versorger / Gesundheitsamt"])
+        rows.append(["Pumpe, Zentrale / Stromversorgung", "412",
+                     "Elektro, Niederspannung (KG 444)",
+                     "Anschlussleistung, Absicherung, Potentialausgleich, Kabelweg zur Zisterne",
+                     "Zuleitung bis Klemme: Elektro; Geräteanschluss: Sanitär",
+                     "Drehrichtung, Trockenlaufschutz, gemeinsame Inbetriebnahme"])
+        rows.append(["Zisterne / Erdbau, Außenanlagen", "552",
+                     "Erdbau (KG 510), Außenanlagen (KG 530)",
+                     "Baugrube, Auftriebssicherung, Überdeckung, Belastungsklasse Abdeckung",
+                     "Aushub, Bettung, Verfüllung: Erdbau; Behälter und Leitungen: Sanitär",
+                     "Dichtheitsprüfung, Füllstandsprüfung vor Verfüllung"])
+        if any("ewässer" in x for x in (n["verwendung"] or ["Bewässerung"])):
+            rows.append(["Betriebswasser / Bewässerung", "412",
+                         "Freianlagen, Vegetation (KG 570), Bewässerung (KG 552)",
+                         "Entnahmestellen, Bedarf, Druck, Steuerung der Bewässerung",
+                         "bis Übergabearmatur: Sanitär; Bewässerungsnetz: Freianlagen",
+                         "gemeinsame Funktionsprüfung, Einweisung Betreiber"])
+    if cfg["stauraumkanal"]["aktiv"] or cfg["rueckhaltebecken"]["aktiv"]:
+        rows.append(["Stauraumkanal, Rückhaltebecken / Tiefbau", "551",
+                     "Erdbau (KG 510), Außenanlagen (KG 530/540)",
+                     "Lage, Höhen, Stauziel, Auftrieb, Überdeckung, Zugänglichkeit für Wartung",
+                     "Aushub, Bettung, Verfüllung: Erdbau; Bauwerk und Leitungen: Tiefbau",
+                     "Dichtheitsprüfung, Kontrolle Stauziel, Abnahme vor Überbauung"])
+    if cfg["drosselschacht"]["aktiv"]:
+        rows.append(["Drosselschacht / Einleitbeschränkung", "551",
+                     "Versorger / Entwässerungsbetrieb (KG 221/230)",
+                     "zulässiger Drosselabfluss %s l/s, Nachweis Rückhaltevolumen, "
+                     "Entwässerungsgenehmigung" % de(cfg["drosselschacht"]["drosselabfluss_l_s"]),
+                     "Drosselorgan einbauen und einstellen: Tiefbau/Sanitär",
+                     "Einstellprotokoll Drossel; Abnahme durch Versorger"])
+    if v["einleitstelle"] == "versickerung":
+        rows.append(["Versickerungsanlage / Baugrund", "551",
+                     "Erdbau (KG 510), Wasserbehörde",
+                     "Durchlässigkeit, Grundwasserabstand, Abstand zu Gebäuden, "
+                     "wasserrechtliche Erlaubnis",
+                     "Aushub und Verfüllung: Erdbau; Rigole und Zulauf: Tiefbau",
+                     "Abnahme vor Verfüllung; Anzeige / Abnahme Wasserbehörde"])
+    else:
+        rows.append(["%s / %s" % ("Übergabeschacht" if cfg["uebergabeschacht"]["aktiv"]
+                                  else "Anschlussleitung", EINLEITSTELLEN[v["einleitstelle"]]),
+                     "551", "Versorger / Entwässerungsbetrieb (KG 221/230)",
+                     "Anschlusspunkt, Sohlhöhe, Rückstauebene%s, Entwässerungsantrag"
+                     % (" (%s)" % v["rueckstauebene"] if v["rueckstauebene"] else ""),
+                     "bis Grundstücksgrenze: Tiefbau; Anschluss an öffentliche Anlage: "
+                     "nach Vorgabe Versorger",
+                     "Dichtheitsprüfung, Kamerabefahrung; Abnahme durch Versorger"])
+    if cfg["ueberflutung"]["schadlos_ueberflutbar_m3"]:
+        rows.append(["Überflutungsfläche / Freianlagen", "551",
+                     "Außenanlagen (KG 530), Vegetation (KG 570)",
+                     "Geländemodellierung, Einstauhöhe, V = %s m³, Schutz von Gebäudeöffnungen"
+                     % de(cfg["ueberflutung"]["schadlos_ueberflutbar_m3"]),
+                     "Geländeprofil und Einfassungen: Außenanlagen",
+                     "Höhenaufmaß; Bestätigung Überflutungsnachweis"])
+    return rows + cfg["schnittstellen_zusatz"]
+
+
+class Listen(object):
+    """Fliesslayout fuer Tabellen mit festem Seitenumbruch."""
+
+    TOP, BOTTOM, X0, X1 = 281.5, 22.0, 24.0, 406.0
+    SIZE, LH, PAD = 2.5, 3.2, 0.8
+
+    def __init__(self, c, cfg):
+        self.c, self.cfg, self.z, self.page = c, cfg, None, 1
+        self.new_page()
+
+    def new_page(self):
+        if self.z is not None:
+            self.c.showPage()
+        self.page += 1
+        self.c.scale(mm, mm)
+        self.z = z = Z(self.c)
+        p = self.cfg["projekt"]
+        z.rect(20, 10, 390, 277, BLACK, None, 0.7)
+        z.line(20, 19, 410, 19, BLACK, 0.35)
+        z.text(22, 13, p["name"] or "-", 3.2, FB, BLACK, maxw=150)
+        z.text(215, 13, "Regenwasseranlage - Gerätetabelle und Schnittstellenliste", 2.8, F,
+               BLACK, "c")
+        z.text(408, 13, "%s   Blatt %d" % ("   ".join(
+            x for x in [p["plan_nr"] + (" / " + p["index"] if p["index"] else ""),
+                        p["datum"]] if x), self.page), 2.8, F, BLACK, "r")
+        self.y = self.TOP
+
+    def _header(self, title, cols, fort):
+        z = self.z
+        z.text(self.X0, self.y, title + (" (Fortsetzung)" if fort else ""), 3.6, FB)
+        self.y -= 3.0
+        h = self.LH + 2 * self.PAD
+        x = self.X0
+        for name, w in cols:
+            z.rect(x, self.y - h, w, h, BLACK, (0.90, 0.92, 0.95), 0.25)
+            z.text(x + 1.2, self.y - h + self.PAD + 0.7, name, self.SIZE, FB, BLACK,
+                   maxw=w - 2.4)
+            x += w
+        self.y -= h
+
+    def table(self, title, cols, rows):
+        if self.y - 30.0 < self.BOTTOM:
+            self.new_page()
+        self._header(title, cols, False)
+        for row in rows:
+            cells = [self.z.wrap(s, self.SIZE, F, w - 2.4) or [""]
+                     for s, (_, w) in zip(row, cols)]
+            h = max(len(c) for c in cells) * self.LH + 2 * self.PAD
+            if self.y - h < self.BOTTOM:
+                self.new_page()
+                self._header(title, cols, True)
+            x = self.X0
+            for j, (lines, (_, w)) in enumerate(zip(cells, cols)):
+                self.z.rect(x, self.y - h, w, h, BLACK, None, 0.2)
+                for i, s in enumerate(lines):
+                    self.z.text(x + 1.2, self.y - self.PAD - 2.2 - i * self.LH, s, self.SIZE,
+                                FB if j == 1 else F, BLACK, maxw=w - 2.4)
+                x += w
+            self.y -= h
+        self.y -= 7.0
+
+    def note(self, text):
+        for s in self.z.wrap(text, 2.4, F, self.X1 - self.X0):
+            if self.y < self.BOTTOM:
+                self.new_page()
+            self.z.text(self.X0, self.y, s, 2.4, F, GREY)
+            self.y -= 3.2
+
+
+def draw_listen(c, cfg):
+    L = Listen(c, cfg)
+    g = [[str(i + 1)] + r for i, r in enumerate(geraete_rows(cfg))]
+    L.table("Gerätetabelle",
+            [("Pos.", 12), ("Gerät / Bauteil", 92), ("Anzahl", 18), ("Kenndaten", 140),
+             ("KG DIN 276", 24), ("Bemerkung", 96)], g)
+    s = [["S%d" % (i + 1)] + r for i, r in enumerate(schnittstellen_rows(cfg))]
+    L.table("Schnittstellenliste (Kostengruppen nach DIN 276)",
+            [("Nr.", 12), ("Schnittstelle", 58), ("KG", 18), ("Gegengewerk", 62),
+             ("Koordination", 82), ("Anschluss", 78), ("Inbetriebnahme", 72)], s)
+    L.note("Eigenes Gewerk: Regenwasseranlage - KG 411 Abwasseranlagen (Gebäude), KG 412 "
+           "Wasseranlagen (Betriebswasser), KG 551/552 Abwasser- und Wasseranlagen in "
+           "Außenanlagen. Kostengruppen nach DIN 276:2018-12; Zuordnung und "
+           "Leistungsabgrenzung sind projektspezifisch zu bestätigen.")
+    c.showPage()
+
+
 def render(cfg, warnings, out_path):
     c = canvas.Canvas(out_path, pagesize=(W * mm, H * mm), invariant=1, pageCompression=1)
     c.setTitle("Regenwasseranlage - Prinzipschema")
@@ -1117,6 +1410,7 @@ def render(cfg, warnings, out_path):
     draw_titleblock(z, cfg)
     z.rect(20, 10, 390, 277, BLACK, None, 0.7)
     c.showPage()
+    draw_listen(c, cfg)
     c.save()
 
 

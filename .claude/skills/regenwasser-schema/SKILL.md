@@ -99,6 +99,21 @@ Nachweis: `V = (r(D,T) · A_ges / 10000 − Q_ab) · D · 60 / 1000` für D = 5,
 `Σ r(D,2) · A · Cs / 10000`. Die Tabellenwerte werden auf Monotonie geprüft
 (r steigt mit T, fällt mit D); Verstöße sind Fehler.
 
+**Seite 2 ff.: Gerätetabelle und Schnittstellenliste.** Beide Tabellen werden
+aus den aktiven Komponenten abgeleitet (feste Reihenfolge Dach → Gebäude →
+Grundstück, fester Seitenumbruch). Die Schnittstellenliste hat die Spalten
+Schnittstelle, KG (DIN 276), Gegengewerk, Koordination, Anschluss,
+Inbetriebnahme; eine Zeile erscheint nur, wenn die Komponente vorhanden ist.
+Projektspezifische Ergänzungen (alle Felder Text, optional):
+
+| Schlüssel | Felder |
+|---|---|
+| `geraete_zusatz[]` | `bezeichnung`, `anzahl`, `kenndaten`, `kg`, `bemerkung` |
+| `schnittstellen_zusatz[]` | `schnittstelle`, `kg`, `gegengewerk`, `koordination`, `anschluss`, `inbetriebnahme` |
+
+Standardtexte der Tabellen nicht im Skript projektweise umschreiben, sondern
+über die Zusatzlisten ergänzen.
+
 Reihenfolge der Kette ist fest: Dachabläufe → Fallleitungen → Sammelleitung
 (→ Rinne) → Zisterne → Stauraumkanal → Rückhaltebecken → Drosselschacht →
 Übergabeschacht → Grundstücksgrenze → Einleitstelle.
