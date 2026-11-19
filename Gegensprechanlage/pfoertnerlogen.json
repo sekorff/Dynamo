@@ -1,0 +1,37 @@
+{
+  "projekt": {
+    "name": "Schranken- und Türsprechanlage, 2 Pförtnerlogen - ENTWURF",
+    "datum": "2026-11-19",
+    "index": "E1"
+  },
+  "zentrale": {
+    "server": { "bezeichnung": "Intercom-Server", "ort": "Pförtnerloge 1" },
+    "core_switch": { "bezeichnung": "Core-Switch", "ort": "Pförtnerloge 1" }
+  },
+  "verteiler": [
+    { "id": "SW1", "bezeichnung": "PoE-Switch Loge 1", "ort": "Pförtnerloge 1", "uplink_laenge_m": 3 },
+    { "id": "SW2", "bezeichnung": "PoE-Switch Loge 2", "ort": "Pförtnerloge 2", "uplink_laenge_m": 120 }
+  ],
+  "sprechstellen": [
+    { "id": "IS1", "typ": "innen", "einbauort": "pforte", "bezeichnung": "Pförtnerloge 1",
+      "video": true, "freigabe": ["tuer", "schranke"], "verteiler": "SW1", "leitungslaenge_m": 5 },
+    { "id": "SR1", "typ": "relais", "einbauort": "pforte", "bezeichnung": "Smart Relais Loge 1",
+      "freigabe": ["tuer", "schranke"], "freigabe_anzahl": { "tuer": 2, "schranke": 2 }, "verteiler": "SW1", "leitungslaenge_m": 5 },
+    { "id": "AS-S1", "typ": "aussen", "einbauort": "schranke", "bezeichnung": "Schranke 1",
+      "video": true, "freigabe": [], "verteiler": "SW1", "leitungslaenge_m": 50 },
+    { "id": "AS-S2", "typ": "aussen", "einbauort": "schranke", "bezeichnung": "Schranke 2",
+      "video": true, "freigabe": [], "verteiler": "SW1", "leitungslaenge_m": 50 },
+    { "id": "AS-T1", "typ": "aussen", "einbauort": "tuer", "bezeichnung": "Tür 1",
+      "video": true, "freigabe": [], "verteiler": "SW1", "leitungslaenge_m": 50 },
+    { "id": "AS-T2", "typ": "aussen", "einbauort": "tuer", "bezeichnung": "Tür 2",
+      "video": true, "freigabe": [], "verteiler": "SW1", "leitungslaenge_m": 50 },
+    { "id": "IS2", "typ": "innen", "einbauort": "pforte", "bezeichnung": "Pförtnerloge 2",
+      "video": true, "freigabe": ["tuer", "schranke"], "verteiler": "SW2", "leitungslaenge_m": 5 },
+    { "id": "SR2", "typ": "relais", "einbauort": "pforte", "bezeichnung": "Smart Relais Loge 2",
+      "freigabe": ["tuer", "schranke"], "verteiler": "SW2", "leitungslaenge_m": 5 },
+    { "id": "AS-S3", "typ": "aussen", "einbauort": "schranke", "bezeichnung": "Schranke 3",
+      "video": true, "freigabe": [], "verteiler": "SW2", "leitungslaenge_m": 50 },
+    { "id": "AS-T3", "typ": "aussen", "einbauort": "tuer", "bezeichnung": "Tür 3",
+      "video": true, "freigabe": [], "verteiler": "SW2", "leitungslaenge_m": 50 }
+  ]
+}

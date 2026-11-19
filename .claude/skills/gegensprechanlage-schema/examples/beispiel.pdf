@@ -83,7 +83,7 @@ endobj
 endobj
 12 0 obj
 <<
-/Length 42994
+/Length 43253
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -295,104 +295,113 @@ BT 1 0 0 1 278 102 Tm (Legende Ger\344te) Tj T* ET
 .105882 .227451 .360784 RG
 .105882 .227451 .360784 rg
 [] 0 d
-n 278 90 30 7 re B*
+n 278 91 30 6.5 re B*
 [] 0 d
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 91 Tm (Au\337ensprechstelle) Tj T* ET
+BT 1 0 0 1 314 92 Tm (Au\337ensprechstelle) Tj T* ET
 .8 w
 .180392 .419608 .309804 RG
 .180392 .419608 .309804 rg
 [] 0 d
-n 278 80 30 7 re B*
+n 278 82 30 6.5 re B*
 [] 0 d
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 81 Tm (Innensprechstelle) Tj T* ET
+BT 1 0 0 1 314 83 Tm (Innensprechstelle) Tj T* ET
 .8 w
 .329412 .431373 .478431 RG
 .329412 .431373 .478431 rg
 [] 0 d
-n 278 70 30 7 re B*
+n 278 73 30 6.5 re B*
 [] 0 d
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 71 Tm (Software-Client / App \(PC, Smartphone, Tablet\)) Tj T* ET
+BT 1 0 0 1 314 74 Tm (Software-Client / App \(PC, Smartphone, Tablet\)) Tj T* ET
+.8 w
+.552941 .333333 .141176 RG
+.552941 .333333 .141176 rg
+[] 0 d
+n 278 64 30 6.5 re B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 314 65 Tm (IP-Relais \(Smart Relais\), Freigabe im gesicherten Bereich) Tj T* ET
 .6 w
 .007843 .466667 .741176 RG
 .007843 .466667 .741176 rg
 [] 0 d
 n
-280 58 m
-306 58 l
-307.1056 58 308 58.8944 308 60 c
-308 65 l
-308 66.1056 307.1056 67 306 67 c
-280 67 l
-278.8944 67 278 66.1056 278 65 c
-278 60 l
-278 58.8944 278.8944 58 280 58 c
+280 52.5 m
+306 52.5 l
+307.1056 52.5 308 53.3944 308 54.5 c
+308 59.5 l
+308 60.6056 307.1056 61.5 306 61.5 c
+280 61.5 l
+278.8944 61.5 278 60.6056 278 59.5 c
+278 54.5 l
+278 53.3944 278.8944 52.5 280 52.5 c
 h
 B*
 [] 0 d
 1 1 1 rg
 BT /F2 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 283.3528 60.3 Tm (VIDEO) Tj T* ET
+BT 1 0 0 1 283.3528 54.8 Tm (VIDEO) Tj T* ET
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 60 Tm (mit Videokamera / Bildschirm) Tj T* ET
+BT 1 0 0 1 314 54.5 Tm (mit Videokamera / Bildschirm) Tj T* ET
 .6 w
 .415686 .105882 .603922 RG
 .415686 .105882 .603922 rg
 [] 0 d
 n
-280 46.5 m
-306 46.5 l
-307.1056 46.5 308 47.3944 308 48.5 c
-308 53.5 l
-308 54.6056 307.1056 55.5 306 55.5 c
-280 55.5 l
-278.8944 55.5 278 54.6056 278 53.5 c
-278 48.5 l
-278 47.3944 278.8944 46.5 280 46.5 c
+280 42 m
+306 42 l
+307.1056 42 308 42.8944 308 44 c
+308 49 l
+308 50.1056 307.1056 51 306 51 c
+280 51 l
+278.8944 51 278 50.1056 278 49 c
+278 44 l
+278 42.8944 278.8944 42 280 42 c
 h
 B*
 [] 0 d
 1 1 1 rg
 BT /F2 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 288.8677 48.8 Tm (ZK) Tj T* ET
+BT 1 0 0 1 288.8677 44.3 Tm (ZK) Tj T* ET
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 48.5 Tm (mit Zugangskontrolle \(Leser\)) Tj T* ET
+BT 1 0 0 1 314 44 Tm (mit Zugangskontrolle \(Leser\)) Tj T* ET
 .6 w
 .619608 .619608 .619608 RG
 1 1 1 rg
 [] 0 d
 n
-280 35 m
-306 35 l
-307.1056 35 308 35.8944 308 37 c
-308 42 l
-308 43.1056 307.1056 44 306 44 c
-280 44 l
-278.8944 44 278 43.1056 278 42 c
-278 37 l
-278 35.8944 278.8944 35 280 35 c
+280 31.5 m
+306 31.5 l
+307.1056 31.5 308 32.3944 308 33.5 c
+308 38.5 l
+308 39.6056 307.1056 40.5 306 40.5 c
+280 40.5 l
+278.8944 40.5 278 39.6056 278 38.5 c
+278 33.5 l
+278 32.3944 278.8944 31.5 280 31.5 c
 h
 B*
 [] 0 d
 .619608 .619608 .619608 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 289.0382 37.3 Tm (ZK) Tj T* ET
+BT 1 0 0 1 289.0382 33.8 Tm (ZK) Tj T* ET
 .6 w
 .619608 .619608 .619608 RG
 [] 0 d
-n 281 37 m 305 42 l
+n 281 33.5 m 305 38.5 l
 S
 [] 0 d
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 37 Tm (Ausstattung nicht vorhanden) Tj T* ET
+BT 1 0 0 1 314 33.5 Tm (Ausstattung nicht vorhanden) Tj T* ET
 0 0 0 rg
 BT /F2 7 Tf 8.4 TL ET
 BT 1 0 0 1 478 102 Tm (Planungsregeln) Tj T* ET
@@ -2239,7 +2248,7 @@ endstream
 endobj
 13 0 obj
 <<
-/Length 39755
+/Length 40014
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -2451,104 +2460,113 @@ BT 1 0 0 1 278 102 Tm (Legende Ger\344te) Tj T* ET
 .105882 .227451 .360784 RG
 .105882 .227451 .360784 rg
 [] 0 d
-n 278 90 30 7 re B*
+n 278 91 30 6.5 re B*
 [] 0 d
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 91 Tm (Au\337ensprechstelle) Tj T* ET
+BT 1 0 0 1 314 92 Tm (Au\337ensprechstelle) Tj T* ET
 .8 w
 .180392 .419608 .309804 RG
 .180392 .419608 .309804 rg
 [] 0 d
-n 278 80 30 7 re B*
+n 278 82 30 6.5 re B*
 [] 0 d
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 81 Tm (Innensprechstelle) Tj T* ET
+BT 1 0 0 1 314 83 Tm (Innensprechstelle) Tj T* ET
 .8 w
 .329412 .431373 .478431 RG
 .329412 .431373 .478431 rg
 [] 0 d
-n 278 70 30 7 re B*
+n 278 73 30 6.5 re B*
 [] 0 d
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 71 Tm (Software-Client / App \(PC, Smartphone, Tablet\)) Tj T* ET
+BT 1 0 0 1 314 74 Tm (Software-Client / App \(PC, Smartphone, Tablet\)) Tj T* ET
+.8 w
+.552941 .333333 .141176 RG
+.552941 .333333 .141176 rg
+[] 0 d
+n 278 64 30 6.5 re B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 314 65 Tm (IP-Relais \(Smart Relais\), Freigabe im gesicherten Bereich) Tj T* ET
 .6 w
 .007843 .466667 .741176 RG
 .007843 .466667 .741176 rg
 [] 0 d
 n
-280 58 m
-306 58 l
-307.1056 58 308 58.8944 308 60 c
-308 65 l
-308 66.1056 307.1056 67 306 67 c
-280 67 l
-278.8944 67 278 66.1056 278 65 c
-278 60 l
-278 58.8944 278.8944 58 280 58 c
+280 52.5 m
+306 52.5 l
+307.1056 52.5 308 53.3944 308 54.5 c
+308 59.5 l
+308 60.6056 307.1056 61.5 306 61.5 c
+280 61.5 l
+278.8944 61.5 278 60.6056 278 59.5 c
+278 54.5 l
+278 53.3944 278.8944 52.5 280 52.5 c
 h
 B*
 [] 0 d
 1 1 1 rg
 BT /F2 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 283.3528 60.3 Tm (VIDEO) Tj T* ET
+BT 1 0 0 1 283.3528 54.8 Tm (VIDEO) Tj T* ET
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 60 Tm (mit Videokamera / Bildschirm) Tj T* ET
+BT 1 0 0 1 314 54.5 Tm (mit Videokamera / Bildschirm) Tj T* ET
 .6 w
 .415686 .105882 .603922 RG
 .415686 .105882 .603922 rg
 [] 0 d
 n
-280 46.5 m
-306 46.5 l
-307.1056 46.5 308 47.3944 308 48.5 c
-308 53.5 l
-308 54.6056 307.1056 55.5 306 55.5 c
-280 55.5 l
-278.8944 55.5 278 54.6056 278 53.5 c
-278 48.5 l
-278 47.3944 278.8944 46.5 280 46.5 c
+280 42 m
+306 42 l
+307.1056 42 308 42.8944 308 44 c
+308 49 l
+308 50.1056 307.1056 51 306 51 c
+280 51 l
+278.8944 51 278 50.1056 278 49 c
+278 44 l
+278 42.8944 278.8944 42 280 42 c
 h
 B*
 [] 0 d
 1 1 1 rg
 BT /F2 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 288.8677 48.8 Tm (ZK) Tj T* ET
+BT 1 0 0 1 288.8677 44.3 Tm (ZK) Tj T* ET
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 48.5 Tm (mit Zugangskontrolle \(Leser\)) Tj T* ET
+BT 1 0 0 1 314 44 Tm (mit Zugangskontrolle \(Leser\)) Tj T* ET
 .6 w
 .619608 .619608 .619608 RG
 1 1 1 rg
 [] 0 d
 n
-280 35 m
-306 35 l
-307.1056 35 308 35.8944 308 37 c
-308 42 l
-308 43.1056 307.1056 44 306 44 c
-280 44 l
-278.8944 44 278 43.1056 278 42 c
-278 37 l
-278 35.8944 278.8944 35 280 35 c
+280 31.5 m
+306 31.5 l
+307.1056 31.5 308 32.3944 308 33.5 c
+308 38.5 l
+308 39.6056 307.1056 40.5 306 40.5 c
+280 40.5 l
+278.8944 40.5 278 39.6056 278 38.5 c
+278 33.5 l
+278 32.3944 278.8944 31.5 280 31.5 c
 h
 B*
 [] 0 d
 .619608 .619608 .619608 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 289.0382 37.3 Tm (ZK) Tj T* ET
+BT 1 0 0 1 289.0382 33.8 Tm (ZK) Tj T* ET
 .6 w
 .619608 .619608 .619608 RG
 [] 0 d
-n 281 37 m 305 42 l
+n 281 33.5 m 305 38.5 l
 S
 [] 0 d
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 37 Tm (Ausstattung nicht vorhanden) Tj T* ET
+BT 1 0 0 1 314 33.5 Tm (Ausstattung nicht vorhanden) Tj T* ET
 0 0 0 rg
 BT /F2 7 Tf 8.4 TL ET
 BT 1 0 0 1 478 102 Tm (Planungsregeln) Tj T* ET
@@ -4181,7 +4199,7 @@ endstream
 endobj
 14 0 obj
 <<
-/Length 38335
+/Length 38594
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -4393,104 +4411,113 @@ BT 1 0 0 1 278 102 Tm (Legende Ger\344te) Tj T* ET
 .105882 .227451 .360784 RG
 .105882 .227451 .360784 rg
 [] 0 d
-n 278 90 30 7 re B*
+n 278 91 30 6.5 re B*
 [] 0 d
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 91 Tm (Au\337ensprechstelle) Tj T* ET
+BT 1 0 0 1 314 92 Tm (Au\337ensprechstelle) Tj T* ET
 .8 w
 .180392 .419608 .309804 RG
 .180392 .419608 .309804 rg
 [] 0 d
-n 278 80 30 7 re B*
+n 278 82 30 6.5 re B*
 [] 0 d
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 81 Tm (Innensprechstelle) Tj T* ET
+BT 1 0 0 1 314 83 Tm (Innensprechstelle) Tj T* ET
 .8 w
 .329412 .431373 .478431 RG
 .329412 .431373 .478431 rg
 [] 0 d
-n 278 70 30 7 re B*
+n 278 73 30 6.5 re B*
 [] 0 d
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 71 Tm (Software-Client / App \(PC, Smartphone, Tablet\)) Tj T* ET
+BT 1 0 0 1 314 74 Tm (Software-Client / App \(PC, Smartphone, Tablet\)) Tj T* ET
+.8 w
+.552941 .333333 .141176 RG
+.552941 .333333 .141176 rg
+[] 0 d
+n 278 64 30 6.5 re B*
+[] 0 d
+0 0 0 rg
+BT /F1 6.2 Tf 7.44 TL ET
+BT 1 0 0 1 314 65 Tm (IP-Relais \(Smart Relais\), Freigabe im gesicherten Bereich) Tj T* ET
 .6 w
 .007843 .466667 .741176 RG
 .007843 .466667 .741176 rg
 [] 0 d
 n
-280 58 m
-306 58 l
-307.1056 58 308 58.8944 308 60 c
-308 65 l
-308 66.1056 307.1056 67 306 67 c
-280 67 l
-278.8944 67 278 66.1056 278 65 c
-278 60 l
-278 58.8944 278.8944 58 280 58 c
+280 52.5 m
+306 52.5 l
+307.1056 52.5 308 53.3944 308 54.5 c
+308 59.5 l
+308 60.6056 307.1056 61.5 306 61.5 c
+280 61.5 l
+278.8944 61.5 278 60.6056 278 59.5 c
+278 54.5 l
+278 53.3944 278.8944 52.5 280 52.5 c
 h
 B*
 [] 0 d
 1 1 1 rg
 BT /F2 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 283.3528 60.3 Tm (VIDEO) Tj T* ET
+BT 1 0 0 1 283.3528 54.8 Tm (VIDEO) Tj T* ET
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 60 Tm (mit Videokamera / Bildschirm) Tj T* ET
+BT 1 0 0 1 314 54.5 Tm (mit Videokamera / Bildschirm) Tj T* ET
 .6 w
 .415686 .105882 .603922 RG
 .415686 .105882 .603922 rg
 [] 0 d
 n
-280 46.5 m
-306 46.5 l
-307.1056 46.5 308 47.3944 308 48.5 c
-308 53.5 l
-308 54.6056 307.1056 55.5 306 55.5 c
-280 55.5 l
-278.8944 55.5 278 54.6056 278 53.5 c
-278 48.5 l
-278 47.3944 278.8944 46.5 280 46.5 c
+280 42 m
+306 42 l
+307.1056 42 308 42.8944 308 44 c
+308 49 l
+308 50.1056 307.1056 51 306 51 c
+280 51 l
+278.8944 51 278 50.1056 278 49 c
+278 44 l
+278 42.8944 278.8944 42 280 42 c
 h
 B*
 [] 0 d
 1 1 1 rg
 BT /F2 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 288.8677 48.8 Tm (ZK) Tj T* ET
+BT 1 0 0 1 288.8677 44.3 Tm (ZK) Tj T* ET
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 48.5 Tm (mit Zugangskontrolle \(Leser\)) Tj T* ET
+BT 1 0 0 1 314 44 Tm (mit Zugangskontrolle \(Leser\)) Tj T* ET
 .6 w
 .619608 .619608 .619608 RG
 1 1 1 rg
 [] 0 d
 n
-280 35 m
-306 35 l
-307.1056 35 308 35.8944 308 37 c
-308 42 l
-308 43.1056 307.1056 44 306 44 c
-280 44 l
-278.8944 44 278 43.1056 278 42 c
-278 37 l
-278 35.8944 278.8944 35 280 35 c
+280 31.5 m
+306 31.5 l
+307.1056 31.5 308 32.3944 308 33.5 c
+308 38.5 l
+308 39.6056 307.1056 40.5 306 40.5 c
+280 40.5 l
+278.8944 40.5 278 39.6056 278 38.5 c
+278 33.5 l
+278 32.3944 278.8944 31.5 280 31.5 c
 h
 B*
 [] 0 d
 .619608 .619608 .619608 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 289.0382 37.3 Tm (ZK) Tj T* ET
+BT 1 0 0 1 289.0382 33.8 Tm (ZK) Tj T* ET
 .6 w
 .619608 .619608 .619608 RG
 [] 0 d
-n 281 37 m 305 42 l
+n 281 33.5 m 305 38.5 l
 S
 [] 0 d
 0 0 0 rg
 BT /F1 6.2 Tf 7.44 TL ET
-BT 1 0 0 1 314 37 Tm (Ausstattung nicht vorhanden) Tj T* ET
+BT 1 0 0 1 314 33.5 Tm (Ausstattung nicht vorhanden) Tj T* ET
 0 0 0 rg
 BT /F2 7 Tf 8.4 TL ET
 BT 1 0 0 1 478 102 Tm (Planungsregeln) Tj T* ET
@@ -6073,7 +6100,7 @@ endstream
 endobj
 15 0 obj
 <<
-/Length 51397
+/Length 51584
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -6217,70 +6244,76 @@ BT /F2 6.5 Tf 7.8 TL ET
 BT 1 0 0 1 222.386 67 Tm (3) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 36 56 Tm (davon mit Video) Tj T* ET
+BT 1 0 0 1 36 56 Tm (IP-Relais \(Smart Relais\)) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 218.772 56 Tm (20) Tj T* ET
+BT 1 0 0 1 222.386 56 Tm (0) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 36 45 Tm (davon mit Zugangskontrolle) Tj T* ET
+BT 1 0 0 1 36 45 Tm (davon mit Video) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 218.772 45 Tm (10) Tj T* ET
+BT 1 0 0 1 218.772 45 Tm (20) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 271 89 Tm (Freigaben gesamt) Tj T* ET
+BT 1 0 0 1 271 89 Tm (davon mit Zugangskontrolle) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 453.772 89 Tm (40) Tj T* ET
+BT 1 0 0 1 453.772 89 Tm (10) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 271 78 Tm (Zusatzger\344te Innensprechstellen) Tj T* ET
+BT 1 0 0 1 271 78 Tm (Freigaben gesamt) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 457.386 78 Tm (3) Tj T* ET
+BT 1 0 0 1 453.772 78 Tm (40) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 271 67 Tm (PoE-Switches) Tj T* ET
+BT 1 0 0 1 271 67 Tm (Zusatzger\344te Innensprechstellen) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 457.386 67 Tm (2) Tj T* ET
+BT 1 0 0 1 457.386 67 Tm (3) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 271 56 Tm (PoE-Ports belegt \(Kupfer\)) Tj T* ET
+BT 1 0 0 1 271 56 Tm (PoE-Switches) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 453.772 56 Tm (21) Tj T* ET
+BT 1 0 0 1 457.386 56 Tm (2) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 271 45 Tm (LWL-Strecken Sprechstellen) Tj T* ET
+BT 1 0 0 1 271 45 Tm (PoE-Ports belegt \(Kupfer\)) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 457.386 45 Tm (5) Tj T* ET
+BT 1 0 0 1 453.772 45 Tm (21) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 506 89 Tm (LWL-Uplinks Verteiler) Tj T* ET
+BT 1 0 0 1 506 89 Tm (LWL-Strecken Sprechstellen) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 692.386 89 Tm (1) Tj T* ET
+BT 1 0 0 1 692.386 89 Tm (5) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 506 78 Tm (Medienkonverter LWL / Kupfer) Tj T* ET
+BT 1 0 0 1 506 78 Tm (LWL-Uplinks Verteiler) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 692.386 78 Tm (5) Tj T* ET
+BT 1 0 0 1 692.386 78 Tm (1) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 506 67 Tm (PoE-Injektoren 230 V) Tj T* ET
+BT 1 0 0 1 506 67 Tm (Medienkonverter LWL / Kupfer) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
 BT 1 0 0 1 692.386 67 Tm (5) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 506 56 Tm (230-V-Anschl\374sse am Einbauort) Tj T* ET
+BT 1 0 0 1 506 56 Tm (PoE-Injektoren 230 V) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
 BT 1 0 0 1 692.386 56 Tm (5) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 506 45 Tm (230-V-Anschl\374sse am Einbauort) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 692.386 45 Tm (5) Tj T* ET
 0 0 0 rg
 BT /F2 9 Tf 10.8 TL ET
 BT 1 0 0 1 38 789.89 Tm (Ger\344te- und Leitungsliste) Tj T* ET
@@ -7849,7 +7882,7 @@ BT /F1 6.8 Tf 8.16 TL ET
 BT 1 0 0 1 41 273.89 Tm (1) Tj T* ET
 0 0 0 rg
 BT /F1 6.8 Tf 8.16 TL ET
-BT 1 0 0 1 71 273.89 Tm (Sprechstelle - Datennetz \(PoE\)) Tj T* ET
+BT 1 0 0 1 71 273.89 Tm (Sprechstelle / IP-Relais - Datennetz \(PoE\)) Tj T* ET
 0 0 0 rg
 BT /F1 6.8 Tf 8.16 TL ET
 BT 1 0 0 1 241 273.89 Tm (AS01, AS02, AS03, AS04, AS08, AS09, AS10, IS01, IS05, IS06,) Tj T* ET
@@ -7888,7 +7921,7 @@ BT /F1 6.8 Tf 8.16 TL ET
 BT 1 0 0 1 41 243.89 Tm (2) Tj T* ET
 0 0 0 rg
 BT /F1 6.8 Tf 8.16 TL ET
-BT 1 0 0 1 71 243.89 Tm (Sprechstelle - Datennetz \(LWL-Strecke\)) Tj T* ET
+BT 1 0 0 1 71 243.89 Tm (Sprechstelle / IP-Relais - Datennetz \(LWL-Strecke\)) Tj T* ET
 0 0 0 rg
 BT /F1 6.8 Tf 8.16 TL ET
 BT 1 0 0 1 241 243.89 Tm (AS06, AS07, AS11, AS14, IS09) Tj T* ET
@@ -8203,7 +8236,7 @@ endstream
 endobj
 16 0 obj
 <<
-/Length 23000
+/Length 23174
 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
@@ -8347,70 +8380,76 @@ BT /F2 6.5 Tf 7.8 TL ET
 BT 1 0 0 1 222.386 67 Tm (3) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 36 56 Tm (davon mit Video) Tj T* ET
+BT 1 0 0 1 36 56 Tm (IP-Relais \(Smart Relais\)) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 218.772 56 Tm (20) Tj T* ET
+BT 1 0 0 1 222.386 56 Tm (0) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 36 45 Tm (davon mit Zugangskontrolle) Tj T* ET
+BT 1 0 0 1 36 45 Tm (davon mit Video) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 218.772 45 Tm (10) Tj T* ET
+BT 1 0 0 1 218.772 45 Tm (20) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 271 89 Tm (Freigaben gesamt) Tj T* ET
+BT 1 0 0 1 271 89 Tm (davon mit Zugangskontrolle) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 453.772 89 Tm (40) Tj T* ET
+BT 1 0 0 1 453.772 89 Tm (10) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 271 78 Tm (Zusatzger\344te Innensprechstellen) Tj T* ET
+BT 1 0 0 1 271 78 Tm (Freigaben gesamt) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 457.386 78 Tm (3) Tj T* ET
+BT 1 0 0 1 453.772 78 Tm (40) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 271 67 Tm (PoE-Switches) Tj T* ET
+BT 1 0 0 1 271 67 Tm (Zusatzger\344te Innensprechstellen) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 457.386 67 Tm (2) Tj T* ET
+BT 1 0 0 1 457.386 67 Tm (3) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 271 56 Tm (PoE-Ports belegt \(Kupfer\)) Tj T* ET
+BT 1 0 0 1 271 56 Tm (PoE-Switches) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 453.772 56 Tm (21) Tj T* ET
+BT 1 0 0 1 457.386 56 Tm (2) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 271 45 Tm (LWL-Strecken Sprechstellen) Tj T* ET
+BT 1 0 0 1 271 45 Tm (PoE-Ports belegt \(Kupfer\)) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 457.386 45 Tm (5) Tj T* ET
+BT 1 0 0 1 453.772 45 Tm (21) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 506 89 Tm (LWL-Uplinks Verteiler) Tj T* ET
+BT 1 0 0 1 506 89 Tm (LWL-Strecken Sprechstellen) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 692.386 89 Tm (1) Tj T* ET
+BT 1 0 0 1 692.386 89 Tm (5) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 506 78 Tm (Medienkonverter LWL / Kupfer) Tj T* ET
+BT 1 0 0 1 506 78 Tm (LWL-Uplinks Verteiler) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 692.386 78 Tm (5) Tj T* ET
+BT 1 0 0 1 692.386 78 Tm (1) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 506 67 Tm (PoE-Injektoren 230 V) Tj T* ET
+BT 1 0 0 1 506 67 Tm (Medienkonverter LWL / Kupfer) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
 BT 1 0 0 1 692.386 67 Tm (5) Tj T* ET
 0 0 0 rg
 BT /F1 6.5 Tf 7.8 TL ET
-BT 1 0 0 1 506 56 Tm (230-V-Anschl\374sse am Einbauort) Tj T* ET
+BT 1 0 0 1 506 56 Tm (PoE-Injektoren 230 V) Tj T* ET
 0 0 0 rg
 BT /F2 6.5 Tf 7.8 TL ET
 BT 1 0 0 1 692.386 56 Tm (5) Tj T* ET
+0 0 0 rg
+BT /F1 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 506 45 Tm (230-V-Anschl\374sse am Einbauort) Tj T* ET
+0 0 0 rg
+BT /F2 6.5 Tf 7.8 TL ET
+BT 1 0 0 1 692.386 45 Tm (5) Tj T* ET
 0 0 0 rg
 BT /F2 9 Tf 10.8 TL ET
 BT 1 0 0 1 38 789.89 Tm (Schnittstellenliste - Zust\344ndigkeit der Gewerke nach DIN 276 \(Kostengruppen\)  \(Fortsetzung\)) Tj T* ET
@@ -9043,7 +9082,7 @@ BT /F1 6.8 Tf 8.16 TL ET
 BT 1 0 0 1 121 455.89 Tm (Such- und Signalanlagen) Tj T* ET
 0 0 0 rg
 BT /F1 6.8 Tf 8.16 TL ET
-BT 1 0 0 1 421 455.89 Tm (Gegensprechanlage \(dieses Gewerk\): Server, Sprechstellen, W\344hlger\344t) Tj T* ET
+BT 1 0 0 1 421 455.89 Tm (Gegensprechanlage \(dieses Gewerk\): Server, Sprechstellen, IP-Relais, W\344hlger\344t) Tj T* ET
 .1 w
 .952941 .960784 .968627 RG
 .952941 .960784 .968627 rg
@@ -9170,10 +9209,10 @@ xref
 0000001400 00000 n 
 0000001773 00000 n 
 0000001857 00000 n 
-0000044904 00000 n 
-0000084712 00000 n 
-0000123100 00000 n 
-0000174550 00000 n 
+0000045163 00000 n 
+0000085230 00000 n 
+0000123877 00000 n 
+0000175514 00000 n 
 trailer
 <<
 /ID 
@@ -9185,5 +9224,5 @@ trailer
 /Size 17
 >>
 startxref
-197603
+198741
 %%EOF

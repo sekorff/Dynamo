@@ -63,8 +63,10 @@ ZUSATZ = {"etagentaster": "Etagentaster", "zweitwecker": "Zweitwecker",
 OHNE_FREIGABE = ("notrufsaeule", "etagenruf")
 CLIENT_GRUPPE = "*CLIENT*"      # interne Gruppe, kann mit keiner ID kollidieren
 TYP_TEXT = {"aussen": "Außensprechstelle", "innen": "Innensprechstelle",
-            "client": "Software-Client"}
-TYP_KURZ = {"aussen": "AUSSEN", "innen": "INNEN", "client": "CLIENT"}
+            "client": "Software-Client", "relais": "IP-Relais (Smart Relais)"}
+TYP_KURZ = {"aussen": "AUSSEN", "innen": "INNEN", "client": "CLIENT", "relais": "RELAIS"}
+EINBAUORTE_RELAIS = dict(EINBAUORTE_INNEN, technikraum="Technikraum / Verteiler")
+LOKAL = ("aussen", "relais")    # Typen mit hart verdrahtetem Relaiskontakt
 FREIGABE_KURZ = {
     "tuer": "Tür",
     "tor": "Tor",
@@ -97,7 +99,7 @@ KG_KATALOG = [
     ("KG 381", "Allgemeine Einbauten", "Briefkasten- und Paketanlagen"),
     ("KG 444", "Niederspannungsinstallationsanlagen", "230-V-Stromkreise und Anschlüsse"),
     ("KG 451", "Telekommunikationsanlagen", "TK-Anlage"),
-    ("KG 452", "Such- und Signalanlagen", "Gegensprechanlage (dieses Gewerk): Server, Sprechstellen, Wählgerät"),
+    ("KG 452", "Such- und Signalanlagen", "Gegensprechanlage (dieses Gewerk): Server, Sprechstellen, IP-Relais, Wählgerät"),
     ("KG 456", "Gefahrenmelde- und Alarmanlagen", "Zugangskontrollanlage"),
     ("KG 457", "Datenübertragungsnetze", "Switches, Kupfer- und LWL-Verkabelung, Medienkonverter"),
     ("KG 461", "Aufzugsanlagen", "Aufzugsteuerung und Kabinentableau"),
@@ -149,6 +151,7 @@ C_FILL = HexColor("#F3F5F7")
 C_AUSSEN = HexColor("#1B3A5C")
 C_INNEN = HexColor("#2E6B4F")
 C_CLIENT = HexColor("#546E7A")
+C_RELAIS = HexColor("#8D5524")
 C_VIDEO = HexColor("#0277BD")
 C_ZK = HexColor("#6A1B9A")
 C_WHITE = HexColor("#FFFFFF")
@@ -330,7 +333,7 @@ def validieren(roh):
     stationen = []
     felder = {"id", "typ", "einbauort", "plattform", "bezeichnung", "video", "zugangskontrolle",
               "freigabe", "zusatz", "verteiler", "leitungslaenge_m", "ruftasten", "tableau",
-              "ruftaste"}
+              "ruftaste", "freigabe_anzahl"}
     for i, s in enumerate(roh["sprechstellen"]):
         pf = "sprechstellen[%d]" % i
         _obj(s, pf, felder, ("id", "typ"))
@@ -340,7 +343,7 @@ def validieren(roh):
         ids.add(sid)
         typ = s["typ"]
         if typ not in TYP_TEXT:
-            raise EingabeFehler("%s.typ: 'aussen', 'innen' oder 'client' erwartet" % pf)
+            raise EingabeFehler("%s.typ: 'aussen', 'innen', 'client' oder 'relais' erwartet" % pf)
         fg = s.get("freigabe", [])
         if (not isinstance(fg, list) or len(set(map(str, fg))) != len(fg)
                 or any(f not in AKTOR for f in fg)):
@@ -348,7 +351,18 @@ def validieren(roh):
                                 % (pf, ", ".join(FREIGABE_REIHENFOLGE)))
         fg = [f for f in FREIGABE_REIHENFOLGE if f in fg]
         basis = {"id": sid, "typ": typ, "bezeichnung": _s(s, "bezeichnung", pf, "", 48),
-                 "video": _b(s, "video", pf, False), "freigabe": fg}
+                 "video": _b(s, "video", pf, False), "freigabe": fg,
+                 "anzahl": {f: 1 for f in fg}}
+        if "freigabe_anzahl" in s:
+            fa = s["freigabe_anzahl"]
+            if typ != "relais":
+                raise EingabeFehler("%s.freigabe_anzahl: nur bei typ 'relais' zulässig" % pf)
+            if not isinstance(fa, dict) or any(
+                    k not in fg or isinstance(v, bool) or not isinstance(v, int) or not 1 <= v <= 99
+                    for k, v in fa.items()):
+                raise EingabeFehler("%s.freigabe_anzahl: Objekt {Freigabe: Anzahl 1-99} erwartet, "
+                                    "nur für Einträge aus 'freigabe'" % pf)
+            basis["anzahl"].update(fa)
 
         if typ == "client":
             for feld in ("einbauort", "zugangskontrolle", "zusatz", "verteiler",
@@ -367,8 +381,14 @@ def validieren(roh):
 
         if "plattform" in s:
             raise EingabeFehler("%s.plattform: nur bei typ 'client' zulässig" % pf)
-        orte = EINBAUORTE if typ == "aussen" else EINBAUORTE_INNEN
-        ort = s.get("einbauort", "tuer")
+        if typ == "relais":
+            for feld in ("video", "zugangskontrolle", "zusatz", "ruftasten", "tableau", "ruftaste"):
+                if feld in s:
+                    raise EingabeFehler("%s.%s: bei typ 'relais' nicht zulässig" % (pf, feld))
+            if not fg:
+                raise EingabeFehler("%s.freigabe: ein IP-Relais braucht mindestens eine Freigabe" % pf)
+        orte = {"aussen": EINBAUORTE, "innen": EINBAUORTE_INNEN, "relais": EINBAUORTE_RELAIS}[typ]
+        ort = s.get("einbauort", "technikraum" if typ == "relais" else "tuer")
         if ort not in orte:
             raise EingabeFehler("%s.einbauort: bei typ '%s' einer von %s erwartet"
                                 % (pf, typ, ", ".join(orte)))
@@ -606,19 +626,20 @@ def legende(c, modell):
 
     x = X0 + 250
     text(c, "Legende Geräte", x, y - 11, 7, FB)
-    yy = y - 22
+    yy = y - 21
     for farbe, label in ((C_AUSSEN, "Außensprechstelle"), (C_INNEN, "Innensprechstelle"),
-                         (C_CLIENT, "Software-Client / App (PC, Smartphone, Tablet)")):
-        box(c, x, yy - 1, 30, 7, fill=farbe, stroke=farbe)
+                         (C_CLIENT, "Software-Client / App (PC, Smartphone, Tablet)"),
+                         (C_RELAIS, "IP-Relais (Smart Relais), Freigabe im gesicherten Bereich")):
+        box(c, x, yy - 1, 30, 6.5, fill=farbe, stroke=farbe)
         text(c, label, x + 36, yy, 6.2)
-        yy -= 10
-    yy -= 1
+        yy -= 9
+    yy -= 1.5
     for label, aktiv, farbe, txt in (("VIDEO", True, C_VIDEO, "mit Videokamera / Bildschirm"),
                                      ("ZK", True, C_ZK, "mit Zugangskontrolle (Leser)"),
                                      ("ZK", False, C_ZK, "Ausstattung nicht vorhanden")):
         badge(c, x, yy - 2, 30, 9, label, aktiv, farbe)
         text(c, txt, x + 36, yy, 6.2)
-        yy -= 11.5
+        yy -= 10.5
 
     x = X0 + 450
     text(c, "Planungsregeln", x, y - 11, 7, FB)
@@ -711,6 +732,11 @@ def kopf(c, modell):
              6.2, farbe=C_STOER, anker="m", max_w=xs - gx - gw - 24)
 
 
+def mal(s, f):
+    """Mengenpraefix fuer mehrfach vorhandene Relaisausgaenge."""
+    return "%dx " % s["anzahl"][f] if s["anzahl"][f] > 1 else ""
+
+
 def strang(c, modell, s, cx):
     """Eine Sprechstelle mit Zuleitung ab Switch-Unterkante."""
     netz = modell["netz"]
@@ -747,8 +773,8 @@ def strang(c, modell, s, cx):
     punkt(c, cx, Y_SW, C_LWL if s["lwl"] else C_CU)
 
     # Sprechstelle
-    aussen = typ == "aussen"
-    farbe = {"aussen": C_AUSSEN, "innen": C_INNEN, "client": C_CLIENT}[typ]
+    aussen = typ in LOKAL
+    farbe = {"aussen": C_AUSSEN, "innen": C_INNEN, "client": C_CLIENT, "relais": C_RELAIS}[typ]
     x, y = cx - W_ST / 2, Y_ST_TOP - H_ST
     box(c, x, y, W_ST, H_ST, fill=C_WHITE, stroke=farbe, lw=1.2)
     box(c, x, Y_ST_TOP - 16, W_ST, 16, fill=farbe, stroke=farbe, lw=1.2)
@@ -756,13 +782,16 @@ def strang(c, modell, s, cx):
     text(c, TYP_KURZ[typ], x + W_ST - 4, Y_ST_TOP - 11, 6.2, FB, C_WHITE, "r")
     text(c, TYP_TEXT[typ], cx, Y_ST_TOP - 27, 6.5, FB,
          anker="m")
-    text(c, ("auf: " if typ == "client" else "an: ") + s["ort_text"], cx, Y_ST_TOP - 36, 6.5, anker="m", max_w=W_ST - 6)
+    text(c, {"client": "auf: ", "relais": "in: "}.get(typ, "an: ") + s["ort_text"], cx, Y_ST_TOP - 36, 6.5, anker="m", max_w=W_ST - 6)
     yy = Y_ST_TOP - 47
     for z in umbrechen(s["bezeichnung"], F, 6.2, W_ST - 8, 2):
         text(c, z, cx, yy, 6.2, farbe=HexColor("#444444"), anker="m")
         yy -= 7.5
-    badge(c, x + 5, y + 20, 42, 12, "VIDEO", s["video"], C_VIDEO)
-    badge(c, x + W_ST - 47, y + 20, 42, 12, "ZK", s["zk"], C_ZK)
+    if typ == "relais":
+        text(c, "%d Relaisausgänge, PoE" % sum(s["anzahl"].values()), cx, y + 23, 6.2, anker="m")
+    else:
+        badge(c, x + 5, y + 20, 42, 12, "VIDEO", s["video"], C_VIDEO)
+        badge(c, x + W_ST - 47, y + 20, 42, 12, "ZK", s["zk"], C_ZK)
     if s["freigabe"]:
         text(c, "Freigabe lokal (Relais)" if aussen else "Fernfreigabe über IP", cx, y + 7, 6,
              FB, anker="m")
@@ -782,7 +811,7 @@ def strang(c, modell, s, cx):
         linie(c, [(xb, yb + bh / 2), (x + 14, yb + bh / 2)], C_CTRL, 1.0, dash)
         if aussen:
             box(c, x + 14, yb, bw, bh, fill=C_FILL, lw=0.8)
-            text(c, AKTOR[f], x + 14 + bw / 2, yb + bh / 2 - 2.3, 6.2, FB, anker="m", max_w=bw - 6)
+            text(c, mal(s, f) + AKTOR[f], x + 14 + bw / 2, yb + bh / 2 - 2.3, 6.2, FB, anker="m", max_w=bw - 6)
         else:
             box(c, x + 14, yb, bw, bh, fill=C_WHITE, lw=0.8, dash=DASH_FERN, radius=5)
             text(c, "Freigabe " + FREIGABE_KURZ[f], x + 14 + bw / 2, yb + bh / 2 - 2.3, 6.2,
@@ -869,7 +898,8 @@ def listenzeilen(modell):
                        "230 V AC"])
     for s in modell["spalten"]:
         client = s["typ"] == "client"
-        fern = "" if s["typ"] == "aussen" else " (IP)"
+        fern = "" if s["typ"] in LOKAL else " (IP)"
+        relais = s["typ"] == "relais"
         if client:
             netzteil = ["-", "-", "IP (LAN / WLAN / Mobil)", "-"]
         else:
@@ -878,8 +908,9 @@ def listenzeilen(modell):
                         "PoE-Injektor 230 V lokal" if s["lwl"] else "PoE vom Switch"]
         zeilen.append([
             s["id"], TYP_TEXT[s["typ"]], s["ort_text"], s["bezeichnung"],
-            "ja" if s["video"] else "nein", "-" if client else ("ja" if s["zk"] else "nein"),
-            (", ".join(FREIGABE_KURZ[f] for f in s["freigabe"]) + fern) if s["freigabe"] else "-",
+            "-" if relais else ("ja" if s["video"] else "nein"),
+            "-" if client or relais else ("ja" if s["zk"] else "nein"),
+            (", ".join(mal(s, f) + FREIGABE_KURZ[f] for f in s["freigabe"]) + fern) if s["freigabe"] else "-",
             ", ".join(ZUSATZ[z] for z in s["zusatz"]) or "-"] + netzteil)
     return [[str(i + 1)] + z for i, z in enumerate(zeilen)]
 
@@ -891,9 +922,10 @@ def summen(c, modell):
         ("Außensprechstellen", sum(1 for s in sp if s["typ"] == "aussen")),
         ("Innensprechstellen", sum(1 for s in sp if s["typ"] == "innen")),
         ("Software-Clients", len(sp) - len(hw)),
+        ("IP-Relais (Smart Relais)", sum(1 for s in sp if s["typ"] == "relais")),
         ("davon mit Video", sum(1 for s in sp if s["video"])),
         ("davon mit Zugangskontrolle", sum(1 for s in sp if s["zk"])),
-        ("Freigaben gesamt", sum(len(s["freigabe"]) for s in sp)),
+        ("Freigaben gesamt", sum(sum(s["anzahl"].values()) for s in sp)),
         ("Zusatzgeräte Innensprechstellen", sum(len(s["zusatz"]) for s in sp)),
         ("PoE-Switches", len(modell["verteiler"])),
         ("PoE-Ports belegt (Kupfer)", len(hw) - lwl),
@@ -941,9 +973,9 @@ def schnittstellenzeilen(modell):
     netz = "KG 457 Datenübertragungsnetz"
     strom = "KG 444 Niederspannungsinstallation"
     lwl = [s["id"] for s in hw if s["lwl"]]
-    neu("netz_poe", "Sprechstelle - Datennetz (PoE)", [s["id"] for s in hw if not s["lwl"]], netz,
+    neu("netz_poe", "Sprechstelle / IP-Relais - Datennetz (PoE)", [s["id"] for s in hw if not s["lwl"]], netz,
         "RJ45 am PoE-Switch-Port, Übergabe an Datendose / Patchfeld", anschluss="KG 457")
-    neu("netz_lwl", "Sprechstelle - Datennetz (LWL-Strecke)", lwl, netz,
+    neu("netz_lwl", "Sprechstelle / IP-Relais - Datennetz (LWL-Strecke)", lwl, netz,
         "LWL bis Medienkonverter am Einbauort, Übergabe RJ45", anschluss="KG 457", ibn="KG 457")
     neu("strom_lokal", "230-V-Einspeisung Medienkonverter / PoE-Injektor", lwl, strom,
         "230 V AC, Abzweigdose / Steckdose am Einbauort", anschluss="KG 444", ibn="KG 444")
@@ -975,10 +1007,11 @@ def schnittstellenzeilen(modell):
         koord="KG 456", anschluss="KG 456", ibn="KG 456")
     for f in FREIGABE_REIHENFOLGE:
         fremd = "KG 461" if f == "aufzug" else "KG 452"
+        lokal = [s for s in hw if s["typ"] in LOKAL and f in s["freigabe"]]
         neu("freigabe_" + f, "Freigabe " + FREIGABE_KURZ[f] + " (Relaiskontakt)",
-            [s["id"] for s in hw if s["typ"] == "aussen" and f in s["freigabe"]],
-            GEGENGEWERK_FREIGABE[f],
-            "potentialfreier Kontakt, Übergabeklemme " + AKTOR[f], anschluss=fremd, ibn=fremd)
+            [s["id"] for s in lokal], GEGENGEWERK_FREIGABE[f],
+            "potentialfreier Kontakt, Übergabeklemme " + AKTOR[f], anschluss=fremd, ibn=fremd,
+            anzahl=sum(s["anzahl"][f] for s in lokal))
     for ort in ("aufzug", "kassenautomat", "paketanlage"):
         gegen, art, kg = EINBAU_FREMD[ort]
         neu("einbau_" + ort, "Einbau Sprechstelle in " + EINBAUORTE[ort],

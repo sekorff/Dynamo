@@ -1,6 +1,6 @@
 ---
 name: gegensprechanlage-schema
-description: Erzeugt deterministisch ein Gegensprechanlagen-Schema (Intercom / Türsprechanlage) als PDF im Format DIN A3 quer. Verwenden, wenn ein Schema, Strangschema oder Übersichtsplan einer IP-Gegensprechanlage gefragt ist - mit Außen- und Innensprechstellen an Türen, Toren, Schranken, Vereinzelungsanlagen, Aufzügen, Pollern, Schleusen, Rampen, Kassenautomaten, Notrufsäulen, Klingeltableaus, Fluchttüren, Paketanlagen und Drehtüren, Innensprechstellen an Pforte, Leitstand, Wohnung/Büro, Etagenruf, Schleuseninnenraum, Aufzugvorraum und Tiefgarage, Software-Clients/Apps, Zusatzgeräten, mit/ohne Video und Zugangskontrolle, Freigaben, PoE-Speisung, LWL-Strecken über 90 m mit Medienkonverter und PoE-Injektor 230 V, TK-Anlage, Wählgerät (IP/Mobilfunk), Störmeldungen an die GLT sowie Geräteliste und Schnittstellenliste mit Zuständigkeit der Gewerke nach DIN 276 (Koordination, Anschluss, Inbetriebnahme).
+description: Erzeugt deterministisch ein Gegensprechanlagen-Schema (Intercom / Türsprechanlage) als PDF im Format DIN A3 quer. Verwenden, wenn ein Schema, Strangschema oder Übersichtsplan einer IP-Gegensprechanlage gefragt ist - mit Außen- und Innensprechstellen an Türen, Toren, Schranken, Vereinzelungsanlagen, Aufzügen, Pollern, Schleusen, Rampen, Kassenautomaten, Notrufsäulen, Klingeltableaus, Fluchttüren, Paketanlagen und Drehtüren, Innensprechstellen an Pforte, Leitstand, Wohnung/Büro, Etagenruf, Schleuseninnenraum, Aufzugvorraum und Tiefgarage, Software-Clients/Apps, IP-Relais (Smart Relais), Zusatzgeräten, mit/ohne Video und Zugangskontrolle, Freigaben, PoE-Speisung, LWL-Strecken über 90 m mit Medienkonverter und PoE-Injektor 230 V, TK-Anlage, Wählgerät (IP/Mobilfunk), Störmeldungen an die GLT sowie Geräteliste und Schnittstellenliste mit Zuständigkeit der Gewerke nach DIN 276 (Koordination, Anschluss, Inbetriebnahme).
 ---
 
 # Gegensprechanlage-Schema (PDF)
@@ -92,7 +92,7 @@ Jeder Verteiler muss mindestens eine Sprechstelle haben.
 | Feld | Pflicht | Werte |
 |---|---|---|
 | `id` | ja | eindeutig über Verteiler und Sprechstellen |
-| `typ` | ja | `aussen`, `innen` oder `client` |
+| `typ` | ja | `aussen`, `innen`, `client` oder `relais` |
 | `einbauort` | nein | Standard `tuer`; zulässige Werte je Typ siehe unten |
 | `bezeichnung` | nein | z. B. "Haupteingang" |
 | `video` | nein | `true` / `false` (Standard `false`) |
@@ -111,7 +111,16 @@ Einbauorte `aussen`: `tuer`, `tor`, `schranke`, `vereinzelung`, `aufzug`, `polle
 Einbauorte `innen`: `tuer`, `pforte`, `leitstand`, `wohnung`, `etagenruf`, `schleuseninnenraum`,
 `aufzugvorraum`, `tiefgarage`.
 
+Einbauorte `relais`: wie `innen`, zusätzlich `technikraum` (Standard).
+
 Keine Freigabe zulässig bei `notrufsaeule` und `etagenruf`.
+
+`relais` ist ein IP-Relais (Smart Relais) mit PoE-Port: Es schaltet die Freigaben über
+Relaiskontakte im gesicherten Bereich, damit an der Außensprechstelle kein Öffnerkontakt liegt.
+Mindestens eine `freigabe` ist Pflicht; `video`, `zugangskontrolle` und `zusatz` sind nicht zulässig.
+Die zugehörigen Außensprechstellen erhalten dann `"freigabe": []`.
+Schaltet ein Relais mehrere gleichartige Ziele, steht die Menge in `freigabe_anzahl`,
+z. B. `"freigabe": ["tuer", "schranke"], "freigabe_anzahl": {"tuer": 2, "schranke": 2}`.
 
 Übliche Zuordnung Einbauort zu Freigabe: `rampe` -> `tor`, `kassenautomat` -> `schranke`,
 `paketanlage` -> `tuer`, `klingeltableau` -> `tuer`. Aufzugnotruf, WC-Notruf und
