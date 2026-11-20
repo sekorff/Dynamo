@@ -422,7 +422,10 @@ def normalize(raw):
 # M&P-Plankopf (Skill mp-plankopf) - Rahmen und Schriftfeld kommen immer von dort
 # --------------------------------------------------------------------------
 
-PLANKOPF_KEYS = ("logo", "felder", "freifelder", "zusatzfelder", "aenderungsindex", "optionen")
+PLANKOPF_KEYS = ("logo", "felder", "zellen", "freifelder", "zusatzfelder", "aenderungsindex",
+                 "optionen", "legende_abschnitte")
+LEGENDE_ZUSATZ = ("planungsgrundsaetze", "normenverweise", "standortvorgaben",
+                  "weitere_festlegungen", "daemmmatrix")
 _PK = {"mod": None}
 
 
@@ -459,10 +462,14 @@ def load_plankopf():
 def plankopf_spec(cfg, planinhalt, blatt_nr, legende):
     """Eingabe fuer mp-plankopf: aus der Konfiguration abgeleitet, cfg['plankopf'] ueberschreibt."""
     p, pk = cfg["projekt"], cfg["plankopf"]
+    # Feldnamen = Parameternamen der Revit-Familie; leere Felder setzt mp-plankopf selbst
     felder = {"Plannummer": p["plan_nr"], "aktuelle Änderung Index": p["index"],
-              "Maßstab": "ohne", "Status": p["status"], "Planungsphase": p["planungsphase"],
-              "Planart": "Schema", "erstellt Datum": p["datum"], "erstellt von": p["bearbeiter"]}
+              "Status": p["status"], "MP_400_LB_Text": p["planungsphase"],
+              "erstellt Datum": p["datum"], "erstellt von": p["bearbeiter"]}
     felder = {k: v for k, v in felder.items() if v}
+    zellen = {"Maßstab": "ohne", "Planart": "Schema"}
+    if isinstance(pk.get("zellen"), dict):
+        zellen.update(pk["zellen"])
     frei = {"Kopf links": {"titel": "Projekt-Nr.", "zeilen": [p["projekt_nr"]]},
             "Kopf rechts": {"titel": "Gewerk", "zeilen": ["Sanitär - Regenwasser"]},
             "Block 1": {"titel": "Bauvorhaben", "zeilen": [x for x in (p["name"], p["standort"]) if x]},
@@ -475,7 +482,7 @@ def plankopf_spec(cfg, planinhalt, blatt_nr, legende):
     if isinstance(pk.get("freifelder"), dict):
         frei.update(pk["freifelder"])
     spec = {"blatt": {"format": cfg["blatt"]["format"]}, "logo": pk.get("logo", "Gruppe"),
-            "felder": felder, "freifelder": frei,
+            "felder": felder, "zellen": zellen, "freifelder": frei,
             "zusatzfelder": [{"name": "blatt", "label": "Blatt", "wert": str(blatt_nr),
                               "breite_mm": 60}] + list(pk.get("zusatzfelder") or []),
             "legende": legende}
@@ -483,6 +490,119 @@ def plankopf_spec(cfg, planinhalt, blatt_nr, legende):
         if k in pk:
             spec[k] = pk[k]
     return spec
+
+
+def _hex(rgb):
+    return "#%02X%02X%02X" % tuple(int(round(v * 255)) for v in rgb)
+
+
+def _texte_zusatz(cfg, key):
+    z = cfg["plankopf"].get("legende_abschnitte") or {}
+    return list(z.get(key) or [])
+
+
+def legende_schema(cfg, warnings):
+    """Legende Blatt 1 im festen Aufbau von mp-plankopf. Linientypen und Symbole enthalten
+    genau das, was auf dem Plan gezeichnet wird."""
+    v, n, u = cfg["versorger"], cfg["regenwassernutzung"], cfg["ueberflutung"]
+    dae = cfg["daecher"]
+    lin = [{"text": "Regenwasserleitung", "farbe": _hex(BLUE), "strich": "voll", "staerke_mm": 1.0}]
+    if n["aktiv"]:
+        lin.append({"text": "Betriebswasser (Regenwassernutzung)", "farbe": _hex(BW),
+                    "strich": "gestrichelt", "staerke_mm": 0.6})
+    if cfg["notueberlauf"]:
+        lin.append({"text": "Notüberlauf", "farbe": _hex(RED), "strich": "gestrichelt",
+                    "staerke_mm": 0.5})
+    if v["einleitstelle"] != "versickerung":
+        lin.append({"text": "Grundstücksgrenze", "farbe": "#000000", "strich": "strichpunkt",
+                    "staerke_mm": 0.35})
+    if u["schadlos_ueberflutbar_m3"]:
+        lin.append({"text": "Überflutungsfläche (schadlos überflutbar)", "farbe": _hex(BLUE),
+                    "strich": "gestrichelt", "staerke_mm": 0.2})
+    if any(d["pv"] for d in dae):
+        lin.append({"text": "PV-Modul", "farbe": _hex(PV), "strich": "voll", "staerke_mm": 0.9})
+    sym = [{"symbol": "dreieck", "farbe": _hex(BLUE), "text": "Fließrichtung"},
+           {"symbol": "punkt", "farbe": _hex(BLUE), "text": "Anschluss an Sammelleitung"},
+           {"symbol": "flaeche", "farbe": _hex(WATER),
+            "text": "Wasser / Rückhalte- und Stauraum, Retentionsboxen"},
+           {"symbol": "flaeche", "farbe": _hex(SOIL), "text": "Erdreich"}]
+    if cfg["drosselschacht"]["aktiv"] or any(d["typ"] == "retentionsdach" for d in dae):
+        sym.append({"symbol": "raute", "farbe": _hex(RED), "text": "Drossel"})
+    if n["aktiv"]:
+        sym.append({"symbol": "kreis", "farbe": _hex(BW), "text": "Pumpe"})
+        sym.append({"symbol": "quadrat", "farbe": _hex(GREY), "text": "Filter"})
+    if any(d["typ"] == "schwammdach" for d in dae):
+        sym.append({"symbol": "flaeche", "farbe": _hex(SPONGE),
+                    "text": "Speicherschicht (Schwammdach)"})
+    if any(d["begruenung"] != "keine" for d in dae):
+        sym.append({"symbol": "flaeche", "farbe": _hex(SUBSTRAT),
+                    "text": "Substrat mit Dachbegrünung (extensiv: Gräser, intensiv: Sträucher)"})
+    if any(d["begruenung"] == "keine" for d in dae):
+        sym.append({"symbol": "flaeche", "farbe": _hex(LGREY), "text": "Kies / Schutzlage"})
+    a = cfg["dachablauf"]
+    grund = ["Prinzipschema ohne Maßstab; ersetzt keine hydraulische Bemessung.",
+             "Jede Dachfläche A = %d m²; Dachabläufe DN %d mit maximaler Anschlussfläche "
+             "A_max = Q · 10000 / (r(5,5) · Cs), Q = %s l/s, r(5,5) = %s l/(s·ha)."
+             % (DACHFLAECHE_M2, DACHABLAUF_DN, de(a["abflussvermoegen_l_s"]),
+                de_int(a["regenspende_r5_5_l_s_ha"])),
+             "Überflutungsnachweis als Überschlag für D = 5, 10, 15 min und T = 30 / 100 a; "
+             "maßgebend T = %d a." % u["wiederkehrzeit_a"]]
+    if cfg["notueberlauf"]:
+        grund.append("Notentwässerung über Attika frei auf schadlos überflutbare Fläche.")
+    if n["aktiv"]:
+        grund.append("Trinkwassernachspeisung nur über freien Auslauf Typ AA; Betriebswasser "
+                     "kennzeichnen.")
+    normen = [{"norm": "DIN 1986-100", "titel": "Entwässerungsanlagen für Gebäude und Grundstücke"},
+              {"norm": "DIN EN 12056-3", "titel": "Dachentwässerung"},
+              {"norm": "DIN EN 1253-1", "titel": "Abläufe für Gebäude"},
+              {"norm": "DIN 276", "titel": "Kosten im Bauwesen (Kostengruppen)"}]
+    if hat_rueckhalt(cfg):
+        normen.append({"norm": "DWA-A 117", "titel": "Bemessung von Regenrückhalteräumen"})
+    if v["einleitstelle"] == "versickerung":
+        normen.append({"norm": "DWA-A 138", "titel": "Versickerung von Niederschlagswasser"})
+    if n["aktiv"]:
+        normen.append({"norm": "DIN EN 1717", "titel": "Schutz des Trinkwassers"})
+    if cfg["kostra"]["r"]:
+        normen.append({"norm": cfg["kostra"]["datensatz"], "titel": "Regenspenden"
+                       + (", Rasterfeld %s" % cfg["kostra"]["rasterfeld"]
+                          if cfg["kostra"]["rasterfeld"] else "")})
+    stand = ["Versorger: %s" % (v["name"] or "nicht angegeben"),
+             "Einleitstelle: %s" % EINLEITSTELLEN[v["einleitstelle"]],
+             "Einleitbeschränkung: %s" % ("%s l/s" % de(v["einleitbeschraenkung_l_s"])
+                                          if v["einleitbeschraenkung_l_s"] is not None else "keine"),
+             "Rückhaltevolumen min.: %s" % ("%s m³" % de(v["rueckhaltevolumen_min_m3"])
+                                            if v["rueckhaltevolumen_min_m3"] is not None
+                                            else "keine Vorgabe"),
+             "Übergabeschacht: %s" % ("gefordert" if v["uebergabeschacht_gefordert"]
+                                      else "nicht gefordert"),
+             "Regenwassernutzung: %s" % ("zulässig" if v["regenwassernutzung_zulaessig"]
+                                         else "nicht zulässig")]
+    if v["rueckstauebene"]:
+        stand.append("Rückstauebene: %s" % v["rueckstauebene"])
+    if v["bemerkung"]:
+        stand.append(v["bemerkung"])
+    weitere = list(warnings) + ["Vorgaben des Versorgers / der Entwässerungssatzung vor "
+                                "Ausführung bestätigen."]
+    ab = {"linientypen": lin, "symbole": sym,
+          "planungsgrundsaetze": grund + _texte_zusatz(cfg, "planungsgrundsaetze"),
+          "normenverweise": normen + _texte_zusatz(cfg, "normenverweise"),
+          "standortvorgaben": stand + _texte_zusatz(cfg, "standortvorgaben"),
+          "weitere_festlegungen": weitere + _texte_zusatz(cfg, "weitere_festlegungen")}
+    dm = (cfg["plankopf"].get("legende_abschnitte") or {}).get("daemmmatrix")
+    if dm:
+        ab["daemmmatrix"] = dm
+    return {"titel": "Legende", "abschnitte": ab}
+
+
+def legende_listen(cfg):
+    """Blatt 2 ff.: keine Zeichnung, daher keine Linientypen/Symbole."""
+    return {"titel": "Legende", "abschnitte": {
+        "planungsgrundsaetze": ["Geräte und Schnittstellen sind aus den aktiven Komponenten "
+                                "des Schemas (Blatt 1) abgeleitet."],
+        "normenverweise": [{"norm": "DIN 276:2018-12", "titel": "Kosten im Bauwesen"}],
+        "weitere_festlegungen": [
+            "Eigenes Gewerk: KG 411, 412 (Gebäude), KG 551, 552 (Außenanlagen).",
+            "Zuordnung der Kostengruppen und Leistungsabgrenzung projektspezifisch bestätigen."]}}
 
 
 def de(x, nd=1):
@@ -636,20 +756,16 @@ def sym_arrow(z, x, y, s=1.6, color=BLUE, direction="r"):
 
 
 def sym_drossel(z, x, y, s=2.0):
-    z.area([(x - s, y + s * 0.7), (x, y), (x - s, y - s * 0.7)], RED, BLACK, 0.2)
-    z.area([(x + s, y + s * 0.7), (x, y), (x + s, y - s * 0.7)], RED, BLACK, 0.2)
+    # Raute wie im Legendensymbol des Plankopfs
+    z.area([(x - s, y), (x, y - s), (x + s, y), (x, y + s)], RED)
 
 
 def sym_pumpe(z, x, y, r=1.8):
-    z.circle(x, y, r, BLACK, WHITE, 0.25)
-    z.area([(x - r * 0.6, y - r * 0.5), (x, y + r * 0.8), (x + r * 0.6, y - r * 0.5)], BW)
+    z.circle(x, y, r, BW, WHITE, 0.35)            # Kreis wie im Legendensymbol
 
 
 def sym_filter(z, x, y, s=2.4):
-    z.rect(x - s, y - s, 2 * s, 2 * s, BLACK, WHITE, 0.25)
-    for k in (-1, 0, 1):
-        z.line(x - s + (k + 1) * s * 0.66, y - s, x - s + (k + 1) * s * 0.66 + s * 0.66,
-               y + s, GREY, 0.15)
+    z.rect(x - s, y - s, 2 * s, 2 * s, None, GREY)   # Quadrat wie im Legendensymbol
 
 
 def sym_tuft(z, x, y, h=1.8):
@@ -985,37 +1101,6 @@ def draw_chain(z, cfg, drains):
 
 
 # ---- Fusszeile: Legende, Vorgaben, Hinweise, Schriftfeld ------------------
-
-def draw_legend(z, zone):
-    """Symbole in die Legendenzone des Plankopfs (echte mm, Titel zeichnet der Plankopf)."""
-    x0, ytop = zone["x"], zone["y"] + zone["hoehe"] - 15.0
-    items = [
-        ("Regenwasserleitung", lambda x, y: z.line(x, y, x + 10, y, BLUE, 1.0)),
-        ("Betriebswasser (Regenwassernutzung)",
-         lambda x, y: z.line(x, y, x + 10, y, BW, 0.6, (2.0, 1.0))),
-        ("Notüberlauf", lambda x, y: z.line(x, y, x + 10, y, RED, 0.5, (1.5, 0.8))),
-        ("Grundstücksgrenze",
-         lambda x, y: z.line(x, y, x + 10, y, BLACK, 0.35, (5.0, 1.2, 0.8, 1.2))),
-        ("Rückhalte- / Stauraum", lambda x, y: z.rect(x, y - 1.5, 10, 3, BLUE, WATER, 0.2)),
-        ("Fließrichtung", lambda x, y: sym_arrow(z, x + 5, y, 1.7)),
-        ("Drossel", lambda x, y: sym_drossel(z, x + 5, y, 2.0)),
-        ("Pumpe", lambda x, y: sym_pumpe(z, x + 5, y, 1.8)),
-        ("Filter", lambda x, y: sym_filter(z, x + 5, y, 1.8)),
-        ("Retentionsboxen (Retentionsdach)", lambda x, y: boxes(z, x, y - 1.5, 10, 3)),
-        ("Speicherschicht (Schwammdach)", lambda x, y: sponge(z, x, y - 1.5, 10, 3)),
-        ("Begrünung extensiv",
-         lambda x, y: [sym_tuft(z, x + 2 + k * 3, y - 1.0) for k in range(3)]),
-        ("Begrünung intensiv",
-         lambda x, y: (sym_shrub(z, x + 3, y - 1.8, 4.0), sym_tuft(z, x + 7, y - 1.8, 2.2))),
-        ("PV-Modul", lambda x, y: sym_pv(z, x + 1.5, y - 1.8)),
-    ]
-    for i, (name, fn) in enumerate(items):
-        col, row = divmod(i, 7)
-        x = x0 + 4 + col * 88.0
-        y = ytop - row * 7.0
-        fn(x, y)
-        z.text(x + 13, y - 0.9, name, 2.6, F, BLACK, maxw=72.0)
-
 
 def draw_vorgaben(z, cfg):
     x0, x1 = 20.0, 160.0
@@ -1397,7 +1482,7 @@ class Listen(object):
             self.c.showPage()
         self.page += 1
         lay = self.pk.draw(self.c, plankopf_spec(
-            self.cfg, "Gerätetabelle und Schnittstellenliste", self.page, LEGENDE_LISTEN))
+            self.cfg, "Gerätetabelle und Schnittstellenliste", self.page, legende_listen(self.cfg)))
         zb = lay["zonen"]["zeichenbereich"]
         s = (zb["breite"] - 6.0) / 390.0             # virtuelle Breite 390 (x = 20..410)
         self.c.saveState()
@@ -1449,12 +1534,6 @@ class Listen(object):
             self.y -= 3.2
 
 
-LEGENDE_LISTEN = {"titel": "Hinweise", "eintraege": [
-    {"symbol": "ohne", "text": "Kostengruppen nach DIN 276:2018-12"},
-    {"symbol": "ohne", "text": "Eigenes Gewerk: KG 411, 412, 551, 552"},
-    {"symbol": "ohne", "text": "Zuordnung und Leistungsabgrenzung projektspezifisch bestätigen"}]}
-
-
 def draw_listen(c, cfg, pk):
     L = Listen(c, cfg, pk)
     g = [[str(i + 1)] + r for i, r in enumerate(geraete_rows(cfg))]
@@ -1480,8 +1559,8 @@ def render(cfg, warnings, out_path):
     c.setAuthor(cfg["projekt"]["bearbeiter"] or "regenwasser-schema")
     c.setSubject(cfg["projekt"]["name"])
     c.setCreator("regenwasser-schema skill")
-    lay = pk.draw(c, plankopf_spec(cfg, "Prinzipschema", 1, {"titel": "Legende"}))
-    zb, lz = lay["zonen"]["zeichenbereich"], lay["zonen"]["legende"]
+    lay = pk.draw(c, plankopf_spec(cfg, "Prinzipschema", 1, legende_schema(cfg, warnings)))
+    zb = lay["zonen"]["zeichenbereich"]
     # virtuelles Blatt x = 20..410, y = 10..287 massstaeblich in den Zeichenbereich (oben links)
     s = min((zb["breite"] - 6.0) / 390.0, (zb["hoehe"] - 6.0) / 277.0)
     c.saveState()
@@ -1498,10 +1577,6 @@ def render(cfg, warnings, out_path):
     draw_vorgaben(z, cfg)
     draw_hinweise(z, warnings)
     z.rect(20, 10, 390, 277, BLACK, None, 0.35)
-    c.restoreState()
-    c.saveState()
-    c.scale(mm, mm)
-    draw_legend(Z(c), lz)
     c.restoreState()
     c.showPage()
     draw_listen(c, cfg, pk)
@@ -1529,10 +1604,10 @@ def main(argv=None):
         return 2
     try:
         pk = load_plankopf()
-        lay = pk.compute_layout(plankopf_spec(cfg, "Prinzipschema", 1, {"titel": "Legende"}))
-        if lay["zonen"]["legende"]["hoehe"] < 66.0:
-            raise SchemaFehler("Plankopf: Legendenzone %.1f mm zu niedrig (66 mm nötig) - "
-                               "weniger Zusatzfelder oder größeres Blatt." % lay["zonen"]["legende"]["hoehe"])
+        lay = pk.compute_layout(plankopf_spec(cfg, "Prinzipschema", 1,
+                                              legende_schema(cfg, warnings)))
+        pk.compute_layout(plankopf_spec(cfg, "Gerätetabelle und Schnittstellenliste", 2,
+                                        legende_listen(cfg)))
         for w_ in lay.get("warnungen", []):
             print("HINWEIS: Plankopf: " + w_)
     except SchemaFehler as exc:

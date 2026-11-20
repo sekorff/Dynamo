@@ -49,9 +49,20 @@ Plankopf nie von Hand nachzeichnen.
 - `mp-plankopf` ist intern (lizenzpflichtige Schrift, Logos) und liegt deshalb
   **nicht** in diesem öffentlichen Repository (`.gitignore`). Auch erzeugte PDFs
   werden nicht eingecheckt.
-- Seite 1: Schema im Zeichenbereich, Symbollegende in der Legendenzone über dem
-  Plankopf. Seite 2 ff.: Tabellen im Zeichenbereich. Das Zusatzfeld „Blatt“
-  trägt die Blattnummer.
+- Seite 1: Schema im Zeichenbereich. Seite 2 ff.: Tabellen im Zeichenbereich.
+  Das Zusatzfeld „Blatt“ trägt die Blattnummer.
+- Erwartet wird `mp-plankopf` ab Version 3.0 (Felder mit den Parameternamen der
+  Revit-Familie, `zellen`, `legende.abschnitte`). `projekt.planungsphase` landet
+  in `MP_400_LB_Text`; Maßstab („ohne“) und Planart („Schema“) stehen unter
+  `zellen`.
+- **Legende:** Sie wird nie von Hand gezeichnet, sondern vom Plankopf-Skript im
+  festen Aufbau gesetzt (Linientypen, Symbole, Planungsgrundsätze,
+  Normenverweise, Standortvorgaben, Dämmmatrix, weitere Festlegungen). Das
+  Skript leitet Linientypen und Symbole aus den aktiven Komponenten ab – nur
+  was auf dem Plan vorkommt. Wer ein Symbol im Schema ändert, ändert den
+  Legendeneintrag in `legende_schema()` mit. AKS-Bezeichnungen und Dämmmatrix
+  sind nicht bekannt und werden nicht erfunden. Die Hinweise der Prüfregeln
+  stehen zusätzlich unter „Weitere Festlegungen“.
 - Byte-identische Ausgabe gilt bei gleicher reportlab-Version (mp-plankopf nennt
   4.2.5 als Referenz).
 
@@ -64,7 +75,8 @@ Unbekannte Schlüssel sind Fehler. Alle Abschnitte außer `daecher` sind optiona
 | `projekt.name`, `.standort`, `.plan_nr`, `.index`, `.datum`, `.bearbeiter` | Text | Plankopf: Bauvorhaben, Zeichnungs-Nr. mit Index, „erstellt“ |
 | `projekt.projekt_nr`, `.bauherr`, `.planungsphase`, `.status` | Text | Plankopf; `status` nur `FREIGEGEBEN`, `ZUR PRÜFUNG`, `VORABZUG` oder leer |
 | `blatt.format` | `A2` (Standard) \| `A1` \| `A0` | Blattgröße; das Schema wird maßstäblich in den Zeichenbereich eingepasst |
-| `plankopf.logo`, `.felder`, `.freifelder`, `.zusatzfelder`, `.aenderungsindex`, `.optionen` | wie in `mp-plankopf/references/api.md` | überschreibt bzw. ergänzt die abgeleiteten Plankopfwerte (z. B. Standort-Logo, geprüft, Änderungsindex) |
+| `plankopf.logo`, `.felder`, `.zellen`, `.freifelder`, `.zusatzfelder`, `.aenderungsindex`, `.optionen` | wie in `mp-plankopf/references/api.md` | überschreibt bzw. ergänzt die abgeleiteten Plankopfwerte (z. B. Standort-Logo, `zellen` „geprüft von“, Änderungsindex) |
+| `plankopf.legende_abschnitte` | `planungsgrundsaetze`, `normenverweise`, `standortvorgaben`, `weitere_festlegungen` (Listen, werden angehängt), `daemmmatrix` (nur wenn bekannt) | Ergänzung der Legendentexte; Linientypen und Symbole sind nicht ergänzbar |
 | `versorger.name` | Text | Versorger / Entwässerungsbetrieb |
 | `versorger.einleitstelle` | `regenwasserkanal` \| `mischwasserkanal` \| `gewaesser` \| `versickerung` | Einleitstelle am Ende der Kette |
 | `versorger.einleitbeschraenkung_l_s` | Zahl \| `null` | max. Einleitmenge; erzwingt Drosselschacht mit Qdr ≤ Grenzwert |
