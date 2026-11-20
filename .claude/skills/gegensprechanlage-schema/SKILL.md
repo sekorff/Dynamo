@@ -30,34 +30,54 @@ Voraussetzung: Python 3, `reportlab` und der Skill **mp-plankopf** (siehe unten)
 
 ## Plankopf: immer mp-plankopf
 
-Rahmen, Plankopf, Änderungsindex und Legendenzone zeichnet ausschließlich der Skill `mp-plankopf`;
-dieser Generator zeichnet nur in den gemeldeten Zeichenbereich und in die Legendenzone.
+Rahmen, Plankopf, Änderungsindex und Legende zeichnet ausschließlich der Skill `mp-plankopf`
+(ab Version 3.0); dieser Generator zeichnet nur in den gemeldeten Zeichenbereich.
 Es gibt keinen Ersatzrahmen: Fehlt `mp-plankopf`, bricht das Skript mit Exit-Code 3 ab.
 Gesucht wird in dieser Reihenfolge: Umgebungsvariable `MP_PLANKOPF_SKILL`, Nachbarordner
 `.claude/skills/mp-plankopf`, `~/.claude/skills/mp-plankopf`.
 
 `mp-plankopf` enthält lizenzpflichtige Schriften und Logos und darf nicht in ein öffentliches
-Repository; in diesem Repository steht der Ordner deshalb in `.gitignore`.
+Repository; in diesem Repository stehen der Ordner und die erzeugten Pläne deshalb in `.gitignore`.
 Alle Texte des Plans sind wie der Plankopf in Avenir LT Std gesetzt.
 
-Aus `projekt` werden übernommen: `plan_nr` -> Plannummer, `index` -> aktuelle Änderung Index,
-`datum` -> erstellt Datum, `nummer` -> Projekt-Nr., `name` -> Bauvorhaben, `bauherr`, `planer`.
-Maßstab ist „ohne", Planart „Schema Gegensprechanlage" bzw. „Listen Gegensprechanlage".
-Alles Weitere (Status, Planungsphase, geprüft, Änderungsindex, Logo, Zusatzfelder) steht im
-optionalen Abschnitt `plankopf` der JSON und wird unverändert an mp-plankopf durchgereicht;
-Feldnamen siehe `mp-plankopf/references/api.md`:
+Aus `projekt` werden übernommen: `plan_nr` -> `Plannummer`, `index` -> `aktuelle Änderung Index`,
+`datum` -> `erstellt Datum`, `nummer` -> Projekt-Nr., `name` -> Bauvorhaben, `bauherr`, `planer`.
+Zelle `Maßstab` ist „ohne", Zelle `Planart` „Schema Gegensprechanlage" bzw. „Listen Gegensprechanlage".
+Alles Weitere steht im optionalen Abschnitt `plankopf` der JSON und wird unverändert an
+mp-plankopf durchgereicht. Feldnamen sind exakt die Parameternamen der Revit-Familie -
+nie umbenennen, leere Felder leer lassen; siehe `mp-plankopf/references/api.md`:
 
 ```json
 "plankopf": {
   "logo": "Braunschweig",
-  "felder": { "Status": "VORABZUG", "Planungsphase": "Entwurfsplanung", "erstellt von": "SEK" },
+  "felder": { "Status": "VORABZUG", "MP_400_LB_Text": "Entwurfsplanung", "erstellt von": "SEK" },
+  "zellen": { "geprüft von": "ABC", "geprüft Datum": "20.11.2026" },
   "freifelder": { "Block 3": { "titel": "Architekt", "zeilen": ["..."] } }
 }
 ```
 
-Erlaubte Schlüssel: `logo`, `felder`, `freifelder`, `zusatzfelder`, `aenderungsindex`, `optionen`.
-Blattformat und Legende legt der Generator selbst fest. Warnungen und Fehler von mp-plankopf
-wörtlich an den Nutzer weitergeben.
+Erlaubte Schlüssel: `logo`, `felder`, `zellen`, `freifelder`, `zusatzfelder`, `aenderungsindex`,
+`optionen`. Das Blattformat legt der Generator selbst fest.
+
+### Legende
+
+Die Legende setzt mp-plankopf in seinem festen Aufbau. Der Generator liefert je Schemablatt
+genau die Linientypen und Symbole, die auf diesem Blatt vorkommen, dazu Planungsgrundsätze und
+die Festlegung „ohne Maßstab". Weitere Inhalte kommen aus dem optionalen Abschnitt `legende`
+der JSON (Listen von Texten; `normenverweise` auch als `{"norm": "...", "titel": "..."}`):
+
+```json
+"legende": {
+  "planungsgrundsaetze": ["..."],
+  "normenverweise": [{ "norm": "...", "titel": "..." }],
+  "standortvorgaben": ["..."],
+  "weitere_festlegungen": ["..."]
+}
+```
+
+Normen, Standortvorgaben und AKS-Bezeichnungen nie erfinden - nur eintragen, was der Nutzer nennt.
+Sind `normenverweise` oder `standortvorgaben` leer, meldet mp-plankopf das als Warnung.
+Tabellenblätter haben keine Legende. Warnungen und Fehler von mp-plankopf wörtlich weitergeben.
 
 ## Feste Regeln des Generators
 
@@ -79,7 +99,7 @@ wörtlich an den Nutzer weitergeben.
 | Trennung | Schema und Tabellen sind zwingend getrennte Dokumente, nie auf einem Blatt |
 | Blattformat Schema | Höhe 420 mm; Länge nach Anzahl der Sprechstellen: DIN A2 quer 594 mm (bis 9), 840 mm (15), 1050 (21), 1260 (26), 1470 (32), 1680 (37), 1890 mm (42); darüber mehrere Blätter, Verteiler bleiben möglichst zusammen |
 | Blattformat Tabellen | DIN A2 quer, wenn alles auf ein Blatt passt; sonst DIN A1 hoch, bei Bedarf mehrere Blätter |
-| Legende / Summen | stehen in der Legendenzone über dem Plankopf (Schema: Legende, Tabellen: Summen) |
+| Legende | steht in der Legendenzone über dem Plankopf, nur auf Schemablättern; die Summen sind eine eigene Tabelle |
 | Inhalt Tabellen | Geräte- und Leitungsliste, darunter Schnittstellenliste und Gewerkeübersicht nach DIN 276, mit Summen |
 
 Die Grenze von 90 m ist fest (genau 90 m gilt noch als Kupfer).

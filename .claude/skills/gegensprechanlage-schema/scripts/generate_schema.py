@@ -146,7 +146,7 @@ C_STOER = HexColor("#8E24AA")
 C_TK = HexColor("#2E7D32")
 C_LINE = HexColor("#222222")
 C_GREY = HexColor("#9E9E9E")
-C_FILL = HexColor("#F3F5F7")
+C_FILL = HexColor("#E4E7EB")
 C_AUSSEN = HexColor("#1B3A5C")
 C_INNEN = HexColor("#2E6B4F")
 C_CLIENT = HexColor("#546E7A")
@@ -182,6 +182,7 @@ def _plankopf_laden():
 
 
 plankopf = _plankopf_laden()
+HEX = {'C_CU': '#1F5FBF', 'C_LWL': '#E07B00', 'C_230': '#C62828', 'C_CTRL': '#222222', 'C_STOER': '#8E24AA', 'C_TK': '#2E7D32', 'C_LINE': '#222222', 'C_GREY': '#9E9E9E', 'C_FILL': '#E4E7EB', 'C_AUSSEN': '#1B3A5C', 'C_INNEN': '#2E6B4F', 'C_CLIENT': '#546E7A', 'C_RELAIS': '#8D5524', 'C_VIDEO': '#0277BD', 'C_ZK': '#6A1B9A', 'C_WHITE': '#FFFFFF', 'C_BLACK': '#000000', 'C_SW': '#DDE6F0'}
 F = plankopf.FONT                 # Avenir LT Std 45 Book, wie der Plankopf
 FB = plankopf._S["fett"]        # Avenir LT Std 65 Medium, falls vorhanden
 
@@ -202,21 +203,17 @@ BLAETTER_SCHEMA = [("DIN A2 quer (594 x 420 mm)", {"format": "A2"})] + [
     for w in range(840, 1891, 210)]
 BLAETTER_LISTE = [("DIN A2 quer (594 x 420 mm)", {"format": "A2"}),
                   ("DIN A1 hoch (594 x 841 mm)", {"format": "A1", "ausrichtung": "hoch"})]
-LEGENDE_MIN_MM = 100.0       # Platzbedarf der Schemalegende in der Legendenzone
-SUMMEN_MIN_MM = 65.0
 ZB = (0.0, 0.0, 0.0, 0.0)    # Zeichenbereich (x, y, breite, hoehe) in pt, aus mp-plankopf
-LEG = (0.0, 0.0, 0.0, 0.0)   # Legendenzone in pt, aus mp-plankopf
 KX = 0.0                     # Verschiebung des Zentralenkopfs zur Mitte des Zeichenbereichs
 TX = 0.0                     # Verschiebung des Rasters nach rechts
 DY = 0.0                     # Verschiebung des Rasters nach oben
 
 
 def zonen_setzen(layout):
-    """Uebernimmt Zeichenbereich und Legendenzone aus dem Layout von mp-plankopf."""
-    global ZB, LEG, KX, TX, DY
+    """Uebernimmt den Zeichenbereich aus dem Layout von mp-plankopf."""
+    global ZB, KX, TX, DY
     z = layout["zonen"]
     ZB = tuple(z["zeichenbereich"][k] * MM for k in ("x", "y", "breite", "hoehe"))
-    LEG = tuple(z["legende"][k] * MM for k in ("x", "y", "breite", "hoehe"))
     TX = ZB[0] - RASTER_LINKS
     DY = ZB[1] + ZB[3] - RASTER_OBEN
     KX = ZB[0] + ZB[2] / 2 - X_MITTE - TX
@@ -230,10 +227,13 @@ def plankopf_spec(modell, blatt, planart, inhalt, nr, anzahl, legende):
     """Eingabe fuer mp-plankopf aus den Projektdaten; 'plankopf' in der JSON hat Vorrang."""
     p, pk = modell["projekt"], modell["plankopf"]
     d = p["datum"]
-    felder = {"Plannummer": p["plan_nr"], "Maßstab": "ohne", "Planart": planart,
+    # Feldnamen exakt wie in der Revit-Familie; leere Felder bleiben leer (Platzhalter setzt mp-plankopf)
+    felder = {"Plannummer": p["plan_nr"],
               "aktuelle Änderung Index": "" if p["index"] == "-" else p["index"],
               "erstellt Datum": "%s.%s.%s" % (d[8:10], d[5:7], d[0:4])}
     felder.update(pk.get("felder", {}))
+    zellen = {"Maßstab": "ohne", "Planart": planart}
+    zellen.update(pk.get("zellen", {}))
     frei = {"Kopf links": {"titel": "Projekt-Nr.", "zeilen": [p["nummer"]]},
             "Kopf rechts": {"titel": "Gewerk", "zeilen": ["KG 452 Gegensprechanlage"]},
             "Block 1": {"titel": "Bauvorhaben", "zeilen": [p["name"]]},
@@ -241,7 +241,8 @@ def plankopf_spec(modell, blatt, planart, inhalt, nr, anzahl, legende):
             "Block 3": {"titel": "Planer", "zeilen": [p["planer"]]},
             "Block 4": {"titel": "Planinhalt", "zeilen": [inhalt, "Blatt %d / %d" % (nr, anzahl)]}}
     frei.update(pk.get("freifelder", {}))
-    spec = {"blatt": blatt, "felder": felder, "freifelder": frei, "legende": legende}
+    spec = {"blatt": blatt, "felder": felder, "zellen": zellen, "freifelder": frei,
+            "legende": legende}
     for k in ("logo", "zusatzfelder", "aenderungsindex", "optionen"):
         if k in pk:
             spec[k] = pk[k]
@@ -309,7 +310,7 @@ def _id(d, pfad):
 
 def validieren(roh):
     _obj(roh, "wurzel", {"projekt", "netz", "zentrale", "verteiler", "sprechstellen",
-                         "schnittstellen", "plankopf"},
+                         "schnittstellen", "plankopf", "legende"},
          ("projekt", "verteiler", "sprechstellen"))
 
     p = _obj(roh["projekt"], "projekt",
@@ -381,10 +382,19 @@ def validieren(roh):
 
     # wird unveraendert an mp-plankopf durchgereicht und dort geprueft
     pk = dict(_obj(roh.get("plankopf", {}), "plankopf",
-                   {"logo", "felder", "freifelder", "zusatzfelder", "aenderungsindex", "optionen"}))
-    for k in ("felder", "freifelder"):
+                   {"logo", "felder", "zellen", "freifelder", "zusatzfelder", "aenderungsindex",
+                    "optionen"}))
+    for k in ("felder", "zellen", "freifelder"):
         if not isinstance(pk.get(k, {}), dict):
             raise EingabeFehler("plankopf.%s: Objekt erwartet" % k)
+
+    # zusaetzliche Legendeninhalte; Linientypen und Symbole erzeugt der Generator selbst
+    leg = dict(_obj(roh.get("legende", {}), "legende",
+                    {"planungsgrundsaetze", "normenverweise", "standortvorgaben",
+                     "weitere_festlegungen"}))
+    for k, v in leg.items():
+        if not isinstance(v, list):
+            raise EingabeFehler("legende.%s: Liste erwartet" % k)
 
     ueber = {}
     for key, wert in sorted(_obj(roh.get("schnittstellen", {}), "schnittstellen",
@@ -548,7 +558,7 @@ def validieren(roh):
     spalten = [s for v in gruppen for s in stationen if s["verteiler"] == v["id"]]
     return {"projekt": projekt, "netz": netz, "zentrale": zentrale,
             "verteiler": verteiler, "gruppen": gruppen, "spalten": spalten,
-            "schnittstellen": ueber, "plankopf": pk}
+            "schnittstellen": ueber, "plankopf": pk, "legende": leg}
 
 # --------------------------------------------------------------------------
 # Zeichenhilfen
@@ -659,61 +669,82 @@ def badge(c, x, y, w, h, label, aktiv, farbe):
 # --------------------------------------------------------------------------
 # Blattrahmen, Schriftfeld, Legende
 # --------------------------------------------------------------------------
-def legende(c, modell):
-    """Schemalegende in der Legendenzone von mp-plankopf (unter deren Titelzeile)."""
-    netz = modell["netz"]
-    x = LEG[0] + 3 * MM
-    y = LEG[1] + LEG[3] - 9 * MM - 13
-    breite = LEG[2] - 6 * MM
+def mm(pt):
+    return round(pt / MM, 2)
 
-    text(c, "Leitungen", x, y, 7.5, FB)
-    y -= 10
-    for farbe, lw, dash, label in [
-        (C_CU, 1.4, None, "%s, IP-Datenleitung mit PoE (bis %d m)" % (netz["kupfer_typ"], MAX_KUPFER_M)),
-        (C_LWL, 2.2, None, "%s, Lichtwellenleiter (über %d m)" % (netz["lwl_typ"], MAX_KUPFER_M)),
-        (C_230, 1.2, None, "230 V AC, lokale Einspeisung PoE-Injektor"),
-        (C_CU, 1.2, DASH_CLIENT, "IP über LAN / WLAN / Mobilfunk, ohne PoE (Software-Client)"),
-        (C_CTRL, 1.0, DASH_RELAIS, "Freigabe lokal über Relaiskontakt"),
-        (C_CTRL, 1.0, DASH_FERN, "Fernfreigabe über IP (Bedienung Innensprechstelle)"),
-        (C_LINE, 0.8, None, "Zusatzgerät an Innensprechstelle (Taster, Wecker, Leuchte)"),
-        (C_STOER, 1.2, DASH_STOER, "Störmeldungen an GLT"),
-        (C_TK, 1.4, None, "Anbindung TK-Anlage / Wählgerät"),
-    ]:
-        linie(c, [(x, y + 2), (x + 34, y + 2)], farbe, lw, dash)
-        text(c, label, x + 42, y, 6.5, max_w=breite - 42)
-        y -= 8.4
 
-    y -= 7
-    text(c, "Geräte", x, y, 7.5, FB)
-    y -= 10
-    for farbe, label in ((C_AUSSEN, "Außensprechstelle"), (C_INNEN, "Innensprechstelle"),
-                         (C_CLIENT, "Software-Client / App (PC, Smartphone, Tablet)"),
-                         (C_RELAIS, "IP-Relais (Smart Relais), Freigabe im gesicherten Bereich")):
-        box(c, x, y - 1, 34, 6.5, fill=farbe, stroke=farbe)
-        text(c, label, x + 42, y, 6.5, max_w=breite - 42)
-        y -= 9
-    y -= 1.5
-    for label, aktiv, farbe, txt in (("VIDEO", True, C_VIDEO, "mit Videokamera / Bildschirm"),
-                                     ("ZK", True, C_ZK, "mit Zugangskontrolle (Leser)"),
-                                     ("ZK", False, C_ZK, "Ausstattung nicht vorhanden")):
-        badge(c, x, y - 2, 34, 9, label, aktiv, farbe)
-        text(c, txt, x + 42, y, 6.5, max_w=breite - 42)
-        y -= 10.5
+def legende_abschnitte(modell, spalten):
+    """Legendeninhalt fuer mp-plankopf: genau die Linientypen und Symbole dieses Blatts."""
+    netz, z = modell["netz"], modell["zentrale"]
+    vmap = {v["id"]: v for v in modell["gruppen"]}
+    hw = [s for s in spalten if s["typ"] != "client"]
+    lwl = any(s["lwl"] for s in hw)
+    lwl_uplink = any(vmap[s["verteiler"]]["lwl"] for s in spalten)
+    typen = {s["typ"] for s in spalten}
 
-    y -= 6
-    text(c, "Planungsregeln", x, y, 7.5, FB)
-    y -= 10
-    for r in [
+    linien = [{"text": "%s, IP-Datenleitung mit PoE (bis %d m)" % (netz["kupfer_typ"], MAX_KUPFER_M),
+               "farbe": HEX["C_CU"], "staerke_mm": mm(1.4)}]
+    if lwl or lwl_uplink:
+        linien.append({"text": "%s, Lichtwellenleiter (über %d m)" % (netz["lwl_typ"], MAX_KUPFER_M),
+                       "farbe": HEX["C_LWL"], "staerke_mm": mm(2.2)})
+    if lwl:
+        linien.append({"text": "230 V AC, lokale Einspeisung Medienkonverter / PoE-Injektor",
+                       "farbe": HEX["C_230"], "staerke_mm": mm(1.2)})
+    linien.append({"text": "Verteilung ab Core-Switch", "farbe": HEX["C_LINE"], "staerke_mm": mm(2.0)})
+    if "client" in typen:
+        linien.append({"text": "IP über LAN / WLAN / Mobilfunk, ohne PoE (Software-Client)",
+                       "farbe": HEX["C_CU"], "strich": "gestrichelt", "staerke_mm": mm(1.2)})
+    if any(s["typ"] in LOKAL and s["freigabe"] for s in spalten):
+        linien.append({"text": "Freigabe lokal über Relaiskontakt", "farbe": HEX["C_CTRL"],
+                       "strich": "gestrichelt", "staerke_mm": mm(1.0)})
+    if any(s["typ"] not in LOKAL and s["freigabe"] for s in spalten):
+        linien.append({"text": "Fernfreigabe über IP (Bedienung Innensprechstelle / Client)",
+                       "farbe": HEX["C_CTRL"], "strich": "punktiert", "staerke_mm": mm(1.0)})
+    if any(s["zusatz"] for s in spalten):
+        linien.append({"text": "Zusatzgerät an Innensprechstelle (Taster, Wecker, Leuchte)",
+                       "farbe": HEX["C_LINE"], "staerke_mm": mm(0.8)})
+    if z["glt"]["vorhanden"]:
+        linien.append({"text": "Störmeldungen an GLT", "farbe": HEX["C_STOER"],
+                       "strich": "strichpunkt", "staerke_mm": mm(1.2)})
+    if z["tk_anlage"]["vorhanden"] or z["waehlgeraet"]["vorhanden"]:
+        linien.append({"text": "Anbindung TK-Anlage / Wählgerät", "farbe": HEX["C_TK"],
+                       "staerke_mm": mm(1.4)})
+
+    symbole = []
+    for typ, farbe, name in (("aussen", "C_AUSSEN", "Außensprechstelle"),
+                             ("innen", "C_INNEN", "Innensprechstelle"),
+                             ("client", "C_CLIENT", "Software-Client / App (PC, Smartphone, Tablet)"),
+                             ("relais", "C_RELAIS", "IP-Relais (Smart Relais), Freigabe im gesicherten Bereich")):
+        if typ in typen:
+            symbole.append({"symbol": "flaeche", "farbe": HEX[farbe], "text": name})
+    symbole.append({"symbol": "flaeche", "farbe": HEX["C_SW"], "text": "Core-Switch / PoE-Switch (Verteiler)"})
+    symbole.append({"symbol": "flaeche", "farbe": HEX["C_FILL"],
+                    "text": "Zentralgerät (Server, TK-Anlage, Wählgerät, GLT) bzw. angesteuerte Fremdanlage"})
+    if lwl:
+        symbole.append({"symbol": "ohne", "text": "Weißes Feld im Strang: Medienkonverter bzw. PoE-Injektor"})
+    if any(s["video"] for s in spalten):
+        symbole.append({"symbol": "flaeche", "farbe": HEX["C_VIDEO"],
+                        "text": "VIDEO: mit Videokamera / Bildschirm"})
+    if any(s["zk"] for s in spalten):
+        symbole.append({"symbol": "flaeche", "farbe": HEX["C_ZK"],
+                        "text": "ZK: mit Zugangskontrolle (Leser)"})
+    if any(s["typ"] != "relais" and not (s["video"] and s["zk"]) for s in spalten):
+        symbole.append({"symbol": "kreis", "farbe": HEX["C_GREY"],
+                        "text": "Durchgestrichenes Feld VIDEO / ZK: Ausstattung nicht vorhanden"})
+
+    extra = modell["legende"]
+    grundsaetze = [
         "Vernetzung durchgängig auf IP-Basis, Speisung der Sprechstellen über PoE.",
         "Leitungslänge bis %d m: Kupferleitung, PoE direkt vom Switch." % MAX_KUPFER_M,
-        "Leitungslänge über %d m: LWL bis Medienkonverter (MK) am Einbauort," % MAX_KUPFER_M,
-        "PoE-Einspeisung lokal über Injektor 230 V AC / PoE.",
-        "MK und Injektor benötigen einen 230-V-Anschluss am Einbauort.",
+        "Leitungslänge über %d m: LWL bis Medienkonverter am Einbauort, PoE-Einspeisung lokal über "
+        "Injektor 230 V AC / PoE; dafür ist ein 230-V-Anschluss am Einbauort nötig." % MAX_KUPFER_M,
         "Störmeldungen werden zentral gesammelt und an die GLT übergeben.",
-        "Schema ohne Maßstab; Leitungslängen laut Eingabedaten.",
-    ]:
-        text(c, r, x, y, 6.5, max_w=breite)
-        y -= 8.4
+    ] + list(extra.get("planungsgrundsaetze", []))
+    return {"linientypen": linien, "symbole": symbole, "planungsgrundsaetze": grundsaetze,
+            "normenverweise": list(extra.get("normenverweise", [])),
+            "standortvorgaben": list(extra.get("standortvorgaben", [])),
+            "weitere_festlegungen": ["Schema ohne Maßstab; Leitungslängen laut Eingabedaten."]
+            + list(extra.get("weitere_festlegungen", []))}
 
 
 # --------------------------------------------------------------------------
@@ -979,7 +1010,7 @@ def listenzeilen(modell):
             ", ".join(ZUSATZ[z] for z in s["zusatz"]) or "-"] + netzteil)
     return [[str(i + 1)] + z for i, z in enumerate(zeilen)]
 
-def summen(c, modell):
+def summenzeilen(modell):
     sp = modell["spalten"]
     hw = [s for s in sp if s["typ"] != "client"]
     lwl = sum(1 for s in hw if s["lwl"])
@@ -1000,12 +1031,7 @@ def summen(c, modell):
         ("PoE-Injektoren 230 V", lwl),
         ("230-V-Anschlüsse am Einbauort", lwl),
     ]
-    x = LEG[0] + 3 * MM
-    y = LEG[1] + LEG[3] - 9 * MM - 12
-    for label, wert in werte:
-        text(c, label, x, y, 7)
-        text(c, str(wert), x + 200, y, 7, FB, anker="r")
-        y -= 10
+    return [[label, str(wert)] for label, wert in werte]
 
 
 # --------------------------------------------------------------------------
@@ -1099,6 +1125,7 @@ def listen_fluss(modell):
         ("Schnittstellenliste - Zuständigkeit der Gewerke nach DIN 276 (Kostengruppen)",
          SPALTEN_SCHNITT, schnittstellenzeilen(modell), True),
         ("Gewerke nach DIN 276 (Kostengruppen)", SPALTEN_KG, [list(k) for k in KG_KATALOG], False),
+        ("Summen", [("Position", 300), ("Anzahl", 80)], summenzeilen(modell), False),
     ]
     seiten = [[]]
     y = oben
@@ -1130,7 +1157,6 @@ def listen_fluss(modell):
 
 
 def listenseite(c, modell, ops):
-    summen(c, modell)
     x = ZB[0] + 8
     for op in ops:
         if op[0] == "titel":
@@ -1173,8 +1199,7 @@ PLANART_SCHEMA = "Schema Gegensprechanlage"
 PLANART_LISTEN = "Listen Gegensprechanlage"
 INHALT_SCHEMA = "Schema Gegensprechanlage (IP / PoE)"
 INHALT_LISTEN = "Geräte-, Leitungs- und Schnittstellenliste"
-LEG_SCHEMA = {"titel": "Legende", "min_hoehe_mm": LEGENDE_MIN_MM}
-LEG_LISTEN = {"titel": "Summen", "min_hoehe_mm": SUMMEN_MIN_MM}
+LEG_LISTEN = {"titel": "", "rahmen": False}     # Tabellenblaetter haben keine Legende
 
 
 def erzeuge_schema(modell, ziel):
@@ -1183,7 +1208,8 @@ def erzeuge_schema(modell, ziel):
     warnungen = []
     for name, blatt in BLAETTER_SCHEMA:
         zonen_setzen(plankopf.compute_layout(
-            plankopf_spec(modell, blatt, PLANART_SCHEMA, INHALT_SCHEMA, 1, 1, LEG_SCHEMA)))
+            plankopf_spec(modell, blatt, PLANART_SCHEMA, INHALT_SCHEMA, 1, 1,
+                          {"abschnitte": legende_abschnitte(modell, sp)})))
         if spalten_je_blatt() >= len(sp):
             break
     je_blatt = spalten_je_blatt()
@@ -1204,10 +1230,10 @@ def erzeuge_schema(modell, ziel):
         erste_ids.setdefault(s["verteiler"], s["id"])
     c = neues_pdf(ziel, modell, PLANART_SCHEMA)
     for nr, teil in enumerate(seiten, 1):
-        layout = plankopf.draw(c, plankopf_spec(modell, blatt, PLANART_SCHEMA, INHALT_SCHEMA,
-                                                nr, len(seiten), LEG_SCHEMA))
+        layout = plankopf.draw(c, plankopf_spec(
+            modell, blatt, PLANART_SCHEMA, INHALT_SCHEMA, nr, len(seiten),
+            {"abschnitte": legende_abschnitte(modell, teil)}))
         warnungen = layout["warnungen"]
-        legende(c, modell)
         schemaseite(c, modell, teil, erste_ids)
         c.showPage()
     c.save()
