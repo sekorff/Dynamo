@@ -14,7 +14,8 @@ Prüfung zu umgehen.
 
 Blattrahmen, Plankopf, Änderungsindex, Zusatzfelder und Legende kommen **ausschließlich** aus dem Skill
 `mp-plankopf` (MP_400_Plankopf). Dieses Skript ruft dessen `plankopf.draw()` auf und zeichnet das Schema nur in
-die gemeldete Zone `zeichenbereich`; die Legendeneinträge übergibt es an die Legendenzone des Plankopfs. Es gibt
+die gemeldete Zone `zeichenbereich`; die Legende übergibt es als `legende.abschnitte` im festen Aufbau des
+Plankopfs (ab mp-plankopf 2.0, geprüft mit 3.0.0). Es gibt
 keinen eigenen Rahmen, kein eigenes Schriftfeld und keinen Ersatz: Fehlt `mp-plankopf` oder dessen Schrift
 (Avenir LT Std), bricht das Skript mit Exit 1 ab. Dann den Nutzer informieren – nie einen Plankopf nachbauen.
 
@@ -53,32 +54,42 @@ Ausgabe gilt bei gleicher reportlab-Version.
 {
   "projekt": { "name": "…", "datum": "18.11.2026", "standort": "…", "bauherr": "…", "plan_nr": "…", "index": "V0", "bearbeiter": "…" },
   "blatt": "A2",
-  "plankopf": { "logo": "Gruppe", "felder": { "Status": "VORABZUG", "Planungsphase": "Entwurfsplanung" }, "freifelder": { "Kopf links": "…" } },
+  "plankopf": { "logo": "Gruppe", "felder": { "Status": "VORABZUG", "MP_400_LB_Text": "Entwurfsplanung" }, "zellen": { "geprüft von": "…" }, "freifelder": { "Kopf links": "…" } },
   "versorger": "muster_trennsystem",
   "uebergabe": { "schacht": true, "dn": 1000, "anschlusskanal_dn": 150, "probenahme": false, "bezeichnung": "Übergabeschacht ÜS1" },
   "sammelleitung_dn": 150,
   "straenge": [ … ],
-  "hinweise": [ "freier Text im Hinweisfeld" ]
+  "planungsgrundsaetze": [ "zusätzlicher Planungsgrundsatz" ],
+  "hinweise": [ "weitere Festlegung" ]
 }
 ```
 
 - Pflicht: `projekt.name`, `projekt.datum`, `versorger`, `uebergabe.schacht`, `uebergabe.anschlusskanal_dn`, `straenge`.
 - `projekt.datum` wird als Text in den Plankopf übernommen (kein Systemdatum, sonst wäre die Ausgabe nicht
   reproduzierbar).
-- `blatt`: Formatname (`A0`–`A3`, Vorgabe `A2`) oder Objekt nach der mp-plankopf-API
+- `blatt`: Formatname (`A0`–`A2`, Vorgabe `A2`) oder Objekt nach der mp-plankopf-API
   (`{"format": "benutzerdefiniert", "breite_mm": …, "hoehe_mm": …}`). Der Plankopf belegt rechts 180 mm; das
-  Schema wird im verbleibenden Zeichenbereich einheitlich bis Faktor 3 vergrößert. Richtwerte: A3 nur für
-  Kleinstanlagen (1 Komponente je Strang, kurze Legende), A2 bis 5 Komponenten je Strang, A1 für alles Größere.
-  Passt etwas nicht, meldet das Skript es – dann größeres Blatt wählen. A4 hat keinen Zeichenbereich.
-- `plankopf` (optional): wird an mp-plankopf durchgereicht – `logo`, `felder`, `freifelder`, `aenderungsindex`,
-  `zusatzfelder`, `optionen`. Feldnamen und Regeln stehen in `<mp-plankopf>/references/api.md`; vor dem Befüllen
-  lesen. `legende` ist nicht einstellbar, sie wird aus den verwendeten Leitungen und Kürzeln erzeugt.
-- Vorbelegung des Plankopfs aus `projekt`: `Planart` = „Schmutzwasser-Anlagenschema", `Maßstab` = „ohne",
-  `Plannummer` = `plan_nr`, `aktuelle Änderung Index` = `index`, `erstellt Datum`/`erstellt von` =
-  `datum`/`bearbeiter`; Block 1 Bauvorhaben, Block 2 Bauherr, Block 3 Versorger, Block 4 Planinhalt. Angaben
+  Schema wird im verbleibenden Zeichenbereich einheitlich bis Faktor 3 vergrößert. Richtwerte: A2 bis 5
+  Komponenten je Strang, A1 für alles Größere. Auf A3 passt die Legende in aller Regel nicht (nur 30–45 mm
+  hoch), A4 hat keinen Zeichenbereich. Passt etwas nicht, meldet das Skript es – dann größeres Blatt wählen.
+- `plankopf` (optional): wird unverändert an mp-plankopf durchgereicht – `logo`, `felder`, `zellen`,
+  `freifelder`, `aenderungsindex`, `zusatzfelder`, `optionen`. `felder` nimmt nur die Parameternamen der
+  Revit-Familie an (z. B. `Status`, `MP_400_LB_Text`, `MP_300_V0_Index`), `zellen` die Zellen ohne Parameter
+  (`Maßstab`, `Planart`, `geprüft Datum`, `geprüft von`, `Basisplan Index`, `Basisplan Datum`). Namen und Regeln
+  stehen in `<mp-plankopf>/references/api.md`; vor dem Befüllen lesen, nichts umbenennen, leere Felder leer lassen.
+- Vorbelegung des Plankopfs aus `projekt`: `Plannummer` = `plan_nr`, `aktuelle Änderung Index` = `index`,
+  `erstellt Datum`/`erstellt von` = `datum`/`bearbeiter`; Zellen `Planart` = „Schmutzwasser-Anlagenschema",
+  `Maßstab` = „ohne"; Block 1 Bauvorhaben, Block 2 Bauherr, Block 3 Versorger, Block 4 Planinhalt. Angaben
   unter `plankopf` überschreiben das. Bei Regelverstößen (`--erlaube-abweichungen`) wird `Status` zwingend
   `VORABZUG`.
-- `versorger`: Profilname aus `versorger/`, Pfad relativ zur Konfiguration oder Inline-Objekt.
+- **Legende** ist nicht frei einstellbar. Das Skript erzeugt die Abschnitte des Plankopfs aus dem Plan:
+  1 Linientypen und 2 Symbole (genau das, was auf dem Plan vorkommt), 3 Planungsgrundsätze (aus der Anlage
+  abgeleitet, ergänzt um `planungsgrundsaetze`), 4 Normenverweise (nach verwendeten Komponenten),
+  5 Standortvorgaben (aus dem Versorgerprofil samt dessen `hinweise`), 7 Weitere Festlegungen (`hinweise`).
+  Eine Dämmmatrix gibt es für Schmutzwasser nicht.
+- **AKS**: Komponenten und `uebergabe` nehmen optional `aks`. Die Bezeichnung erscheint an der Komponente und
+  in der Legende. Nur eintragen, wenn sie bekannt ist – nie erfinden.
+- Das Prüfergebnis (Abweichungen, Warnungen, Hinweise) steht unten im Zeichenbereich.
 - Unbekannte Schlüssel sind Fehler.
 
 ### Strang
@@ -100,7 +111,7 @@ Ausgabe gilt bei gleicher reportlab-Version.
 
 ### Komponenten
 
-Jede Komponente kann zusätzlich `id`, `bezeichnung` und `hinweis` (dritte Beschriftungszeile) tragen.
+Jede Komponente kann zusätzlich `id`, `bezeichnung`, `aks` und `hinweis` (letzte Beschriftungszeile) tragen.
 
 | `typ` | Parameter (fett = Pflicht) |
 |---|---|

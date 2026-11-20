@@ -68,9 +68,10 @@ C_SAMMEL = (0.0, 0.0, 0.0)
 C_BW = (0.0, 0.55, 0.20)   # Betriebswasser
 C_TW = (0.0, 0.35, 0.85)   # Trinkwasser
 C_ROT = (0.80, 0.0, 0.0)
+C_GRENZE = (0.2, 0.2, 0.2)
 
 NUM = (int, float)
-GEMEINSAM = {"typ": str, "id": str, "bezeichnung": str, "hinweis": str}
+GEMEINSAM = {"typ": str, "id": str, "bezeichnung": str, "hinweis": str, "aks": str}
 
 # Komponententyp -> (Standardname, zulässige Parameter {name: typ}, Pflichtparameter)
 KOMPONENTEN = {
@@ -215,22 +216,26 @@ def lade_versorger(angabe, basis):
 def lade_konfiguration(pfad):
     cfg = lade_json(pfad)
     pruefe_objekt(cfg, {"projekt": dict, "blatt": object, "plankopf": dict, "versorger": object, "uebergabe": dict,
-                        "sammelleitung_dn": NUM, "straenge": list, "hinweise": list},
+                        "sammelleitung_dn": NUM, "straenge": list, "hinweise": list, "planungsgrundsaetze": list},
                   "konfiguration", pflicht=("projekt", "versorger", "uebergabe", "straenge"))
     pruefe_objekt(cfg["projekt"], {"name": str, "standort": str, "plan_nr": str, "index": str, "datum": str,
                                    "bearbeiter": str, "bauherr": str}, "projekt", pflicht=("name", "datum"))
-    cfg.setdefault("blatt", "A2")
+    cfg.setdefault("plankopf", {})
+    # Ohne 'blatt' gilt A2 - außer das Format kommt als Familienparameter (A0/A1/A2/Blattgröße) über felder
+    fam = cfg["plankopf"].get("felder", {}) if isinstance(cfg["plankopf"], dict) else {}
+    fam_blatt = isinstance(fam, dict) and any(k in fam for k in ("A0", "A1", "A2", "Blattgröße"))
+    cfg.setdefault("blatt", None if fam_blatt else "A2")
     if isinstance(cfg["blatt"], str):
         cfg["blatt"] = {"format": cfg["blatt"]}
-    cfg.setdefault("plankopf", {})
-    pruefe_objekt(cfg["plankopf"], {"logo": object, "felder": dict, "freifelder": dict, "aenderungsindex": dict,
+    pruefe_objekt(cfg["plankopf"], {"logo": object, "felder": dict, "zellen": dict, "freifelder": dict, "aenderungsindex": dict,
                                     "zusatzfelder": list, "optionen": dict}, "plankopf")
     cfg["versorger"] = lade_versorger(cfg["versorger"], os.path.dirname(os.path.abspath(pfad)))
     pruefe_objekt(cfg["uebergabe"], {"schacht": bool, "dn": NUM, "anschlusskanal_dn": NUM, "probenahme": bool,
-                                     "bezeichnung": str}, "uebergabe", pflicht=("schacht", "anschlusskanal_dn"))
-    cfg.setdefault("hinweise", [])
-    for i, h in enumerate(cfg["hinweise"]):
-        pruefe_typ(h, str, "hinweise[%d]" % i)
+                                     "bezeichnung": str, "aks": str}, "uebergabe", pflicht=("schacht", "anschlusskanal_dn"))
+    for liste in ("hinweise", "planungsgrundsaetze"):
+        cfg.setdefault(liste, [])
+        for i, h in enumerate(cfg[liste]):
+            pruefe_typ(h, str, "%s[%d]" % (liste, i))
 
     if not cfg["straenge"]:
         raise Eingabefehler("straenge: mindestens ein Strang erforderlich")
@@ -457,7 +462,7 @@ def pruefe_regeln(cfg):
 # --------------------------------------------------------------------------
 # Layout
 # --------------------------------------------------------------------------
-HINWEIS_H = 44.0     # Höhe Hinweisfeld unten im Zeichenbereich
+HINWEIS_H = 30.0     # Höhe Prüfergebnisfeld unten im Zeichenbereich
 QUELLE_B, QUELLE_H = 48.0, 18.0
 RASTER = 36.0        # Spaltenraster Komponenten
 KB, KH = 24.0, 14.0  # Komponenten-Slot
@@ -766,6 +771,8 @@ class Zeichner:
             norm = ""
         else:
             norm = ""
+        if k.get("aks"):
+            zeilen.append(("AKS " + k["aks"], False))
         if p:
             zeilen.append((", ".join(p), False))
         if k.get("hinweis"):
@@ -780,65 +787,178 @@ def hexfarbe(rgb):
     return "#%02X%02X%02X" % tuple(int(round(v * 255)) for v in rgb)
 
 
-def legende_eintraege(cfg):
-    """Legendeneinträge für die Legendenzone des Plankopfs (nur verwendete Elemente)."""
-    typen = [k["typ"] for s in cfg["straenge"] for k in s["komponenten"]]
-    e = []
-    for art in ART_REIHENFOLGE:
-        if any(s["abwasserart"] == art for s in cfg["straenge"]):
-            e.append({"symbol": "linie", "farbe": hexfarbe(ARTEN[art][1]), "text": ARTEN[art][0]})
-    e.append({"symbol": "linie", "farbe": "#000000", "text": "Sammel-/Grundleitung, Anschlusskanal"})
+NORMEN = [  # (Bedingung auf Komponententypen/Abwasserarten, Norm, Titel)
+    (None, "DIN EN 12056", "Schwerkraftentwässerungsanlagen innerhalb von Gebäuden"),
+    (None, "DIN 1986-100", "Entwässerungsanlagen für Gebäude und Grundstücke"),
+    ("hebeanlage", "DIN EN 12050", "Abwasserhebeanlagen für die Gebäude- und Grundstücksentwässerung"),
+    ("rueckstauverschluss", "DIN EN 13564", "Rückstauverschlüsse für Gebäude"),
+    ("fettabscheider", "DIN EN 1825 / DIN 4040-100", "Abscheideranlagen für Fette"),
+    ("leichtfluessigkeitsabscheider", "DIN EN 858 / DIN 1999-100", "Abscheideranlagen für Leichtflüssigkeiten"),
+    ("grauwasseranlage", "DIN EN 16941-2", "Vor-Ort-Anlagen für Nicht-Trinkwasser – behandeltes Grauwasser"),
+    ("whg", "AwSV", "Verordnung über Anlagen zum Umgang mit wassergefährdenden Stoffen"),
+]
+
+# Komponententyp -> (Legendensymbol der Plankopf-API, Bezeichnung in der Legende)
+SYMBOLE = {
+    "schlammfang": ("quadrat", "S  Schlammfang"),
+    "fettabscheider": ("quadrat", "S | F  Fettabscheider mit Schlammfang"),
+    "staerkeabscheider": ("quadrat", "St  Stärkeabscheider"),
+    "probenahme": ("kreis", "P  Probenahmeschacht"),
+    "kontrollschacht": ("kreis", "KS  Kontrollschacht"),
+    "hebeanlage": ("quadrat", "Hebeanlage (Pumpe im Behälter) mit Rückstauschleife über RSE"),
+    "rueckstauverschluss": ("dreieck", "Rückstauverschluss"),
+    "absperrschieber": ("dreieck", "Absperrschieber (M = motorisch/automatisch)"),
+    "rueckhaltung": ("quadrat", "RH  Rückhaltung"),
+    "neutralisation": ("quadrat", "pH  Neutralisationsanlage"),
+    "emulsionsspaltanlage": ("quadrat", "ESA  Emulsionsspaltanlage"),
+    "grauwasseranlage": ("quadrat", "GW  Grauwasseranlage"),
+}
+
+
+def symbol_eintrag(k):
+    if k["typ"] == "leichtfluessigkeitsabscheider":
+        return ("quadrat", "S | B | K  Leichtflüssigkeitsabscheider Klasse I (Koaleszenzabscheider)"
+                if k["klasse"] == "I" else "S | B  Leichtflüssigkeitsabscheider Klasse II (Benzinabscheider)")
+    if k["typ"] == "sonstige":
+        return ("quadrat", "%s  %s" % (k["kuerzel"], k["bezeichnung"]))
+    return SYMBOLE[k["typ"]]
+
+
+def legende_abschnitte(cfg):
+    """Inhalt der Plankopf-Legende (fester Aufbau nach mp-plankopf): nur was auf dem Plan vorkommt."""
+    v, u = cfg["versorger"], cfg["uebergabe"]
+    komps = [(s, k) for s in cfg["straenge"] for k in s["komponenten"]]
+    typen = [k["typ"] for _, k in komps]
+    arten = [a for a in ART_REIHENFOLGE if any(s["abwasserart"] == a for s in cfg["straenge"])]
+    ja = lambda b: "erforderlich" if b else "nicht gefordert"
+
+    # 1 Linientypen
+    lin = [{"farbe": hexfarbe(ARTEN[a][1]), "staerke_mm": 0.6, "text": ARTEN[a][0]} for a in arten]
+    lin.append({"farbe": "#000000", "staerke_mm": 1.0, "text": "Sammel-/Grundleitung, Anschlusskanal"})
     if "grauwasseranlage" in typen:
-        e.append({"symbol": "linie", "farbe": hexfarbe(C_BW), "text": "BW  Betriebswasser (aus Grauwasser)"})
-        e.append({"symbol": "linie", "farbe": hexfarbe(C_TW), "text": "TW  Trinkwasser-Nachspeisung (freier Auslauf)"})
-    e.append({"symbol": "linie", "farbe": hexfarbe(C_TW), "strich": "gestrichelt", "text": "RSE  Rückstauebene"})
+        lin.append({"farbe": hexfarbe(C_BW), "text": "BW  Betriebswasser (aus Grauwasser)"})
+        lin.append({"farbe": hexfarbe(C_TW), "text": "TW  Trinkwasser-Nachspeisung (freier Auslauf)"})
+    lin.append({"farbe": hexfarbe(C_TW), "strich": "gestrichelt", "staerke_mm": 0.45, "text": "RSE  Rückstauebene"})
     if any(t in typen for t in ("fettabscheider", "staerkeabscheider", "hebeanlage")):
-        e.append({"symbol": "linie", "farbe": "#000000", "strich": "punktiert", "text": "Lü  Lüftungsleitung über Dach"})
-    lfa = [k for s in cfg["straenge"] for k in s["komponenten"] if k["typ"] == "leichtfluessigkeitsabscheider"]
-    kuerzel = [
-        ("S  Schlammfang", any(t in typen for t in ("schlammfang", "fettabscheider",
-                                                    "leichtfluessigkeitsabscheider"))),
-        ("F  Fettabscheider", "fettabscheider" in typen),
-        ("St  Stärkeabscheider", "staerkeabscheider" in typen),
-        ("B  Benzin-/Leichtflüssigkeitsabscheider", bool(lfa)),
-        ("K  Koaleszenzstufe (Klasse I)", any(k["klasse"] == "I" for k in lfa)),
-        ("W  Warnanlage", any(k["warnanlage"] for k in lfa)),
-        ("P  Probenahmeschacht", "probenahme" in typen or cfg["uebergabe"].get("probenahme", False)),
-        ("KS  Kontrollschacht", "kontrollschacht" in typen),
-        ("RH  Rückhaltung", "rueckhaltung" in typen),
-        ("pH  Neutralisationsanlage", "neutralisation" in typen),
-        ("ESA  Emulsionsspaltanlage", "emulsionsspaltanlage" in typen),
-        ("GW  Grauwasseranlage", "grauwasseranlage" in typen),
-        ("M  motorischer Absperrschieber", any(k["typ"] == "absperrschieber" and k.get("automatisch")
-                                              for s in cfg["straenge"] for k in s["komponenten"])),
-        ("ÜS  Übergabeschacht", cfg["uebergabe"]["schacht"]),
-    ]
-    e += [{"symbol": "ohne", "text": t} for t, an in kuerzel if an]
-    return e
+        lin.append({"farbe": "#000000", "strich": "punktiert", "staerke_mm": 0.3,
+                    "text": "Lü  Lüftungsleitung über Dach (in Strangfarbe)"})
+    lin.append({"farbe": hexfarbe(C_GRENZE), "strich": "strichpunkt", "staerke_mm": 0.4, "text": "Grundstücksgrenze"})
+
+    # 2 Symbole: je Symbolart ein Eintrag, Komponenten mit AKS zusätzlich einzeln
+    sym = [{"symbol": "quadrat", "text": "Abwasseranfallstelle / Strang (Rahmen in Strangfarbe)"},
+           {"symbol": "punkt", "text": "Einmündung in Sammelleitung bzw. anderen Strang"}]
+    gesehen = set()
+    for _, k in komps:
+        e = symbol_eintrag(k)
+        if e not in gesehen:
+            gesehen.add(e)
+            sym.append({"symbol": e[0], "text": e[1]})
+    if any(k["typ"] == "leichtfluessigkeitsabscheider" and k["warnanlage"] for _, k in komps):
+        sym.append({"symbol": "kreis", "text": "W  Warnanlage am Leichtflüssigkeitsabscheider"})
+    if u.get("probenahme") and "probenahme" not in typen:
+        sym.append({"symbol": "kreis", "text": "P  Probenahmeschacht"})
+    if u["schacht"]:
+        e = {"symbol": "kreis", "text": "ÜS  " + u.get("bezeichnung", "Übergabeschacht")}
+        if u.get("aks"):
+            e["aks"] = u["aks"]
+        sym.append(e)
+    sym.append({"symbol": "flaeche", "farbe": "#D9D9D9", "text": "Öffentlicher %s"
+                % ("Schmutzwasserkanal" if v["entwaesserungssystem"] == "trenn" else "Mischwasserkanal")})
+    for s, k in komps:
+        if k.get("aks"):
+            sym.append({"symbol": symbol_eintrag(k)[0], "text": "%s (Strang %s)" % (k["bezeichnung"], s["id"]),
+                        "aks": k["aks"]})
+
+    # 3 Planungsgrundsätze
+    pg = ["Fließschema der Schmutzwasseranlage; nicht maßstäblich, nicht höhengetreu."]
+    if any(s["unter_rueckstauebene"] for s in cfg["straenge"]) and "hebeanlage" in typen:
+        pg.append("Ablaufstellen unter der Rückstauebene werden über Hebeanlagen mit Rückstauschleife über die "
+                  "Rückstauebene entwässert.")
+    if any(t in ABSCHEIDER for t in typen):
+        pg.append("Fäkalienhaltiges Abwasser wird nicht über Abscheideranlagen geführt; Hebeanlagen sind den "
+                  "Abscheidern nachgeschaltet.")
+    if "probenahme" in typen:
+        pg.append("Probenahmeschächte liegen in Fließrichtung hinter den Abscheider- bzw. Behandlungsanlagen.")
+    if "whg" in arten and "rueckhaltung" in typen and "absperrschieber" in typen:
+        pg.append("Abwasser von WHG-/AwSV-Flächen wird mit Absperreinrichtung und Rückhaltung gefasst und vor "
+                  "der Einleitung vorbehandelt.")
+    if "grauwasseranlage" in typen:
+        pg.append("Grauwasser wird aufbereitet und als Betriebswasser genutzt; Überlauf in die Sammelleitung, "
+                  "Trinkwassernachspeisung nur über freien Auslauf.")
+    pg += cfg["planungsgrundsaetze"]
+
+    # 4 Normenverweise
+    nv = [{"norm": n, "titel": t} for bed, n, t in NORMEN if bed is None or bed in typen or bed in arten]
+
+    # 5 Standortvorgaben (Versorgerprofil)
+    vs = v["uebergabeschacht"]
+    sv = ["Versorger: %s%s." % (v["name"], (" – " + v["satzung"]) if v["satzung"] else ""),
+          "Entwässerung im %s; Rückstauebene: %s." % (
+              "Trennsystem" if v["entwaesserungssystem"] == "trenn" else "Mischsystem", v["rueckstauebene"]),
+          "Übergabeschacht %s%s; Anschlusskanal mind. DN %s%s." % (
+              ja(vs["erforderlich"]),
+              (", mind. DN %s, %s" % (zahl(vs["dn_min"]), vs["lage"])) if vs["erforderlich"] else "",
+              zahl(v["anschlusskanal_dn_min"]),
+              "; Probenahme an der Übergabe erforderlich" if v["probenahme_an_uebergabe"] else "")]
+    if "fetthaltig" in arten:
+        sv.append("Fetthaltiges Abwasser: Fettabscheider %s, Probenahme dahinter %s." % (
+            ja(v["fettabscheider"]["pflicht_bei_fetthaltig"]), ja(v["fettabscheider"]["probenahme_erforderlich"])))
+    if "staerkehaltig" in arten:
+        sv.append("Stärkehaltiges Abwasser: Stärkeabscheider %s; Ablauf über den Fettabscheider %s." % (
+            ja(v["staerkeabscheider"]["pflicht_bei_staerkehaltig"]),
+            {"zulaessig": "zulässig", "erforderlich": "erforderlich", "unzulaessig": "unzulässig"}[
+                v["staerkeabscheider"]["ablauf_ueber_fettabscheider"]]))
+    vl = v["leichtfluessigkeitsabscheider"]
+    if "mineraloelhaltig" in arten:
+        sv.append("Mineralölhaltiges Abwasser: Leichtflüssigkeitsabscheider mind. Klasse %s, Probenahme %s, "
+                  "Warnanlage %s." % (vl["min_klasse"], ja(vl["probenahme_erforderlich"]),
+                                      ja(vl["warnanlage_erforderlich"])))
+    if "whg" in arten:
+        vw = v["whg"]
+        sv.append("WHG-/AwSV-Flächen: Abscheider mind. Klasse %s, Rückhaltung %s, Absperreinrichtung %s, "
+                  "Probenahme %s." % (vw["min_klasse"], ja(vw["rueckhaltung_erforderlich"]),
+                                      ja(vw["absperrung_erforderlich"]), ja(vw["probenahme_erforderlich"])))
+    if "grauwasseranlage" in typen:
+        vg = v["grauwassernutzung"]
+        sv.append("Grauwassernutzung %s; Anzeige beim Versorger %s, Mengenerfassung (Zähler) %s." % (
+            "zulässig" if vg["zulaessig"] else "nicht zulässig", ja(vg["anzeigepflicht"]),
+            ja(vg["zaehler_erforderlich"])))
+    if "hebeanlage" in typen and v["hebeanlage"]["doppelanlage_bei_gewerbe"]:
+        sv.append("Hebeanlagen für gewerbliches Abwasser als Doppelanlage.")
+    sv += v["hinweise"]
+
+    # 7 Weitere Festlegungen
+    wf = list(cfg["hinweise"])
+    wf.append("Das Schema ersetzt weder Bemessung noch Entwässerungsantrag/Genehmigung; Vorgaben sind vor "
+              "Ausführung mit dem Versorger abzustimmen.")
+    return {"linientypen": lin, "symbole": sym, "planungsgrundsaetze": pg, "normenverweise": nv,
+            "standortvorgaben": sv, "weitere_festlegungen": wf}
 
 
 def plankopf_spec(cfg, ergebnisse):
     """Eingabe für mp-plankopf: Vorgaben aus dem Projekt, überschrieben durch cfg['plankopf']."""
     p, v, pk = cfg["projekt"], cfg["versorger"], cfg["plankopf"]
-    felder = {"Planart": "Schmutzwasser-Anlagenschema", "Maßstab": "ohne",
-              "Plannummer": p.get("plan_nr", ""), "aktuelle Änderung Index": p.get("index", ""),
+    felder = {"Plannummer": p.get("plan_nr", ""), "aktuelle Änderung Index": p.get("index", ""),
               "erstellt Datum": p["datum"], "erstellt von": p.get("bearbeiter", "")}
     felder.update(pk.get("felder", {}))
     if any(e[0] == "FEHLER" for e in ergebnisse):
         felder["Status"] = "VORABZUG"      # Plan mit Abweichungen ist nie freigegeben
-    system = "Trennsystem" if v["entwaesserungssystem"] == "trenn" else "Mischsystem"
+    zellen = {"Planart": "Schmutzwasser-Anlagenschema", "Maßstab": "ohne"}
+    zellen.update(pk.get("zellen", {}))
     frei = {
         "Block 1": {"titel": "Bauvorhaben", "zeilen": [t for t in (p["name"], p.get("standort", "")) if t]},
-        "Block 3": {"titel": "Versorger", "zeilen": [t for t in (v["name"], v["satzung"], system) if t]},
+        "Block 3": {"titel": "Versorger", "zeilen": [t for t in (v["name"], v["satzung"]) if t]},
         "Block 4": {"titel": "Planinhalt", "zeilen": ["Schmutzwasser-Anlagenschema (Fließschema)",
                                                       "nicht maßstäblich, nicht höhengetreu"]},
     }
     if p.get("bauherr"):
         frei["Block 2"] = {"titel": "Bauherr", "zeilen": [p["bauherr"]]}
     frei.update(pk.get("freifelder", {}))
-    spec = {"blatt": cfg["blatt"], "logo": pk["logo"] if "logo" in pk else "Gruppe", "felder": felder,
-            "freifelder": frei, "legende": {"titel": "Legende", "eintraege": legende_eintraege(cfg)}}
-    for k in ("aenderungsindex", "zusatzfelder", "optionen"):
+    spec = {"felder": felder, "zellen": zellen, "freifelder": frei,
+            "legende": {"titel": "Legende", "abschnitte": legende_abschnitte(cfg)}}
+    if cfg["blatt"] is not None:
+        spec["blatt"] = cfg["blatt"]
+    for k in ("logo", "aenderungsindex", "zusatzfelder", "optionen"):
         if k in pk:
             spec[k] = pk[k]
     return spec
@@ -917,7 +1037,7 @@ def zeichne(cfg, L, ergebnisse, pfad, spec, pk_layout):
                else (0, 0, 0))
     z.text((xsch + 6.5 + xg) / 2 + 1, yaus + 1.5, "DN %s" % zahl(u["anschlusskanal_dn"]), 4.8, aus="m")
     # Grundstücksgrenze
-    z.linie([(xg, yaus - 13), (xg, L["ytop"] + 2)], (0.2, 0.2, 0.2), 0.4, strich=(4, 1, 0.5, 1))
+    z.linie([(xg, yaus - 13), (xg, L["ytop"] + 2)], C_GRENZE, 0.4, strich=(4, 1.2, 0.6, 1.2))
     z.text(xg - 1.2, L["ytop"] - 30, "Grundstücksgrenze", 5.5, True, winkel=90)
     z.text(xg - 5, L["ytop"] - 1, "Grundstück", 5.5, aus="r", rgb=(0.3, 0.3, 0.3))
     z.text(xg + 3, L["ytop"] - 1, "öffentl. Bereich", 5.5, rgb=(0.3, 0.3, 0.3))
@@ -946,30 +1066,16 @@ def zeichne(cfg, L, ergebnisse, pfad, spec, pk_layout):
             z.komponente(k, slot_x(L, sp), y, rgb)
             z.beschriftung(k, slot_x(L, sp), y)
 
-    # --- Hinweisfeld im Zeichenbereich: Versorgervorgaben und Prüfergebnis ---
+    # --- Prüfergebnis im Zeichenbereich (Standortvorgaben stehen in der Legende des Plankopfs) ---
     xh, yf = zx + 4, zy + HINWEIS_H
     z.linie([(xh, yf), (zx + zb_b - 4, yf)], b=0.35)
-    z.text(xh, yf - 5, "Standortvorgaben des Versorgers und Prüfergebnis", 7, True)
-    vs = v["uebergabeschacht"]
-    zeilen = [
-        ("Versorger: %s%s" % (v["name"], (" – " + v["satzung"]) if v["satzung"] else ""), (0, 0, 0)),
-        ("Entwässerung im %s; Rückstauebene: %s." % (
-            "Trennsystem" if v["entwaesserungssystem"] == "trenn" else "Mischsystem", v["rueckstauebene"]), (0, 0, 0)),
-        ("Übergabeschacht %s%s; Anschlusskanal mind. DN %s%s." % (
-            "erforderlich" if vs["erforderlich"] else "nicht gefordert",
-            (", mind. DN %s, %s" % (zahl(vs["dn_min"]), vs["lage"])) if vs["erforderlich"] else "",
-            zahl(v["anschlusskanal_dn_min"]),
-            "; Probenahme an der Übergabe erforderlich" if v["probenahme_an_uebergabe"] else ""), (0, 0, 0)),
-    ]
-    zeilen += [(h, (0, 0, 0)) for h in v["hinweise"]]
-    zeilen += [(h, (0, 0, 0)) for h in cfg["hinweise"]]
+    z.text(xh, yf - 5, "Prüfergebnis gegen Standortvorgaben und Regelwerk", 7, True)
+    zeilen = []
     farben = {"FEHLER": C_ROT, "WARNUNG": (0.75, 0.40, 0.0), "HINWEIS": (0.2, 0.2, 0.2)}
     for stufe, code, txt in ergebnisse:
         zeilen.append(("%s %s: %s" % ("ABWEICHUNG" if stufe == "FEHLER" else stufe, code, txt), farben[stufe]))
     if not any(e[0] == "FEHLER" for e in ergebnisse):
-        zeilen.append(("Prüfung gegen Versorgerprofil und Regelwerk: keine Abweichungen festgestellt.", (0, 0.45, 0.15)))
-    zeilen.append(("Schema ersetzt weder Bemessung noch Entwässerungsantrag/Genehmigung; Vorgaben sind vor Ausführung "
-                   "mit dem Versorger abzustimmen.", (0.3, 0.3, 0.3)))
+        zeilen.append(("Keine Abweichungen festgestellt.", (0, 0.45, 0.15)))
     yy, breite, gr = yf - 9.5, zb_b - 8, 5.2
     umgebrochen = []
     for txt, rgb in zeilen:

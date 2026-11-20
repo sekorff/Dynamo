@@ -107,7 +107,8 @@
           "id": "FA1",
           "ns": 4,
           "schlammfang_l": 400,
-          "fettspeicher_l": 160
+          "fettspeicher_l": 160,
+          "aks": "SW-FA-001"
         },
         {
           "typ": "probenahme"
@@ -148,12 +149,12 @@
   "plankopf": {
     "logo": "Gruppe",
     "felder": {
-      "Planungsphase": "Entwurfsplanung",
       "Status": "VORABZUG",
       "MP_300_V0_Index": "V0",
       "MP_300_V0_Datum": "18.11.2026",
       "MP_400_V0_Bearbeiter": "TGA",
-      "MP_400_V0_Bemerkung": "Ersterstellung"
+      "MP_400_V0_Bemerkung": "Ersterstellung",
+      "MP_400_LB_Text": "Entwurfsplanung"
     },
     "freifelder": {
       "Kopf links": {
