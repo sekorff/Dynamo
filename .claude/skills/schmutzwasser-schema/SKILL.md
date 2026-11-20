@@ -10,7 +10,22 @@ JSON-Konfiguration; Layout, Symbole, Regelprüfung und PDF sind fest codiert. Gl
 byte-identische PDF (kein Zeitstempel, kein Zufall). Zeichne nie selbst und ändere das Skript nicht, um eine
 Prüfung zu umgehen.
 
-Voraussetzung: Python 3 mit `reportlab` (`pip install reportlab`).
+## Plankopf: ausschließlich mp-plankopf
+
+Blattrahmen, Plankopf, Änderungsindex, Zusatzfelder und Legende kommen **ausschließlich** aus dem Skill
+`mp-plankopf` (MP_400_Plankopf). Dieses Skript ruft dessen `plankopf.draw()` auf und zeichnet das Schema nur in
+die gemeldete Zone `zeichenbereich`; die Legendeneinträge übergibt es an die Legendenzone des Plankopfs. Es gibt
+keinen eigenen Rahmen, kein eigenes Schriftfeld und keinen Ersatz: Fehlt `mp-plankopf` oder dessen Schrift
+(Avenir LT Std), bricht das Skript mit Exit 1 ab. Dann den Nutzer informieren – nie einen Plankopf nachbauen.
+
+`mp-plankopf` wird in dieser Reihenfolge gesucht: Umgebungsvariable `MP_PLANKOPF_SKILL`, Nachbarordner
+`.claude/skills/mp-plankopf`, `~/.claude/skills/mp-plankopf`. Der Skill enthält lizenzpflichtige Schriften und
+Logos und liegt deshalb nicht in diesem Repository (per `.gitignore` ausgeschlossen); er wird aus der Datei
+`mp-plankopf.skill` (ZIP) an einen dieser Orte entpackt. Erzeugte PDFs enthalten Schrift und Logo und werden
+ebenfalls nicht eingecheckt.
+
+Voraussetzung: Python 3 und `pip install -r <mp-plankopf>/requirements.txt` (reportlab, pillow). Byte-identische
+Ausgabe gilt bei gleicher reportlab-Version.
 
 ## Ablauf
 
@@ -25,18 +40,20 @@ Voraussetzung: Python 3 mit `reportlab` (`pip install reportlab`).
    ```bash
    python3 .claude/skills/schmutzwasser-schema/scripts/schmutzwasser_schema.py <konfig>.json -o <ausgabe>.pdf
    ```
-5. **Ergebnis auswerten.** Exit 0: PDF erzeugt. Exit 1: Eingabefehler (Meldung nennt den Schlüssel). Exit 2:
+5. **Ergebnis auswerten.** Exit 0: PDF erzeugt. Exit 1: Eingabefehler (Meldung nennt den Schlüssel; Meldungen
+   mit „Plankopf (mp-plankopf):" stammen aus dem Plankopf-Skill und sind wörtlich weiterzugeben). Exit 2:
    Regelverstoß, keine PDF. Bei Exit 2 die Konfiguration fachlich korrigieren und die Änderung dem Nutzer nennen.
    Nur wenn der Nutzer ausdrücklich einen Entwurf trotz Abweichungen will, `--erlaube-abweichungen` verwenden;
    die PDF trägt dann einen roten Abweichungsvermerk. `--nur-pruefen` prüft ohne PDF.
-6. Prüfprotokoll (stdout) samt Warnungen und Hinweisen an den Nutzer weitergeben.
+6. Prüfprotokoll (stdout) samt Warnungen, Hinweisen und `PLANKOPF`-Zeilen an den Nutzer weitergeben.
 
 ## Konfiguration
 
 ```json
 {
-  "projekt": { "name": "…", "datum": "2026-11-18", "standort": "…", "bauherr": "…", "plan_nr": "…", "index": "a", "bearbeiter": "…" },
-  "blatt": "A3",
+  "projekt": { "name": "…", "datum": "18.11.2026", "standort": "…", "bauherr": "…", "plan_nr": "…", "index": "V0", "bearbeiter": "…" },
+  "blatt": "A2",
+  "plankopf": { "logo": "Gruppe", "felder": { "Status": "VORABZUG", "Planungsphase": "Entwurfsplanung" }, "freifelder": { "Kopf links": "…" } },
   "versorger": "muster_trennsystem",
   "uebergabe": { "schacht": true, "dn": 1000, "anschlusskanal_dn": 150, "probenahme": false, "bezeichnung": "Übergabeschacht ÜS1" },
   "sammelleitung_dn": 150,
@@ -46,8 +63,21 @@ Voraussetzung: Python 3 mit `reportlab` (`pip install reportlab`).
 ```
 
 - Pflicht: `projekt.name`, `projekt.datum`, `versorger`, `uebergabe.schacht`, `uebergabe.anschlusskanal_dn`, `straenge`.
-- `projekt.datum` wird als Text übernommen (kein Systemdatum, sonst wäre die Ausgabe nicht reproduzierbar).
-- `blatt`: `A3` (bis 6 Stränge, 7 Komponentenspalten), `A2` (10 / 11), `A1`. Bei Überschreitung meldet das Skript es.
+- `projekt.datum` wird als Text in den Plankopf übernommen (kein Systemdatum, sonst wäre die Ausgabe nicht
+  reproduzierbar).
+- `blatt`: Formatname (`A0`–`A3`, Vorgabe `A2`) oder Objekt nach der mp-plankopf-API
+  (`{"format": "benutzerdefiniert", "breite_mm": …, "hoehe_mm": …}`). Der Plankopf belegt rechts 180 mm; das
+  Schema wird im verbleibenden Zeichenbereich einheitlich bis Faktor 3 vergrößert. Richtwerte: A3 nur für
+  Kleinstanlagen (1 Komponente je Strang, kurze Legende), A2 bis 5 Komponenten je Strang, A1 für alles Größere.
+  Passt etwas nicht, meldet das Skript es – dann größeres Blatt wählen. A4 hat keinen Zeichenbereich.
+- `plankopf` (optional): wird an mp-plankopf durchgereicht – `logo`, `felder`, `freifelder`, `aenderungsindex`,
+  `zusatzfelder`, `optionen`. Feldnamen und Regeln stehen in `<mp-plankopf>/references/api.md`; vor dem Befüllen
+  lesen. `legende` ist nicht einstellbar, sie wird aus den verwendeten Leitungen und Kürzeln erzeugt.
+- Vorbelegung des Plankopfs aus `projekt`: `Planart` = „Schmutzwasser-Anlagenschema", `Maßstab` = „ohne",
+  `Plannummer` = `plan_nr`, `aktuelle Änderung Index` = `index`, `erstellt Datum`/`erstellt von` =
+  `datum`/`bearbeiter`; Block 1 Bauvorhaben, Block 2 Bauherr, Block 3 Versorger, Block 4 Planinhalt. Angaben
+  unter `plankopf` überschreiben das. Bei Regelverstößen (`--erlaube-abweichungen`) wird `Status` zwingend
+  `VORABZUG`.
 - `versorger`: Profilname aus `versorger/`, Pfad relativ zur Konfiguration oder Inline-Objekt.
 - Unbekannte Schlüssel sind Fehler.
 

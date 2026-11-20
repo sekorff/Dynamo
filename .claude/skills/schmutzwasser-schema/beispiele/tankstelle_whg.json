@@ -1,31 +1,91 @@
 {
-  "projekt": { "name": "Betriebstankstelle Logistikhof", "standort": "Industrieweg 5, 12345 Musterstadt", "plan_nr": "SW-010", "index": "-", "datum": "2026-11-18", "bearbeiter": "TGA-Planung" },
+  "projekt": {
+    "name": "Betriebstankstelle Logistikhof",
+    "standort": "Industrieweg 5, 12345 Musterstadt",
+    "plan_nr": "SW-010",
+    "datum": "18.11.2026",
+    "bearbeiter": "TGA-Planung"
+  },
   "versorger": "muster_trennsystem",
-  "uebergabe": { "schacht": true, "dn": 1000, "anschlusskanal_dn": 150, "probenahme": true },
+  "uebergabe": {
+    "schacht": true,
+    "dn": 1000,
+    "anschlusskanal_dn": 150,
+    "probenahme": true
+  },
   "sammelleitung_dn": 150,
   "straenge": [
-    { "id": "S1", "bezeichnung": "Sozialräume", "abwasserart": "haeuslich", "dn": 100, "quellen": ["WC", "Waschtische", "Teeküche"] },
     {
-      "id": "S2", "bezeichnung": "Abfüllfläche Diesel/AdBlue", "abwasserart": "whg", "dn": 150,
-      "quellen": ["flüssigkeitsundurchlässige Abfüllfläche nach AwSV"],
-      "komponenten": [
-        { "typ": "absperrschieber", "automatisch": true, "hinweis": "Havarieschieber, schließt bei Alarm" },
-        { "typ": "rueckhaltung", "volumen_m3": 3, "hinweis": "Rückhaltung nach TRwS 781" },
-        { "typ": "leichtfluessigkeitsabscheider", "klasse": "I", "ns": 10, "schlammfang_l": 2000 },
-        { "typ": "probenahme", "dn": 1000 }
+      "id": "S1",
+      "bezeichnung": "Sozialräume",
+      "abwasserart": "haeuslich",
+      "dn": 100,
+      "quellen": [
+        "WC",
+        "Waschtische",
+        "Teeküche"
       ]
     },
     {
-      "id": "S3", "bezeichnung": "Batterieladeraum", "abwasserart": "whg", "dn": 100,
-      "quellen": ["Bodenablauf säurebeständig"],
+      "id": "S2",
+      "bezeichnung": "Abfüllfläche Diesel/AdBlue",
+      "abwasserart": "whg",
+      "dn": 150,
+      "quellen": [
+        "flüssigkeitsundurchlässige Abfüllfläche nach AwSV"
+      ],
+      "komponenten": [
+        {
+          "typ": "absperrschieber",
+          "automatisch": true,
+          "hinweis": "Havarieschieber, schließt bei Alarm"
+        },
+        {
+          "typ": "rueckhaltung",
+          "volumen_m3": 3,
+          "hinweis": "Rückhaltung nach TRwS 781"
+        },
+        {
+          "typ": "leichtfluessigkeitsabscheider",
+          "klasse": "I",
+          "ns": 10,
+          "schlammfang_l": 2000
+        },
+        {
+          "typ": "probenahme",
+          "dn": 1000
+        }
+      ]
+    },
+    {
+      "id": "S3",
+      "bezeichnung": "Batterieladeraum",
+      "abwasserart": "whg",
+      "dn": 100,
+      "quellen": [
+        "Bodenablauf säurebeständig"
+      ],
       "unter_rueckstauebene": true,
       "komponenten": [
-        { "typ": "absperrschieber" },
-        { "typ": "rueckhaltung", "volumen_m3": 0.5 },
-        { "typ": "neutralisation" },
-        { "typ": "probenahme" },
-        { "typ": "hebeanlage", "ausfuehrung": "doppel" }
+        {
+          "typ": "absperrschieber"
+        },
+        {
+          "typ": "rueckhaltung",
+          "volumen_m3": 0.5
+        },
+        {
+          "typ": "neutralisation"
+        },
+        {
+          "typ": "probenahme"
+        },
+        {
+          "typ": "hebeanlage",
+          "ausfuehrung": "doppel"
+        }
       ]
     }
-  ]
+  ],
+  "blatt": "A2"
 }

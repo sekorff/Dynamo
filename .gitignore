@@ -87,3 +87,7 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Lizenzpflichtige Schriften/Logos (M&P) - nicht in das oeffentliche Repository
+.claude/skills/mp-plankopf/
+.claude/skills/schmutzwasser-schema/beispiele/*.pdf

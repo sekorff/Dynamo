@@ -4,6 +4,9 @@
 Eingabe:  JSON-Konfiguration (Projekt, Versorgerprofil, Übergabe, Stränge)
 Ausgabe:  PDF-Fließschema (nicht maßstäblich) + Prüfprotokoll auf stdout
 
+Blattrahmen, Plankopf, Änderungsindex und Legende zeichnet ausschließlich der
+Skill mp-plankopf (MP_400_Plankopf); das Schema liegt in dessen Zeichenbereich.
+
 Gleiche Eingabe erzeugt byte-identische PDF-Dateien (kein Zeitstempel,
 keine Zufallswerte, feste Layoutregeln).
 
@@ -23,7 +26,31 @@ SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # --------------------------------------------------------------------------
 # Stammdaten
 # --------------------------------------------------------------------------
-BLAETTER = {"A3": (420, 297), "A2": (594, 420), "A1": (841, 594)}
+PK = None                      # Modul plankopf aus dem Skill mp-plankopf
+SCHRIFT = {}                   # False -> Avenir Book, True -> Avenir Medium
+RSE_STRICH = (1.5, 0.75)       # wie Legendeneintrag "gestrichelt"
+LUEFTUNG_STRICH = (0.6, 1.2)   # wie Legendeneintrag "punktiert"
+
+
+def lade_plankopf():
+    """Importiert mp-plankopf. Es gibt bewusst keinen eigenen Ersatz-Plankopf."""
+    global PK
+    orte = [os.environ.get("MP_PLANKOPF_SKILL"), os.path.join(os.path.dirname(SKILL_DIR), "mp-plankopf"),
+            os.path.join(os.path.expanduser("~"), ".claude", "skills", "mp-plankopf")]
+    for ort in orte:
+        if ort and os.path.isfile(os.path.join(ort, "scripts", "plankopf.py")):
+            sys.path.insert(0, os.path.join(ort, "scripts"))
+            import plankopf
+            PK = plankopf
+            try:
+                PK._schrift()
+            except PK.PlankopfFehler as e:
+                raise Eingabefehler("Plankopf (mp-plankopf): %s" % e)
+            SCHRIFT[False], SCHRIFT[True] = PK.FONT, PK._S["fett"]
+            return
+    raise Eingabefehler("Skill 'mp-plankopf' nicht gefunden. Erwartet neben diesem Skill (.claude/skills/"
+                        "mp-plankopf), unter ~/.claude/skills/mp-plankopf oder im Ordner aus der "
+                        "Umgebungsvariable MP_PLANKOPF_SKILL. Ohne ihn wird kein Plan erzeugt.")
 
 # Abwasserart -> (Bezeichnung, Linienfarbe RGB)
 ARTEN = {
@@ -187,14 +214,17 @@ def lade_versorger(angabe, basis):
 
 def lade_konfiguration(pfad):
     cfg = lade_json(pfad)
-    pruefe_objekt(cfg, {"projekt": dict, "blatt": str, "versorger": object, "uebergabe": dict,
+    pruefe_objekt(cfg, {"projekt": dict, "blatt": object, "plankopf": dict, "versorger": object, "uebergabe": dict,
                         "sammelleitung_dn": NUM, "straenge": list, "hinweise": list},
                   "konfiguration", pflicht=("projekt", "versorger", "uebergabe", "straenge"))
     pruefe_objekt(cfg["projekt"], {"name": str, "standort": str, "plan_nr": str, "index": str, "datum": str,
                                    "bearbeiter": str, "bauherr": str}, "projekt", pflicht=("name", "datum"))
-    cfg.setdefault("blatt", "A3")
-    if cfg["blatt"] not in BLAETTER:
-        raise Eingabefehler("blatt: zulässig sind %s" % ", ".join(BLAETTER))
+    cfg.setdefault("blatt", "A2")
+    if isinstance(cfg["blatt"], str):
+        cfg["blatt"] = {"format": cfg["blatt"]}
+    cfg.setdefault("plankopf", {})
+    pruefe_objekt(cfg["plankopf"], {"logo": object, "felder": dict, "freifelder": dict, "aenderungsindex": dict,
+                                    "zusatzfelder": list, "optionen": dict}, "plankopf")
     cfg["versorger"] = lade_versorger(cfg["versorger"], os.path.dirname(os.path.abspath(pfad)))
     pruefe_objekt(cfg["uebergabe"], {"schacht": bool, "dn": NUM, "anschlusskanal_dn": NUM, "probenahme": bool,
                                      "bezeichnung": str}, "uebergabe", pflicht=("schacht", "anschlusskanal_dn"))
@@ -427,29 +457,26 @@ def pruefe_regeln(cfg):
 # --------------------------------------------------------------------------
 # Layout
 # --------------------------------------------------------------------------
-RAND = 10.0          # Blattrand
-STREIFEN = 62.0      # Höhe Fußbereich (Legende, Hinweise, Schriftfeld)
+HINWEIS_H = 44.0     # Höhe Hinweisfeld unten im Zeichenbereich
 QUELLE_B, QUELLE_H = 48.0, 18.0
 RASTER = 36.0        # Spaltenraster Komponenten
 KB, KH = 24.0, 14.0  # Komponenten-Slot
 BAHN_MIN, BAHN_MAX = 28.0, 34.0
+UEBERGABE_B = 78.0   # Breite rechts der Sammelleitung (Übergabe, Grenze, Kanal)
+MASSSTAB_MAX = 3.0   # größte Vergrößerung des Schemas auf großen Blättern
 
 
-def berechne_layout(cfg):
-    W, H = BLAETTER[cfg["blatt"]]
-    L = {"W": W, "H": H}
-    L["x0"] = RAND + 4
-    L["xk0"] = L["x0"] + QUELLE_B + 10
-    L["xs"] = W - RAND - 78                      # Sammelleitung
-    L["ytop"] = H - RAND - 14
-    L["ybot"] = RAND + STREIFEN + 28
-    L["yaus"] = RAND + STREIFEN + 13             # Höhe Grundleitung zur Übergabe
-    n = len(cfg["straenge"])
-    bahn = min(BAHN_MAX, (L["ytop"] - L["ybot"]) / n)
-    if bahn < BAHN_MIN:
-        raise Eingabefehler("%d Stränge passen nicht auf Blatt %s (max. %d). Größeres 'blatt' wählen."
-                            % (n, cfg["blatt"], int((L["ytop"] - L["ybot"]) // BAHN_MIN)))
-    L["y"] = {s["id"]: L["ytop"] - (i + 0.5) * bahn for i, s in enumerate(cfg["straenge"])}
+def berechne_layout(cfg, pk_layout):
+    """Ordnet das Schema im Zeichenbereich an, den mp-plankopf meldet.
+
+    Das Schema wird einheitlich vergrößert (Faktor 1 bis MASSSTAB_MAX), bis es den Zeichenbereich
+    in Breite oder Höhe füllt. Alle Layoutmaße gelten im lokalen System (Ursprung = untere linke
+    Ecke des Zeichenbereichs, Einheit mm vor der Vergrößerung).
+    """
+    zb = pk_layout["zonen"]["zeichenbereich"]
+    blatt = pk_layout["blatt"]["format"]
+    if zb is None:
+        raise Eingabefehler("Blatt %s hat neben dem Plankopf keinen Zeichenbereich. Größeres 'blatt' wählen." % blatt)
 
     # Spaltenzuordnung (Zuläufe aus anderen Strängen schieben die Zielkomponente nach rechts)
     nach_id = {s["id"]: s for s in cfg["straenge"]}
@@ -474,12 +501,33 @@ def berechne_layout(cfg):
 
     for s in cfg["straenge"]:
         ordne(s["id"])
-    L["spalten"] = spalten
-    max_sp = int((L["xs"] - 8 - L["xk0"]) // RASTER)
+    n = len(cfg["straenge"])
     benoetigt = max([c[-1] + 1 for c in spalten.values() if c] or [0])
+
+    fest_b = 6 + QUELLE_B + 10 + 8 + UEBERGABE_B   # Breite ohne Komponentenspalten
+    fest_h = 12 + 28 + HINWEIS_H                   # Höhe ohne Strangbahnen
+    f = min(zb["breite"] / (fest_b + max(benoetigt, 2) * RASTER), zb["hoehe"] / (fest_h + n * BAHN_MAX))
+    f = max(1.0, min(MASSSTAB_MAX, int(f * 1000) / 1000.0))   # abrunden: Inhalt passt sicher
+    breite, hoehe = zb["breite"] / f, zb["hoehe"] / f
+
+    L = {"W": pk_layout["blatt"]["breite_mm"], "H": pk_layout["blatt"]["hoehe_mm"], "blatt": blatt,
+         "ursprung": (zb["x"], zb["y"]), "faktor": f, "zx": 0.0, "zy": 0.0, "zb": breite, "zo": hoehe,
+         "spalten": spalten}
+    L["x0"] = 6.0
+    L["xk0"] = L["x0"] + QUELLE_B + 10
+    L["xs"] = breite - UEBERGABE_B              # Sammelleitung
+    L["ytop"] = hoehe - 12
+    L["ybot"] = HINWEIS_H + 28
+    L["yaus"] = HINWEIS_H + 15                  # Höhe Grundleitung zur Übergabe
+    bahn = min(BAHN_MAX, (L["ytop"] - L["ybot"]) / n)
+    if bahn < BAHN_MIN:
+        raise Eingabefehler("%d Stränge passen nicht auf Blatt %s (max. %d). Größeres 'blatt' wählen."
+                            % (n, blatt, max(0, int((L["ytop"] - L["ybot"]) // BAHN_MIN))))
+    L["y"] = {s["id"]: L["ytop"] - (i + 0.5) * bahn for i, s in enumerate(cfg["straenge"])}
+    max_sp = max(0, int((L["xs"] - 8 - L["xk0"] + 1e-6) // RASTER))
     if benoetigt > max_sp:
         raise Eingabefehler("Es werden %d Komponentenspalten benötigt, Blatt %s bietet %d. Größeres 'blatt' wählen."
-                            % (benoetigt, cfg["blatt"], max_sp))
+                            % (benoetigt, blatt, max_sp))
     return L
 
 
@@ -555,7 +603,8 @@ class Zeichner:
     def text(self, x, y, s, gr=6.0, fett=False, rgb=(0, 0, 0), aus="l", maxb=None, min_gr=3.6, winkel=0):
         """Text; bei maxb (mm) wird die Schrift verkleinert, danach gekürzt."""
         c = self.c
-        font = "Helvetica-Bold" if fett else "Helvetica"
+        font = SCHRIFT[bool(fett)]
+        s = "".join(ch if ord(ch) in PK._S["glyphen"] else "?" for ch in s)
         if maxb is not None:
             while gr > min_gr and stringWidth(s, font, gr) > maxb * mm:
                 gr = round(gr - 0.2, 1)
@@ -575,7 +624,8 @@ class Zeichner:
         if winkel:
             c.restoreState()
 
-    def umbruch(self, s, font, gr, maxb):
+    def umbruch(self, s, fett, gr, maxb):
+        font = SCHRIFT[bool(fett)]
         zeilen, akt = [], ""
         for wort in s.split():
             neu = (akt + " " + wort).strip()
@@ -597,7 +647,7 @@ class Zeichner:
             self.text(x + (i + 0.5) * b, y - 1.6, t, 8 if len(t) < 3 else 6.5, True, rgb, "m", maxb=b - 1.5)
 
     def lueftung(self, x, y, rgb):
-        self.linie([(x, y + KH / 2), (x, y + KH / 2 + 4.5)], rgb, 0.3, strich=(1, 0.7))
+        self.linie([(x, y + KH / 2), (x, y + KH / 2 + 4.5)], rgb, 0.3, strich=LUEFTUNG_STRICH)
         self.text(x + 0.8, y + KH / 2 + 2.6, "Lü", 4.2, rgb=rgb)
 
     def komponente(self, k, x, y, rgb):
@@ -656,7 +706,7 @@ class Zeichner:
             # Druckleitung mit Rückstauschleife über die Rückstauebene
             self.linie([(x + 14, y), (x + 16.5, y), (x + 16.5, y + 11), (x + 21, y + 11), (x + 21, y), (x + KB, y)],
                        rgb, 0.6)
-            self.linie([(x + 13, y + 8.5), (x + KB + 2, y + 8.5)], C_TW, 0.45, strich=(1.5, 0.6, 0.3, 0.6))
+            self.linie([(x + 13, y + 8.5), (x + KB + 2, y + 8.5)], C_TW, 0.45, strich=RSE_STRICH)
             self.text(x + KB + 2.5, y + 7.8, "RSE", 4.2, True, C_TW)
         elif t == "grauwasseranlage":
             self.kasten(x, y, ["GW"], rgb)
@@ -726,26 +776,99 @@ class Zeichner:
             self.text(x + KB / 2, y - KH / 2 - 2.4 - i * 2.1, z, 5.0, fett, aus="m", maxb=RASTER - 4)
 
 
-def zeichne(cfg, L, ergebnisse, pfad):
-    W, H = L["W"], L["H"]
-    v, u, p = cfg["versorger"], cfg["uebergabe"], cfg["projekt"]
-    c = canvas.Canvas(pfad, pagesize=(W * mm, H * mm), invariant=1, pageCompression=1)
-    c.setTitle("Schmutzwasser-Anlagenschema - %s" % p["name"])
-    c.setAuthor(p.get("bearbeiter", ""))
-    c.setSubject("Schmutzwasser-Anlagenschema, Plan-Nr. %s" % p.get("plan_nr", "-"))
-    c.setCreator("schmutzwasser-schema skill")
-    c.setLineJoin(0)
-    z = Zeichner(c)
+def hexfarbe(rgb):
+    return "#%02X%02X%02X" % tuple(int(round(v * 255)) for v in rgb)
 
-    # Rahmen und Kopf
-    z.rechteck(RAND, RAND, W - 2 * RAND, H - 2 * RAND, b=0.7, fuell=None)
-    z.text(L["x0"], H - RAND - 7, "Schmutzwasser-Anlagenschema", 12, True)
-    z.text(L["x0"] + 72, H - RAND - 7, p["name"], 10, maxb=W - 2 * RAND - 180)
-    z.text(W - RAND - 4, H - RAND - 7, "Fließschema – nicht maßstäblich, nicht höhengetreu", 7, aus="r")
-    z.linie([(RAND, H - RAND - 10), (W - RAND, H - RAND - 10)], b=0.35)
+
+def legende_eintraege(cfg):
+    """Legendeneinträge für die Legendenzone des Plankopfs (nur verwendete Elemente)."""
+    typen = [k["typ"] for s in cfg["straenge"] for k in s["komponenten"]]
+    e = []
+    for art in ART_REIHENFOLGE:
+        if any(s["abwasserart"] == art for s in cfg["straenge"]):
+            e.append({"symbol": "linie", "farbe": hexfarbe(ARTEN[art][1]), "text": ARTEN[art][0]})
+    e.append({"symbol": "linie", "farbe": "#000000", "text": "Sammel-/Grundleitung, Anschlusskanal"})
+    if "grauwasseranlage" in typen:
+        e.append({"symbol": "linie", "farbe": hexfarbe(C_BW), "text": "BW  Betriebswasser (aus Grauwasser)"})
+        e.append({"symbol": "linie", "farbe": hexfarbe(C_TW), "text": "TW  Trinkwasser-Nachspeisung (freier Auslauf)"})
+    e.append({"symbol": "linie", "farbe": hexfarbe(C_TW), "strich": "gestrichelt", "text": "RSE  Rückstauebene"})
+    if any(t in typen for t in ("fettabscheider", "staerkeabscheider", "hebeanlage")):
+        e.append({"symbol": "linie", "farbe": "#000000", "strich": "punktiert", "text": "Lü  Lüftungsleitung über Dach"})
+    lfa = [k for s in cfg["straenge"] for k in s["komponenten"] if k["typ"] == "leichtfluessigkeitsabscheider"]
+    kuerzel = [
+        ("S  Schlammfang", any(t in typen for t in ("schlammfang", "fettabscheider",
+                                                    "leichtfluessigkeitsabscheider"))),
+        ("F  Fettabscheider", "fettabscheider" in typen),
+        ("St  Stärkeabscheider", "staerkeabscheider" in typen),
+        ("B  Benzin-/Leichtflüssigkeitsabscheider", bool(lfa)),
+        ("K  Koaleszenzstufe (Klasse I)", any(k["klasse"] == "I" for k in lfa)),
+        ("W  Warnanlage", any(k["warnanlage"] for k in lfa)),
+        ("P  Probenahmeschacht", "probenahme" in typen or cfg["uebergabe"].get("probenahme", False)),
+        ("KS  Kontrollschacht", "kontrollschacht" in typen),
+        ("RH  Rückhaltung", "rueckhaltung" in typen),
+        ("pH  Neutralisationsanlage", "neutralisation" in typen),
+        ("ESA  Emulsionsspaltanlage", "emulsionsspaltanlage" in typen),
+        ("GW  Grauwasseranlage", "grauwasseranlage" in typen),
+        ("M  motorischer Absperrschieber", any(k["typ"] == "absperrschieber" and k.get("automatisch")
+                                              for s in cfg["straenge"] for k in s["komponenten"])),
+        ("ÜS  Übergabeschacht", cfg["uebergabe"]["schacht"]),
+    ]
+    e += [{"symbol": "ohne", "text": t} for t, an in kuerzel if an]
+    return e
+
+
+def plankopf_spec(cfg, ergebnisse):
+    """Eingabe für mp-plankopf: Vorgaben aus dem Projekt, überschrieben durch cfg['plankopf']."""
+    p, v, pk = cfg["projekt"], cfg["versorger"], cfg["plankopf"]
+    felder = {"Planart": "Schmutzwasser-Anlagenschema", "Maßstab": "ohne",
+              "Plannummer": p.get("plan_nr", ""), "aktuelle Änderung Index": p.get("index", ""),
+              "erstellt Datum": p["datum"], "erstellt von": p.get("bearbeiter", "")}
+    felder.update(pk.get("felder", {}))
+    if any(e[0] == "FEHLER" for e in ergebnisse):
+        felder["Status"] = "VORABZUG"      # Plan mit Abweichungen ist nie freigegeben
+    system = "Trennsystem" if v["entwaesserungssystem"] == "trenn" else "Mischsystem"
+    frei = {
+        "Block 1": {"titel": "Bauvorhaben", "zeilen": [t for t in (p["name"], p.get("standort", "")) if t]},
+        "Block 3": {"titel": "Versorger", "zeilen": [t for t in (v["name"], v["satzung"], system) if t]},
+        "Block 4": {"titel": "Planinhalt", "zeilen": ["Schmutzwasser-Anlagenschema (Fließschema)",
+                                                      "nicht maßstäblich, nicht höhengetreu"]},
+    }
+    if p.get("bauherr"):
+        frei["Block 2"] = {"titel": "Bauherr", "zeilen": [p["bauherr"]]}
+    frei.update(pk.get("freifelder", {}))
+    spec = {"blatt": cfg["blatt"], "logo": pk["logo"] if "logo" in pk else "Gruppe", "felder": felder,
+            "freifelder": frei, "legende": {"titel": "Legende", "eintraege": legende_eintraege(cfg)}}
+    for k in ("aenderungsindex", "zusatzfelder", "optionen"):
+        if k in pk:
+            spec[k] = pk[k]
+    return spec
+
+
+def zeichne(cfg, L, ergebnisse, pfad, spec, pk_layout):
+    v, u, p = cfg["versorger"], cfg["uebergabe"], cfg["projekt"]
+    c = canvas.Canvas(pfad, pagesize=(L["W"] * mm, L["H"] * mm), invariant=1, pageCompression=0,
+                      initialFontName=PK.FONT)
+    felder = spec["felder"]
+    c.setTitle("%s" % (felder.get("Plannummer") or "Schmutzwasser-Anlagenschema"))
+    c.setAuthor("MP_400_Plankopf")
+    c.setCreator("schmutzwasser-schema / mp-plankopf %s" % PK.VERSION)
+    c.setSubject("%s" % felder.get("GUID_project_identifier", ""))
+    # Rahmen, Plankopf, Änderungsindex, Zusatzfelder und Legende: ausschließlich mp-plankopf
+    PK.draw(c, spec, pk_layout)
+    c.saveState()
+    c.translate(L["ursprung"][0] * mm, L["ursprung"][1] * mm)
+    c.scale(L["faktor"], L["faktor"])
+    c.setLineJoin(0)
+    c.setDash([])
+    z = Zeichner(c)
+    zx, zy, zb_b = L["zx"], L["zy"], L["zb"]
+
+    z.text(L["x0"], L["zo"] - 6, "Fließschema – nicht maßstäblich, nicht höhengetreu", 7, rgb=(0.3, 0.3, 0.3))
+    if any(e[0] == "FEHLER" for e in ergebnisse):
+        z.text(L["x0"] + 75, L["zo"] - 6, "ENTWURF MIT ABWEICHUNGEN VON VERSORGERVORGABEN / REGELWERK – NICHT "
+               "FREIGEGEBEN", 9, True, C_ROT, maxb=zb_b - 85)
 
     xs, yaus = L["xs"], L["yaus"]
-    nach_id = {s["id"]: s for s in cfg["straenge"]}
 
     # --- Stränge: Leitungen ---
     enden = {}
@@ -774,9 +897,8 @@ def zeichne(cfg, L, ergebnisse, pfad):
         z.linie([(xs, max(ys_sammel)), (xs, yaus), (xkanal - 3, yaus)], C_SAMMEL, 1.0)
         z.pfeil(xkanal - 3, yaus, "r", C_SAMMEL, 2.4)
         z.pfeil(xs, yaus + 6, "u", C_SAMMEL, 2.4)
-        ymitte = (max(ys_sammel) + yaus) / 2
         dn = (" DN %s" % zahl(cfg["sammelleitung_dn"])) if "sammelleitung_dn" in cfg else ""
-        z.text(xs + 3.2, ymitte, "Sammel-/Grundleitung SW" + dn, 5.5, True, aus="m", winkel=90)
+        z.text(xs + 3.2, (max(ys_sammel) + yaus) / 2, "Sammel-/Grundleitung SW" + dn, 5.5, True, aus="m", winkel=90)
     for kind, x, y in sorted(enden.values()):
         z.kreis(x, y, 0.9, (0, 0, 0), 0.1, fuell=(0, 0, 0))
     if u.get("probenahme"):
@@ -795,7 +917,7 @@ def zeichne(cfg, L, ergebnisse, pfad):
                else (0, 0, 0))
     z.text((xsch + 6.5 + xg) / 2 + 1, yaus + 1.5, "DN %s" % zahl(u["anschlusskanal_dn"]), 4.8, aus="m")
     # Grundstücksgrenze
-    z.linie([(xg, RAND + STREIFEN + 2), (xg, L["ytop"] + 2)], (0.2, 0.2, 0.2), 0.4, strich=(4, 1, 0.5, 1))
+    z.linie([(xg, yaus - 13), (xg, L["ytop"] + 2)], (0.2, 0.2, 0.2), 0.4, strich=(4, 1, 0.5, 1))
     z.text(xg - 1.2, L["ytop"] - 30, "Grundstücksgrenze", 5.5, True, winkel=90)
     z.text(xg - 5, L["ytop"] - 1, "Grundstück", 5.5, aus="r", rgb=(0.3, 0.3, 0.3))
     z.text(xg + 3, L["ytop"] - 1, "öffentl. Bereich", 5.5, rgb=(0.3, 0.3, 0.3))
@@ -805,7 +927,7 @@ def zeichne(cfg, L, ergebnisse, pfad):
     z.text(xkanal + 1.6, yaus - 6, "öffentl. " + kanal, 5.5, True, winkel=90)
     z.text(xkanal + 5, yaus + 16, "Trennsystem" if v["entwaesserungssystem"] == "trenn" else "Mischsystem", 5, winkel=90)
     # Rückstauebene (Bezug)
-    z.linie([(xs + 6, yaus + 19), (xkanal - 5, yaus + 19)], C_TW, 0.45, strich=(1.5, 0.6, 0.3, 0.6))
+    z.linie([(xs + 6, yaus + 19), (xkanal - 5, yaus + 19)], C_TW, 0.45, strich=RSE_STRICH)
     z.text(xs + 6, yaus + 20, "RSE: " + v["rueckstauebene"], 4.6, True, C_TW, maxb=xkanal - xs - 12)
 
     # --- Stränge: Quellen, Komponenten ---
@@ -815,7 +937,7 @@ def zeichne(cfg, L, ergebnisse, pfad):
         z.rechteck(x0, y - QUELLE_H / 2, QUELLE_B, QUELLE_H, rgb, 0.5, fuell=(0.97, 0.97, 0.97), radius=1.5)
         z.text(x0 + 2, y + 5.2, "%s  %s" % (s["id"], s["bezeichnung"]), 6.2, True, maxb=QUELLE_B - 4)
         z.text(x0 + 2, y + 2.4, artname, 4.8, rgb=rgb, maxb=QUELLE_B - 4)
-        quellen = z.umbruch(", ".join(s["quellen"]), "Helvetica", 4.8, QUELLE_B - 4)[:2]
+        quellen = z.umbruch(", ".join(s["quellen"]), False, 4.8, QUELLE_B - 4)[:2]
         for i, q in enumerate(quellen):
             z.text(x0 + 2, y - 0.4 - i * 2.2, q, 4.8, maxb=QUELLE_B - 4)
         lage = "unter Rückstauebene" if s["unter_rueckstauebene"] else "über Rückstauebene"
@@ -824,36 +946,10 @@ def zeichne(cfg, L, ergebnisse, pfad):
             z.komponente(k, slot_x(L, sp), y, rgb)
             z.beschriftung(k, slot_x(L, sp), y)
 
-    # --- Fußbereich ---
-    yf = RAND + STREIFEN
-    z.linie([(RAND, yf), (W - RAND, yf)], b=0.5)
-    xl, xh, xsf = RAND, RAND + 92, W - RAND - 130
-    z.linie([(xh, RAND), (xh, yf)], b=0.35)
-    z.linie([(xsf, RAND), (xsf, yf)], b=0.5)
-
-    # Legende
-    z.text(xl + 3, yf - 5, "Legende", 7, True)
-    yy = yf - 9.5
-    for art in [a for a in ART_REIHENFOLGE if any(s["abwasserart"] == a for s in cfg["straenge"])]:
-        z.linie([(xl + 3, yy + 0.8), (xl + 14, yy + 0.8)], ARTEN[art][1], 0.6)
-        z.text(xl + 16, yy, ARTEN[art][0], 5.2)
-        yy -= 3.3
-    for rgb, b, strich, txt in [
-            (C_SAMMEL, 1.0, None, "Sammel-/Grundleitung, Anschlusskanal"),
-            (C_BW, 0.5, None, "BW  Betriebswasser (aus Grauwasser)"),
-            (C_TW, 0.5, None, "TW  Trinkwasser-Nachspeisung (freier Auslauf)"),
-            (C_TW, 0.3, (1.5, 0.6, 0.3, 0.6), "RSE  Rückstauebene"),
-            ((0, 0, 0), 0.3, (1, 0.7), "Lü  Lüftungsleitung über Dach")]:
-        z.linie([(xl + 3, yy + 0.8), (xl + 14, yy + 0.8)], rgb, b, strich)
-        z.text(xl + 16, yy, txt, 5.2)
-        yy -= 3.3
-    z.text(xl + 3, yy - 0.5, "S Schlammfang · F Fettabscheider · St Stärkeabscheider · B Benzin-/", 4.8)
-    z.text(xl + 3, yy - 2.8, "Leichtflüssigkeitsabscheider · K Koaleszenzstufe · P Probenahme ·", 4.8)
-    z.text(xl + 3, yy - 5.1, "RH Rückhaltung · GW Grauwasseranlage · ÜS Übergabeschacht · W Warnanlage", 4.8,
-           maxb=86)
-
-    # Hinweise / Versorgervorgaben / Prüfergebnis
-    z.text(xh + 3, yf - 5, "Standortvorgaben des Versorgers und Prüfergebnis", 7, True)
+    # --- Hinweisfeld im Zeichenbereich: Versorgervorgaben und Prüfergebnis ---
+    xh, yf = zx + 4, zy + HINWEIS_H
+    z.linie([(xh, yf), (zx + zb_b - 4, yf)], b=0.35)
+    z.text(xh, yf - 5, "Standortvorgaben des Versorgers und Prüfergebnis", 7, True)
     vs = v["uebergabeschacht"]
     zeilen = [
         ("Versorger: %s%s" % (v["name"], (" – " + v["satzung"]) if v["satzung"] else ""), (0, 0, 0)),
@@ -874,40 +970,19 @@ def zeichne(cfg, L, ergebnisse, pfad):
         zeilen.append(("Prüfung gegen Versorgerprofil und Regelwerk: keine Abweichungen festgestellt.", (0, 0.45, 0.15)))
     zeilen.append(("Schema ersetzt weder Bemessung noch Entwässerungsantrag/Genehmigung; Vorgaben sind vor Ausführung "
                    "mit dem Versorger abzustimmen.", (0.3, 0.3, 0.3)))
-    yy, breite, gr = yf - 9.5, xsf - xh - 8, 5.2
+    yy, breite, gr = yf - 9.5, zb_b - 8, 5.2
     umgebrochen = []
     for txt, rgb in zeilen:
-        for i, zl in enumerate(z.umbruch(txt, "Helvetica", gr, breite - 3)):
+        for i, zl in enumerate(z.umbruch(txt, False, gr, breite - 3)):
             umgebrochen.append((("• " if i == 0 else "   ") + zl, rgb))
-    max_zeilen = int((yy - RAND - 2) // 2.5) + 1
+    max_zeilen = int((yy - zy - 2) // 2.5) + 1
     if len(umgebrochen) > max_zeilen:
         umgebrochen = umgebrochen[:max_zeilen - 1] + [("   ... weitere Einträge siehe Prüfprotokoll (Konsole)", C_ROT)]
     for txt, rgb in umgebrochen:
-        z.text(xh + 3, yy, txt, gr, rgb=rgb)
+        z.text(xh, yy, txt, gr, rgb=rgb)
         yy -= 2.5
 
-    # Schriftfeld
-    felder = [("Projekt", p["name"]), ("Standort", p.get("standort", "")), ("Bauherr", p.get("bauherr", "")),
-              ("Planinhalt", "Schmutzwasser-Anlagenschema (Fließschema)"), ("Versorger", v["name"])]
-    zh = STREIFEN / 7
-    for i, (kopf, wert) in enumerate(felder):
-        yz = yf - (i + 1) * zh
-        z.linie([(xsf, yz), (W - RAND, yz)], b=0.3)
-        z.text(xsf + 2, yz + zh - 2.6, kopf, 4.4, rgb=(0.35, 0.35, 0.35))
-        z.text(xsf + 2, yz + 1.8, wert, 8 if i in (0, 3) else 7, i in (0, 3), maxb=126)
-    klein = [("Plan-Nr.", p.get("plan_nr", "")), ("Index", p.get("index", "")), ("Datum", p["datum"]),
-             ("Bearbeiter", p.get("bearbeiter", "")), ("Blatt", cfg["blatt"])]
-    bw = 130.0 / len(klein)
-    for i, (kopf, wert) in enumerate(klein):
-        xx = xsf + i * bw
-        if i:
-            z.linie([(xx, RAND), (xx, RAND + 2 * zh)], b=0.3)
-        z.text(xx + 2, RAND + 2 * zh - 2.8, kopf, 4.4, rgb=(0.35, 0.35, 0.35))
-        z.text(xx + 2, RAND + 4.5, wert, 8, True, maxb=bw - 4)
-
-    if any(e[0] == "FEHLER" for e in ergebnisse):
-        z.text(W / 2, H - RAND - 16, "ENTWURF MIT ABWEICHUNGEN VON VERSORGERVORGABEN / REGELWERK – NICHT FREIGEGEBEN",
-               9, True, C_ROT, "m")
+    c.restoreState()
     c.showPage()
     c.save()
 
@@ -922,14 +997,22 @@ def main(argv=None):
                     help="PDF auch bei Regelverstößen erzeugen (als Entwurf mit Abweichungen gekennzeichnet)")
     a = ap.parse_args(argv)
     try:
+        lade_plankopf()
         cfg = lade_konfiguration(a.konfiguration)
-        L = berechne_layout(cfg)
+        erg = pruefe_regeln(cfg)
+        spec = plankopf_spec(cfg, erg)
+        try:
+            pk_layout = PK.compute_layout(spec)
+        except PK.PlankopfFehler as e:
+            raise Eingabefehler("Plankopf (mp-plankopf): %s" % e)
+        L = berechne_layout(cfg, pk_layout)
     except Eingabefehler as e:
         print("EINGABEFEHLER: %s" % e, file=sys.stderr)
         return 1
-    erg = pruefe_regeln(cfg)
     for stufe, code, txt in erg:
         print("%-8s %s  %s" % (stufe, code, txt))
+    for w in pk_layout["warnungen"]:
+        print("PLANKOPF %s" % w)
     fehler = sum(1 for e in erg if e[0] == "FEHLER")
     print("Prüfung: %d Fehler, %d Warnungen, %d Hinweise" % (
         fehler, sum(1 for e in erg if e[0] == "WARNUNG"), sum(1 for e in erg if e[0] == "HINWEIS")))
@@ -939,7 +1022,7 @@ def main(argv=None):
         print("Keine PDF erzeugt. Konfiguration korrigieren oder --erlaube-abweichungen verwenden.", file=sys.stderr)
         return 2
     aus = a.ausgabe or os.path.splitext(a.konfiguration)[0] + ".pdf"
-    zeichne(cfg, L, erg, aus)
+    zeichne(cfg, L, erg, aus, spec, pk_layout)
     print("PDF erzeugt: %s" % aus)
     return 2 if fehler else 0
 
