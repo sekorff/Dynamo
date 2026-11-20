@@ -87,3 +87,8 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# M&P-Plankopf: interner Skill mit lizenzpflichtiger Schrift - nicht ins Repository
+.claude/skills/mp-plankopf/
+# erzeugte Plaene enthalten Logo und eingebettete Schrift
+.claude/skills/regenwasser-schema/examples/*.pdf

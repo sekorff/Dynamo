@@ -5,7 +5,11 @@
     "plan_nr": "RW-001",
     "index": "a",
     "datum": "2026-11-18",
-    "bearbeiter": "TGA"
+    "bearbeiter": "TGA",
+    "projekt_nr": "2026-0000",
+    "bauherr": "Muster Bauherr GmbH",
+    "planungsphase": "Entwurfsplanung",
+    "status": "VORABZUG"
   },
   "versorger": {
     "name": "Stadtentwässerung Musterstadt",

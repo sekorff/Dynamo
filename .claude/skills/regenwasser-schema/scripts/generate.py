@@ -45,6 +45,8 @@ SCHEMA = {
     "projekt": {
         "name": ("str", ""), "standort": ("str", ""), "plan_nr": ("str", ""),
         "datum": ("str", ""), "bearbeiter": ("str", ""), "index": ("str", ""),
+        "projekt_nr": ("str", ""), "bauherr": ("str", ""),
+        "planungsphase": ("str", ""), "status": ("str", ""),
     },
     "versorger": {
         "name": ("str", ""),
@@ -71,6 +73,7 @@ SCHEMA = {
         "aktiv": ("bool", False), "drosselabfluss_l_s": ("num?", None),
     },
     "uebergabeschacht": {"aktiv": ("bool", False)},
+    "blatt": {"format": ({"A2": "", "A1": "", "A0": ""}, "A2")},
     "ueberflutung": {
         "befestigte_flaeche_m2": ("num?", 0.0),
         "befestigte_flaeche_cs": ("num?", 1.0),
@@ -115,7 +118,7 @@ def dachablauf(cfg, d):
                           / (a["regenspende_r5_5_l_s_ha"] * cs) + 1e-9))
     return cs, amax, int(math.ceil(DACHFLAECHE_M2 / float(amax) - 1e-9))
 TOP_KEYS = set(SCHEMA) | {"daecher", "notueberlauf", "kostra", "geraete_zusatz",
-                             "schnittstellen_zusatz"}
+                             "schnittstellen_zusatz", "plankopf"}
 KOSTRA_T = (1, 2, 3, 5, 10, 20, 30, 50, 100)      # Wiederkehrzeiten [a]
 KOSTRA_D_MAX = 6                                  # max. Dauerstufen in der Tabelle
 NACHWEIS_D = (5, 10, 15)                          # Dauerstufen Ueberflutungsnachweis
@@ -292,6 +295,14 @@ def normalize(raw):
         errors.append("notueberlauf: true/false erwartet")
         nue = True
     cfg["notueberlauf"] = nue
+    pk = raw.get("plankopf", {})
+    if not isinstance(pk, dict):
+        errors.append("plankopf: Objekt erwartet")
+        pk = {}
+    for k in sorted(set(pk) - set(PLANKOPF_KEYS)):
+        errors.append("plankopf.%s: unbekannter Schlüssel (erlaubt: %s)"
+                      % (k, ", ".join(PLANKOPF_KEYS)))
+    cfg["plankopf"] = pk
     cfg["geraete_zusatz"] = check_zusatz(raw.get("geraete_zusatz"), "geraete_zusatz",
                                          GERAETE_KEYS, errors)
     cfg["schnittstellen_zusatz"] = check_zusatz(raw.get("schnittstellen_zusatz"),
@@ -407,6 +418,73 @@ def normalize(raw):
     return cfg, errors, warnings
 
 
+# --------------------------------------------------------------------------
+# M&P-Plankopf (Skill mp-plankopf) - Rahmen und Schriftfeld kommen immer von dort
+# --------------------------------------------------------------------------
+
+PLANKOPF_KEYS = ("logo", "felder", "freifelder", "zusatzfelder", "aenderungsindex", "optionen")
+_PK = {"mod": None}
+
+
+class SchemaFehler(Exception):
+    pass
+
+
+def load_plankopf():
+    """Laedt scripts/plankopf.py des Skills mp-plankopf und registriert Avenir LT Std."""
+    global F, FB
+    if _PK["mod"] is not None:
+        return _PK["mod"]
+    hier = os.path.dirname(os.path.abspath(__file__))
+    kandidaten = [os.environ.get("MP_PLANKOPF_SKILL"),
+                  os.path.join(hier, "..", "..", "mp-plankopf"),
+                  os.path.join(os.path.expanduser("~"), ".claude", "skills", "mp-plankopf")]
+    for k in kandidaten:
+        if k and os.path.isfile(os.path.join(k, "scripts", "plankopf.py")):
+            sys.path.insert(0, os.path.join(os.path.abspath(k), "scripts"))
+            import plankopf
+            try:
+                plankopf._schrift()
+            except plankopf.PlankopfFehler as exc:
+                raise SchemaFehler("Plankopf: %s" % exc)
+            F, FB = plankopf.FONT, plankopf._S["fett"]
+            _PK["mod"] = plankopf
+            return plankopf
+    raise SchemaFehler(
+        "Skill mp-plankopf nicht gefunden. Erwartet neben diesem Skill "
+        "(.claude/skills/mp-plankopf), unter ~/.claude/skills/mp-plankopf oder im Ordner "
+        "aus der Umgebungsvariable MP_PLANKOPF_SKILL. Ohne M&P-Plankopf wird kein Plan erzeugt.")
+
+
+def plankopf_spec(cfg, planinhalt, blatt_nr, legende):
+    """Eingabe fuer mp-plankopf: aus der Konfiguration abgeleitet, cfg['plankopf'] ueberschreibt."""
+    p, pk = cfg["projekt"], cfg["plankopf"]
+    felder = {"Plannummer": p["plan_nr"], "aktuelle Änderung Index": p["index"],
+              "Maßstab": "ohne", "Status": p["status"], "Planungsphase": p["planungsphase"],
+              "Planart": "Schema", "erstellt Datum": p["datum"], "erstellt von": p["bearbeiter"]}
+    felder = {k: v for k, v in felder.items() if v}
+    frei = {"Kopf links": {"titel": "Projekt-Nr.", "zeilen": [p["projekt_nr"]]},
+            "Kopf rechts": {"titel": "Gewerk", "zeilen": ["Sanitär - Regenwasser"]},
+            "Block 1": {"titel": "Bauvorhaben", "zeilen": [x for x in (p["name"], p["standort"]) if x]},
+            "Block 2": {"titel": "Bauherr", "zeilen": [p["bauherr"]]},
+            "Block 3": {"titel": "Versorger / Entwässerungsbetrieb",
+                        "zeilen": [cfg["versorger"]["name"]]},
+            "Block 4": {"titel": "Planinhalt", "zeilen": ["Regenwasseranlage", planinhalt]}}
+    if isinstance(pk.get("felder"), dict):
+        felder.update(pk["felder"])
+    if isinstance(pk.get("freifelder"), dict):
+        frei.update(pk["freifelder"])
+    spec = {"blatt": {"format": cfg["blatt"]["format"]}, "logo": pk.get("logo", "Gruppe"),
+            "felder": felder, "freifelder": frei,
+            "zusatzfelder": [{"name": "blatt", "label": "Blatt", "wert": str(blatt_nr),
+                              "breite_mm": 60}] + list(pk.get("zusatzfelder") or []),
+            "legende": legende}
+    for k in ("aenderungsindex", "optionen"):
+        if k in pk:
+            spec[k] = pk[k]
+    return spec
+
+
 def de(x, nd=1):
     """Zahl deutsch formatiert (Komma), deterministisch."""
     if x is None:
@@ -497,10 +575,12 @@ class Z(object):
         self.style(stroke or BLACK, fill, lw)
         self.c.circle(x, y, r, stroke=1 if stroke else 0, fill=1 if fill else 0)
 
-    def width(self, s, size, font=F):
+    def width(self, s, size, font=None):
+        font = font or F
         return self.c.stringWidth(s, font, size)
 
-    def text(self, x, y, s, size=2.6, font=F, color=BLACK, align="l", maxw=None):
+    def text(self, x, y, s, size=2.6, font=None, color=BLACK, align="l", maxw=None):
+        font = font or F
         if maxw is not None:
             s, size = self.fit(s, size, font, maxw)
         self.c.setFillColorRGB(*color)
@@ -906,10 +986,9 @@ def draw_chain(z, cfg, drains):
 
 # ---- Fusszeile: Legende, Vorgaben, Hinweise, Schriftfeld ------------------
 
-def draw_legend(z):
-    x0, x1 = 20.0, 140.0
-    z.rect(x0, 10, x1 - x0, STRIP - 10, BLACK, WHITE, 0.35)
-    z.text(x0 + 2, 65.0, "Legende", 3.0, FB)
+def draw_legend(z, zone):
+    """Symbole in die Legendenzone des Plankopfs (echte mm, Titel zeichnet der Plankopf)."""
+    x0, ytop = zone["x"], zone["y"] + zone["hoehe"] - 15.0
     items = [
         ("Regenwasserleitung", lambda x, y: z.line(x, y, x + 10, y, BLUE, 1.0)),
         ("Betriebswasser (Regenwassernutzung)",
@@ -932,14 +1011,14 @@ def draw_legend(z):
     ]
     for i, (name, fn) in enumerate(items):
         col, row = divmod(i, 7)
-        x = x0 + 3 + col * 60.0
-        y = 58.0 - row * 7.0
+        x = x0 + 4 + col * 88.0
+        y = ytop - row * 7.0
         fn(x, y)
-        z.text(x + 13, y - 0.9, name, 2.4, F, BLACK, maxw=43.0)
+        z.text(x + 13, y - 0.9, name, 2.6, F, BLACK, maxw=72.0)
 
 
 def draw_vorgaben(z, cfg):
-    x0, x1 = 140.0, 215.0
+    x0, x1 = 20.0, 160.0
     v = cfg["versorger"]
     z.rect(x0, 10, x1 - x0, STRIP - 10, BLACK, WHITE, 0.35)
     z.text(x0 + 2, 65.0, "Vorgaben Versorger / Anlagenkenndaten", 3.0, FB)
@@ -976,7 +1055,7 @@ def draw_vorgaben(z, cfg):
 
 
 def draw_hinweise(z, warnings):
-    x0, x1 = 215.0, 290.0
+    x0, x1 = 160.0, 410.0
     z.rect(x0, 10, x1 - x0, STRIP - 10, BLACK, WHITE, 0.35)
     z.text(x0 + 2, 65.0, "Hinweise", 3.0, FB)
     notes = list(warnings) + [
@@ -1305,29 +1384,28 @@ def schnittstellen_rows(cfg):
 class Listen(object):
     """Fliesslayout fuer Tabellen mit festem Seitenumbruch."""
 
-    TOP, BOTTOM, X0, X1 = 281.5, 22.0, 24.0, 406.0
+    X0, X1 = 24.0, 406.0
     SIZE, LH, PAD = 2.5, 3.2, 0.8
 
-    def __init__(self, c, cfg):
-        self.c, self.cfg, self.z, self.page = c, cfg, None, 1
+    def __init__(self, c, cfg, pk):
+        self.c, self.cfg, self.pk, self.z, self.page = c, cfg, pk, None, 1
         self.new_page()
 
     def new_page(self):
         if self.z is not None:
+            self.c.restoreState()
             self.c.showPage()
         self.page += 1
-        self.c.scale(mm, mm)
-        self.z = z = Z(self.c)
-        p = self.cfg["projekt"]
-        z.rect(20, 10, 390, 277, BLACK, None, 0.7)
-        z.line(20, 19, 410, 19, BLACK, 0.35)
-        z.text(22, 13, p["name"] or "-", 3.2, FB, BLACK, maxw=150)
-        z.text(215, 13, "Regenwasseranlage - Gerätetabelle und Schnittstellenliste", 2.8, F,
-               BLACK, "c")
-        z.text(408, 13, "%s   Blatt %d" % ("   ".join(
-            x for x in [p["plan_nr"] + (" / " + p["index"] if p["index"] else ""),
-                        p["datum"]] if x), self.page), 2.8, F, BLACK, "r")
-        self.y = self.TOP
+        lay = self.pk.draw(self.c, plankopf_spec(
+            self.cfg, "Gerätetabelle und Schnittstellenliste", self.page, LEGENDE_LISTEN))
+        zb = lay["zonen"]["zeichenbereich"]
+        s = (zb["breite"] - 6.0) / 390.0             # virtuelle Breite 390 (x = 20..410)
+        self.c.saveState()
+        self.c.translate((zb["x"] + 3.0 - 20.0 * s) * mm, (zb["y"] + 3.0) * mm)
+        self.c.scale(s * mm, s * mm)
+        self.z = Z(self.c)
+        self.BOTTOM = 4.0
+        self.y = (zb["hoehe"] - 6.0) / s - 5.0
 
     def _header(self, title, cols, fort):
         z = self.z
@@ -1371,8 +1449,14 @@ class Listen(object):
             self.y -= 3.2
 
 
-def draw_listen(c, cfg):
-    L = Listen(c, cfg)
+LEGENDE_LISTEN = {"titel": "Hinweise", "eintraege": [
+    {"symbol": "ohne", "text": "Kostengruppen nach DIN 276:2018-12"},
+    {"symbol": "ohne", "text": "Eigenes Gewerk: KG 411, 412, 551, 552"},
+    {"symbol": "ohne", "text": "Zuordnung und Leistungsabgrenzung projektspezifisch bestätigen"}]}
+
+
+def draw_listen(c, cfg, pk):
+    L = Listen(c, cfg, pk)
     g = [[str(i + 1)] + r for i, r in enumerate(geraete_rows(cfg))]
     L.table("Gerätetabelle",
             [("Pos.", 12), ("Gerät / Bauteil", 92), ("Anzahl", 18), ("Kenndaten", 140),
@@ -1385,18 +1469,25 @@ def draw_listen(c, cfg):
            "Wasseranlagen (Betriebswasser), KG 551/552 Abwasser- und Wasseranlagen in "
            "Außenanlagen. Kostengruppen nach DIN 276:2018-12; Zuordnung und "
            "Leistungsabgrenzung sind projektspezifisch zu bestätigen.")
+    c.restoreState()
     c.showPage()
 
 
 def render(cfg, warnings, out_path):
-    c = canvas.Canvas(out_path, pagesize=(W * mm, H * mm), invariant=1, pageCompression=1)
+    pk = load_plankopf()
+    c = canvas.Canvas(out_path, invariant=1, pageCompression=1, initialFontName=pk.FONT)
     c.setTitle("Regenwasseranlage - Prinzipschema")
     c.setAuthor(cfg["projekt"]["bearbeiter"] or "regenwasser-schema")
     c.setSubject(cfg["projekt"]["name"])
     c.setCreator("regenwasser-schema skill")
-    c.scale(mm, mm)
+    lay = pk.draw(c, plankopf_spec(cfg, "Prinzipschema", 1, {"titel": "Legende"}))
+    zb, lz = lay["zonen"]["zeichenbereich"], lay["zonen"]["legende"]
+    # virtuelles Blatt x = 20..410, y = 10..287 massstaeblich in den Zeichenbereich (oben links)
+    s = min((zb["breite"] - 6.0) / 390.0, (zb["hoehe"] - 6.0) / 277.0)
+    c.saveState()
+    c.translate((zb["x"] + 3.0 - 20.0 * s) * mm, (zb["y"] + zb["hoehe"] - 3.0 - 287.0 * s) * mm)
+    c.scale(s * mm, s * mm)
     z = Z(c)
-    z.rect(20, 10, 390, 277, BLACK, None, 0.7)
     draw_site(z)
     draw_ueberflutungsflaeche(z, cfg)
     draw_building(z, cfg)
@@ -1404,13 +1495,16 @@ def render(cfg, warnings, out_path):
     draw_chain(z, cfg, drains)
     draw_nachweis(z, cfg)
     z.rect(20, 10, 390, STRIP - 10, None, WHITE)
-    draw_legend(z)
     draw_vorgaben(z, cfg)
     draw_hinweise(z, warnings)
-    draw_titleblock(z, cfg)
-    z.rect(20, 10, 390, 277, BLACK, None, 0.7)
+    z.rect(20, 10, 390, 277, BLACK, None, 0.35)
+    c.restoreState()
+    c.saveState()
+    c.scale(mm, mm)
+    draw_legend(Z(c), lz)
+    c.restoreState()
     c.showPage()
-    draw_listen(c, cfg)
+    draw_listen(c, cfg, pk)
     c.save()
 
 
@@ -1432,6 +1526,22 @@ def main(argv=None):
     if errors:
         for e in errors:
             print("FEHLER: " + e, file=sys.stderr)
+        return 2
+    try:
+        pk = load_plankopf()
+        lay = pk.compute_layout(plankopf_spec(cfg, "Prinzipschema", 1, {"titel": "Legende"}))
+        if lay["zonen"]["legende"]["hoehe"] < 66.0:
+            raise SchemaFehler("Plankopf: Legendenzone %.1f mm zu niedrig (66 mm nötig) - "
+                               "weniger Zusatzfelder oder größeres Blatt." % lay["zonen"]["legende"]["hoehe"])
+        for w_ in lay.get("warnungen", []):
+            print("HINWEIS: Plankopf: " + w_)
+    except SchemaFehler as exc:
+        print("FEHLER: %s" % exc, file=sys.stderr)
+        return 2
+    except Exception as exc:                      # PlankopfFehler (Modul erst zur Laufzeit bekannt)
+        if type(exc).__name__ != "PlankopfFehler":
+            raise
+        print("FEHLER: Plankopf: %s" % exc, file=sys.stderr)
         return 2
     if a.check:
         print("OK: Konfiguration gültig")

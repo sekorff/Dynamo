@@ -1,6 +1,6 @@
 ---
 name: regenwasser-schema
-description: Erzeugt deterministisch ein Regenwasseranlagen-Schema (Prinzipschema Grundstücksentwässerung Regenwasser) als PDF, DIN A3 quer. Verwenden, wenn ein Regenwasser-/Entwässerungsschema mit Übergabeschacht, Drosselschacht, Regenrückhaltebecken, Stauraumkanal (überdimensionierte Leitung), überdimensionierter Rinne, Schwammdach, Retentionsdach (extensiv/intensiv begrünt), PV oder Regenwassernutzung nach den Standortvorgaben des Versorgers gebraucht wird.
+description: Erzeugt deterministisch ein Regenwasseranlagen-Schema (Prinzipschema Grundstücksentwässerung Regenwasser) als PDF im M&P-Planrahmen mit Plankopf (Skill mp-plankopf, DIN A2 quer, wahlweise A1/A0). Verwenden, wenn ein Regenwasser-/Entwässerungsschema mit Übergabeschacht, Drosselschacht, Regenrückhaltebecken, Stauraumkanal (überdimensionierte Leitung), überdimensionierter Rinne, Schwammdach, Retentionsdach (extensiv/intensiv begrünt), PV oder Regenwassernutzung nach den Standortvorgaben des Versorgers gebraucht wird.
 ---
 
 # Regenwasseranlagen-Schema (PDF)
@@ -25,7 +25,8 @@ Gleiche Konfiguration ergibt eine byte-identische PDF-Datei.
    python3 .claude/skills/regenwasser-schema/scripts/generate.py <projekt>.json --check
    python3 .claude/skills/regenwasser-schema/scripts/generate.py <projekt>.json -o <projekt>.pdf
    ```
-   Voraussetzung: Python 3 mit `reportlab` (`pip install reportlab`).
+   Voraussetzung: Python 3 mit `reportlab` und `pillow` sowie der Skill
+   `mp-plankopf` (siehe „Plankopf“).
 4. **Ergebnis melden.** `FEHLER:` (Exit-Code 2, kein PDF) bedeutet: Konfiguration
    ungültig oder eine Versorgervorgabe ist verletzt. Behebe das nicht durch
    Lockern der Vorgabe, sondern lege es dem Nutzer vor. `HINWEIS:`-Zeilen stehen
@@ -34,13 +35,36 @@ Gleiche Konfiguration ergibt eine byte-identische PDF-Datei.
 Setze `projekt.datum` nur, wenn der Nutzer ein Datum nennt oder wünscht – das
 Skript trägt selbst kein Tagesdatum ein (Determinismus).
 
+## Plankopf
+
+Rahmen, Plankopf und Legendenzone kommen **immer** aus dem Skill `mp-plankopf`
+(Revit-Familie MP_400_Plankopf, Schrift Avenir LT Std) – auf jeder Seite. Es
+gibt kein anderes Schriftfeld und keinen Schalter, um ihn abzuwählen; den
+Plankopf nie von Hand nachzeichnen.
+
+- Das Skript sucht den Skill in dieser Reihenfolge: Umgebungsvariable
+  `MP_PLANKOPF_SKILL`, Nachbarordner `.claude/skills/mp-plankopf`,
+  `~/.claude/skills/mp-plankopf`. Fehlt er oder fehlt die Schrift, bricht das
+  Skript mit `FEHLER:` ab – dann den Nutzer um den Skill bitten, nicht ausweichen.
+- `mp-plankopf` ist intern (lizenzpflichtige Schrift, Logos) und liegt deshalb
+  **nicht** in diesem öffentlichen Repository (`.gitignore`). Auch erzeugte PDFs
+  werden nicht eingecheckt.
+- Seite 1: Schema im Zeichenbereich, Symbollegende in der Legendenzone über dem
+  Plankopf. Seite 2 ff.: Tabellen im Zeichenbereich. Das Zusatzfeld „Blatt“
+  trägt die Blattnummer.
+- Byte-identische Ausgabe gilt bei gleicher reportlab-Version (mp-plankopf nennt
+  4.2.5 als Referenz).
+
 ## Konfiguration
 
 Unbekannte Schlüssel sind Fehler. Alle Abschnitte außer `daecher` sind optional.
 
 | Schlüssel | Werte | Bedeutung |
 |---|---|---|
-| `projekt.name`, `.standort`, `.plan_nr`, `.index`, `.datum`, `.bearbeiter` | Text | Schriftfeld |
+| `projekt.name`, `.standort`, `.plan_nr`, `.index`, `.datum`, `.bearbeiter` | Text | Plankopf: Bauvorhaben, Zeichnungs-Nr. mit Index, „erstellt“ |
+| `projekt.projekt_nr`, `.bauherr`, `.planungsphase`, `.status` | Text | Plankopf; `status` nur `FREIGEGEBEN`, `ZUR PRÜFUNG`, `VORABZUG` oder leer |
+| `blatt.format` | `A2` (Standard) \| `A1` \| `A0` | Blattgröße; das Schema wird maßstäblich in den Zeichenbereich eingepasst |
+| `plankopf.logo`, `.felder`, `.freifelder`, `.zusatzfelder`, `.aenderungsindex`, `.optionen` | wie in `mp-plankopf/references/api.md` | überschreibt bzw. ergänzt die abgeleiteten Plankopfwerte (z. B. Standort-Logo, geprüft, Änderungsindex) |
 | `versorger.name` | Text | Versorger / Entwässerungsbetrieb |
 | `versorger.einleitstelle` | `regenwasserkanal` \| `mischwasserkanal` \| `gewaesser` \| `versickerung` | Einleitstelle am Ende der Kette |
 | `versorger.einleitbeschraenkung_l_s` | Zahl \| `null` | max. Einleitmenge; erzwingt Drosselschacht mit Qdr ≤ Grenzwert |
