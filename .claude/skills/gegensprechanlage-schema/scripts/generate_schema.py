@@ -3,7 +3,7 @@
 """Deterministischer Generator fuer ein Gegensprechanlagen-Schema (PDF, DIN A3 quer).
 
 Eingabe : JSON-Anlagenbeschreibung (siehe SKILL.md / examples/beispiel.json)
-Ausgabe : PDF mit Schemaseite(n) und Geraete-/Leitungsliste
+Ausgabe : zwei getrennte PDF - Schema und Listen - mit bedarfsgerechtem Blattformat
 
 Determinismus: gleiche Eingabe -> byte-identisches PDF.
   * kein Zugriff auf Uhrzeit, Zufall, Umgebung oder Netzwerk
@@ -29,7 +29,6 @@ except ImportError:  # pragma: no cover
 # Feste Regeln und Stammdaten
 # --------------------------------------------------------------------------
 MAX_KUPFER_M = 90.0          # > 90 m -> LWL + Medienkonverter + PoE-Injektor 230 V
-SPALTEN_PRO_SEITE = 10
 
 EINBAUORTE = {
     "tuer": "Tür",
@@ -162,13 +161,34 @@ F = "Helvetica"
 FB = "Helvetica-Bold"
 
 # Blatt DIN A3 quer (pt)
-W, H = 1190.55, 841.89
+W_A3, H_A3 = 1190.55, 841.89
+W, H = W_A3, H_A3            # aktuelles Blatt, wird je Blatt ueber setze_blatt() gesetzt
+# Schemablatt: Hoehe 297 mm (DIN A3), Laenge in Faltschritten von 210 mm nach Bedarf
+MM = 72 / 25.4
+FORMATE_SCHEMA = [("DIN A3 quer (297 x 420 mm)" if n == 2 else "297 x %d mm" % (n * 210),
+                   W_A3 if n == 2 else round(n * 210 * MM, 2), H_A3) for n in range(2, 9)]
+# Listenblatt: gleiche Breite, Hoehe nach Bedarf
+FORMATE_LISTE = [("DIN A3 quer", 1190.55, 841.89), ("DIN A2 hoch", 1190.55, 1683.78)]
+KX = 0.0                     # Verschiebung des Zentralenkopfs zur Blattmitte
+DY = 0.0                     # Verschiebung des Schemas zur Blattoberkante
 M = 28.0
 X0, X1, Y0, Y1 = M, W - M, M, H - M
 FUSS_H = 85.0
 SF_W = 420.0                 # Schriftfeldbreite
 COL_X0 = X0 + 12.0
 COL_W = 111.0
+
+
+def setze_blatt(w, h):
+    """Stellt das aktuelle Blattformat ein (Rahmen, Schriftfeld, Zeichenflaeche)."""
+    global W, H, X1, Y1, KX, DY
+    W, H = w, h
+    X1, Y1 = W - M, H - M
+    KX, DY = (W - W_A3) / 2, H - H_A3
+
+
+def spalten_je_blatt(w):
+    return int((w - 2 * M - 24) / COL_W)
 
 
 class EingabeFehler(Exception):
@@ -663,7 +683,7 @@ def legende(c, modell):
 # --------------------------------------------------------------------------
 Y_KOPF = 742.0      # Unterkante Zentralgeraete
 H_KOPF = 56.0
-X_MITTE = W / 2
+X_MITTE = W_A3 / 2          # Kopf ist im A3-Raster gezeichnet und wird um KX verschoben
 Y_CORE = 690.0
 Y_BUS = 676.0
 Y_SW = 614.0
@@ -801,7 +821,7 @@ def strang(c, modell, s, cx):
     if not n:
         return
     # Raster passt sich an, damit auch die Maximalbestueckung ueber dem Schriftfeld bleibt
-    pitch = min(26.0, (y - (Y0 + FUSS_H + 4)) / n)
+    pitch = min(26.0, (y - (Y0 + FUSS_H + 4 - DY)) / n)
     bh = pitch - 6
     bw = W_ST - (26 if s["zusatz"] else 14)
     dash = DASH_RELAIS if aussen else DASH_FERN
@@ -829,7 +849,14 @@ def strang(c, modell, s, cx):
         linie(c, [(xr, y), (xr, yb + pitch + bh / 2)], C_LINE, 0.8)
 
 def schemaseite(c, modell, spalten, erste_ids):
+    # Schema ist im A3-Raster gezeichnet und haengt an der Blattoberkante
+    c.saveState()
+    c.translate(0, DY)
+    c.saveState()
+    c.translate(KX, 0)
     kopf(c, modell)
+    c.restoreState()
+    xm_kopf = X_MITTE + KX
     netz = modell["netz"]
     vmap = {v["id"]: v for v in modell["gruppen"]}
     # Gruppen aufeinanderfolgender Spalten je Verteiler
@@ -872,11 +899,12 @@ def schemaseite(c, modell, spalten, erste_ids):
         if v["ort"]:
             unter = v["ort"] + "  |  " + unter
         text(c, unter, xm, Y_SW + 6, 6, anker="m", max_w=xb - xa - 8)
-    xs = trunk_x + [X_MITTE]
+    xs = trunk_x + [xm_kopf]
     linie(c, [(min(xs), Y_BUS), (max(xs), Y_BUS)], C_LINE, 2.0)
-    linie(c, [(X_MITTE, Y_CORE), (X_MITTE, Y_BUS)], C_LINE, 2.0)
+    linie(c, [(xm_kopf, Y_CORE), (xm_kopf, Y_BUS)], C_LINE, 2.0)
     for i, s in enumerate(spalten):
         strang(c, modell, s, COL_X0 + i * COL_W + COL_W / 2)
+    c.restoreState()
 
 
 # --------------------------------------------------------------------------
@@ -1023,12 +1051,12 @@ def schnittstellenzeilen(modell):
 # --------------------------------------------------------------------------
 # Listenblaetter: Tabellen fliessen untereinander, Kopf wird je Blatt wiederholt
 # --------------------------------------------------------------------------
-LISTE_OBEN = Y1 - 12
 LISTE_UNTEN = Y0 + FUSS_H + 8
 LISTE_X = COL_X0 - 2
 
 
 def listen_fluss(modell):
+    oben = Y1 - 12
     tabellen = [
         ("Geräte- und Leitungsliste", SPALTEN_LISTE, listenzeilen(modell), False),
         ("Schnittstellenliste - Zuständigkeit der Gewerke nach DIN 276 (Kostengruppen)",
@@ -1036,7 +1064,7 @@ def listen_fluss(modell):
         ("Gewerke nach DIN 276 (Kostengruppen)", SPALTEN_KG, [list(k) for k in KG_KATALOG], False),
     ]
     seiten = [[]]
-    y = LISTE_OBEN
+    y = oben
     for titel, spalten, zeilen, umbruch in tabellen:
         fertig = []
         for zl in zeilen:
@@ -1051,7 +1079,7 @@ def listen_fluss(modell):
         for n, (zellen, h) in enumerate(fertig):
             if y - h - (0 if kopf_offen else 34) < LISTE_UNTEN:
                 seiten.append([])
-                y = LISTE_OBEN
+                y = oben
                 kopf_offen = False
             if not kopf_offen:
                 seiten[-1].append(("titel", y, titel + ("  (Fortsetzung)" if n else "")))
@@ -1094,50 +1122,74 @@ def listenseite(c, modell, ops):
 # --------------------------------------------------------------------------
 # Hauptprogramm
 # --------------------------------------------------------------------------
-def erzeugen(modell, ziel):
-    sp = modell["spalten"]
-    # Seitenumbruch: Verteiler bleiben zusammen, sofern sie auf ein Blatt passen
-    seiten = [[]]
-    for v in modell["gruppen"]:
-        gruppe = [s for s in sp if s["verteiler"] == v["id"]]
-        frei = SPALTEN_PRO_SEITE - len(seiten[-1])
-        if len(gruppe) > frei and len(gruppe) <= SPALTEN_PRO_SEITE and seiten[-1]:
-            seiten.append([])
-        for s in gruppe:
-            if len(seiten[-1]) == SPALTEN_PRO_SEITE:
-                seiten.append([])
-            seiten[-1].append(s)
-    listen = listen_fluss(modell)
-    blaetter = len(seiten) + len(listen)
-    erste_ids = {}
-    for s in sp:
-        erste_ids.setdefault(s["verteiler"], s["id"])
-
+def neues_pdf(ziel, modell, titel):
     c = canvas.Canvas(ziel, pagesize=(W, H), invariant=1, pageCompression=0)
-    c.setTitle("Schema Gegensprechanlage - " + modell["projekt"]["name"])
+    c.setTitle(titel + " - " + modell["projekt"]["name"])
     c.setAuthor(modell["projekt"]["planer"] or "-")
     c.setSubject("Gegensprechanlage IP / PoE")
     c.setCreator("gegensprechanlage-schema")
-    blatt = 0
-    for teil in seiten:
-        blatt += 1
-        rahmen(c, modell, "Schema Gegensprechanlage (IP / PoE)", blatt, blaetter)
+    return c
+
+
+def erzeuge_schema(modell, ziel):
+    """Schema als eigenes Dokument; Blattformat nach Anzahl der Sprechstellen."""
+    sp = modell["spalten"]
+    name, w, h = FORMATE_SCHEMA[-1]
+    for name, w, h in FORMATE_SCHEMA:
+        if spalten_je_blatt(w) >= len(sp):
+            break
+    setze_blatt(w, h)
+    je_blatt = spalten_je_blatt(w)
+    # Seitenumbruch (nur oberhalb der groessten Blattlaenge): Verteiler bleiben zusammen, sofern sie auf ein Blatt passen
+    seiten = [[]]
+    for v in modell["gruppen"]:
+        gruppe = [s for s in sp if s["verteiler"] == v["id"]]
+        frei = je_blatt - len(seiten[-1])
+        if len(gruppe) > frei and len(gruppe) <= je_blatt and seiten[-1]:
+            seiten.append([])
+        for s in gruppe:
+            if len(seiten[-1]) == je_blatt:
+                seiten.append([])
+            seiten[-1].append(s)
+    erste_ids = {}
+    for s in sp:
+        erste_ids.setdefault(s["verteiler"], s["id"])
+    c = neues_pdf(ziel, modell, "Schema Gegensprechanlage")
+    for blatt, teil in enumerate(seiten, 1):
+        c.setPageSize((W, H))
+        rahmen(c, modell, "Schema Gegensprechanlage (IP / PoE)", blatt, len(seiten))
         legende(c, modell)
         schemaseite(c, modell, teil, erste_ids)
         c.showPage()
-    for teil in listen:
-        blatt += 1
-        rahmen(c, modell, "Gegensprechanlage - Geräte-, Leitungs- und Schnittstellenliste", blatt, blaetter)
+    c.save()
+    return name, len(seiten)
+
+
+def erzeuge_listen(modell, ziel):
+    """Tabellen als eigenes Dokument; Blatthoehe nach Tabellenumfang."""
+    for name, w, h in FORMATE_LISTE:
+        setze_blatt(w, h)
+        listen = listen_fluss(modell)
+        if len(listen) == 1:
+            break
+    c = neues_pdf(ziel, modell, "Listen Gegensprechanlage")
+    for blatt, teil in enumerate(listen, 1):
+        c.setPageSize((W, H))
+        rahmen(c, modell, "Gegensprechanlage - Geräte-, Leitungs- und Schnittstellenliste",
+               blatt, len(listen))
         listenseite(c, modell, teil)
         c.showPage()
     c.save()
-    return blaetter
+    return name, len(listen)
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="Erzeugt ein Gegensprechanlagen-Schema als PDF.")
+    ap = argparse.ArgumentParser(
+        description="Erzeugt Schema und Listen einer Gegensprechanlage als zwei getrennte PDF.")
     ap.add_argument("eingabe", help="JSON-Datei mit der Anlagenbeschreibung")
-    ap.add_argument("-o", "--ausgabe", help="Ziel-PDF (Standard: <eingabe>.pdf)")
+    ap.add_argument("-o", "--ausgabe",
+                    help="Basisname der Ausgabe (Standard: Name der Eingabe); erzeugt werden "
+                         "<basis>_schema.pdf und <basis>_listen.pdf")
     ap.add_argument("--nur-pruefen", action="store_true", help="nur validieren, kein PDF erzeugen")
     args = ap.parse_args(argv)
     try:
@@ -1156,12 +1208,14 @@ def main(argv=None):
              ", ".join(lwl) if lwl else "keine"))
     if args.nur_pruefen:
         return 0
-    ziel = args.ausgabe or re.sub(r"\.json$", "", args.eingabe) + ".pdf"
-    blaetter = erzeugen(modell, ziel)
-    with open(ziel, "rb") as fh:
-        digest = hashlib.sha256(fh.read()).hexdigest()
-    print("PDF: %s (%d Blatt)" % (ziel, blaetter))
-    print("SHA256: %s" % digest)
+    basis = re.sub(r"\.(json|pdf)$", "", args.ausgabe or args.eingabe)
+    for art, funktion in (("schema", erzeuge_schema), ("listen", erzeuge_listen)):
+        ziel = "%s_%s.pdf" % (basis, art)
+        fmt, blaetter = funktion(modell, ziel)
+        with open(ziel, "rb") as fh:
+            digest = hashlib.sha256(fh.read()).hexdigest()
+        print("PDF: %s (%s, %d Blatt)" % (ziel, fmt, blaetter))
+        print("SHA256: %s" % digest)
     return 0
 
 
