@@ -4,6 +4,9 @@
     "datum": "2026-11-19",
     "index": "E2"
   },
+  "plankopf": {
+    "felder": { "Status": "VORABZUG" }
+  },
   "zentrale": {
     "server": { "bezeichnung": "Intercom-Server", "ort": "Pförtnerloge 1" },
     "core_switch": { "bezeichnung": "Core-Switch", "ort": "Pförtnerloge 1" }

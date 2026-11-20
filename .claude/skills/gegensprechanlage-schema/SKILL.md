@@ -1,6 +1,6 @@
 ---
 name: gegensprechanlage-schema
-description: Erzeugt deterministisch ein Gegensprechanlagen-Schema (Intercom / Türsprechanlage) als PDF: Schema und Tabellen immer als zwei getrennte Dokumente mit bedarfsgerechtem Blattformat. Verwenden, wenn ein Schema, Strangschema oder Übersichtsplan einer IP-Gegensprechanlage gefragt ist - mit Außen- und Innensprechstellen an Türen, Toren, Schranken, Vereinzelungsanlagen, Aufzügen, Pollern, Schleusen, Rampen, Kassenautomaten, Notrufsäulen, Klingeltableaus, Fluchttüren, Paketanlagen und Drehtüren, Innensprechstellen an Pforte, Leitstand, Wohnung/Büro, Etagenruf, Schleuseninnenraum, Aufzugvorraum und Tiefgarage, Software-Clients/Apps, IP-Relais (Smart Relais), Zusatzgeräten, mit/ohne Video und Zugangskontrolle, Freigaben, PoE-Speisung, LWL-Strecken über 90 m mit Medienkonverter und PoE-Injektor 230 V, TK-Anlage, Wählgerät (IP/Mobilfunk), Störmeldungen an die GLT sowie Geräteliste und Schnittstellenliste mit Zuständigkeit der Gewerke nach DIN 276 (Koordination, Anschluss, Inbetriebnahme).
+description: Erzeugt deterministisch ein Gegensprechanlagen-Schema (Intercom / Türsprechanlage) als PDF: Schema und Tabellen immer als zwei getrennte Dokumente mit bedarfsgerechtem Blattformat, Rahmen und Plankopf immer über den Skill mp-plankopf. Verwenden, wenn ein Schema, Strangschema oder Übersichtsplan einer IP-Gegensprechanlage gefragt ist - mit Außen- und Innensprechstellen an Türen, Toren, Schranken, Vereinzelungsanlagen, Aufzügen, Pollern, Schleusen, Rampen, Kassenautomaten, Notrufsäulen, Klingeltableaus, Fluchttüren, Paketanlagen und Drehtüren, Innensprechstellen an Pforte, Leitstand, Wohnung/Büro, Etagenruf, Schleuseninnenraum, Aufzugvorraum und Tiefgarage, Software-Clients/Apps, IP-Relais (Smart Relais), Zusatzgeräten, mit/ohne Video und Zugangskontrolle, Freigaben, PoE-Speisung, LWL-Strecken über 90 m mit Medienkonverter und PoE-Injektor 230 V, TK-Anlage, Wählgerät (IP/Mobilfunk), Störmeldungen an die GLT sowie Geräteliste und Schnittstellenliste mit Zuständigkeit der Gewerke nach DIN 276 (Koordination, Anschluss, Inbetriebnahme).
 ---
 
 # Gegensprechanlage-Schema (PDF)
@@ -26,7 +26,38 @@ kein Zugriff auf Uhrzeit, Zufall oder Netzwerk, festes Raster, feste Reihenfolge
 5. Dem Nutzer beide PDF-Pfade, Blattformat und Blattzahl, die gemeldeten LWL-Strecken und die SHA256 nennen.
 
 Bei `EINGABEFEHLER` (Exit-Code 2) die JSON-Datei korrigieren, nicht das Skript.
-Voraussetzung: Python 3 und `reportlab` (`pip install reportlab`).
+Voraussetzung: Python 3, `reportlab` und der Skill **mp-plankopf** (siehe unten).
+
+## Plankopf: immer mp-plankopf
+
+Rahmen, Plankopf, Änderungsindex und Legendenzone zeichnet ausschließlich der Skill `mp-plankopf`;
+dieser Generator zeichnet nur in den gemeldeten Zeichenbereich und in die Legendenzone.
+Es gibt keinen Ersatzrahmen: Fehlt `mp-plankopf`, bricht das Skript mit Exit-Code 3 ab.
+Gesucht wird in dieser Reihenfolge: Umgebungsvariable `MP_PLANKOPF_SKILL`, Nachbarordner
+`.claude/skills/mp-plankopf`, `~/.claude/skills/mp-plankopf`.
+
+`mp-plankopf` enthält lizenzpflichtige Schriften und Logos und darf nicht in ein öffentliches
+Repository; in diesem Repository steht der Ordner deshalb in `.gitignore`.
+Alle Texte des Plans sind wie der Plankopf in Avenir LT Std gesetzt.
+
+Aus `projekt` werden übernommen: `plan_nr` -> Plannummer, `index` -> aktuelle Änderung Index,
+`datum` -> erstellt Datum, `nummer` -> Projekt-Nr., `name` -> Bauvorhaben, `bauherr`, `planer`.
+Maßstab ist „ohne", Planart „Schema Gegensprechanlage" bzw. „Listen Gegensprechanlage".
+Alles Weitere (Status, Planungsphase, geprüft, Änderungsindex, Logo, Zusatzfelder) steht im
+optionalen Abschnitt `plankopf` der JSON und wird unverändert an mp-plankopf durchgereicht;
+Feldnamen siehe `mp-plankopf/references/api.md`:
+
+```json
+"plankopf": {
+  "logo": "Braunschweig",
+  "felder": { "Status": "VORABZUG", "Planungsphase": "Entwurfsplanung", "erstellt von": "SEK" },
+  "freifelder": { "Block 3": { "titel": "Architekt", "zeilen": ["..."] } }
+}
+```
+
+Erlaubte Schlüssel: `logo`, `felder`, `freifelder`, `zusatzfelder`, `aenderungsindex`, `optionen`.
+Blattformat und Legende legt der Generator selbst fest. Warnungen und Fehler von mp-plankopf
+wörtlich an den Nutzer weitergeben.
 
 ## Feste Regeln des Generators
 
@@ -46,8 +77,9 @@ Voraussetzung: Python 3 und `reportlab` (`pip install reportlab`).
 | Software-Client / App | PC, Smartphone oder Tablet; eigene Gruppe ohne PoE-Port und ohne Leitung; Fernfreigabe über IP |
 | Zentrale | Intercom-Server, TK-Anlage, eigenes Wählgerät (IP und/oder Mobilfunk), Störmeldungen an GLT |
 | Trennung | Schema und Tabellen sind zwingend getrennte Dokumente, nie auf einem Blatt |
-| Blattformat Schema | Höhe 297 mm; Länge nach Anzahl der Sprechstellen in Schritten von 210 mm: 420 mm (DIN A3 quer, bis 10), 630 (15), 840 (20), 1050 (26), 1260 (31), 1470 (36), 1680 mm (42); darüber mehrere Blätter, Verteiler bleiben möglichst zusammen |
-| Blattformat Tabellen | DIN A3 quer, wenn alles auf ein Blatt passt; sonst DIN A2 hoch, bei Bedarf mehrere Blätter |
+| Blattformat Schema | Höhe 420 mm; Länge nach Anzahl der Sprechstellen: DIN A2 quer 594 mm (bis 9), 840 mm (15), 1050 (21), 1260 (26), 1470 (32), 1680 (37), 1890 mm (42); darüber mehrere Blätter, Verteiler bleiben möglichst zusammen |
+| Blattformat Tabellen | DIN A2 quer, wenn alles auf ein Blatt passt; sonst DIN A1 hoch, bei Bedarf mehrere Blätter |
+| Legende / Summen | stehen in der Legendenzone über dem Plankopf (Schema: Legende, Tabellen: Summen) |
 | Inhalt Tabellen | Geräte- und Leitungsliste, darunter Schnittstellenliste und Gewerkeübersicht nach DIN 276, mit Summen |
 
 Die Grenze von 90 m ist fest (genau 90 m gilt noch als Kupfer).
@@ -161,4 +193,4 @@ Gegensprechanlage und sind keine Gewerkeschnittstellen.
 
 - `scripts/generate_schema.py` - Validierung und PDF-Erzeugung
 - `examples/beispiel.json` - vollständiges Beispiel mit allen Varianten
-- `examples/beispiel_schema.pdf`, `examples/beispiel_listen.pdf` - zugehörige Ergebnisse (Referenz für das Erscheinungsbild)
+- Beispiel-PDFs werden nicht eingecheckt (M&P-Logo und Schrift); bei Bedarf aus `examples/beispiel.json` erzeugen

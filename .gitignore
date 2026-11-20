@@ -87,3 +87,9 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# mp-plankopf enthaelt lizenzpflichtige Schriften und Logos - nicht in dieses oeffentliche Repository
+.claude/skills/mp-plankopf/
+# Plaene mit M&P-Plankopf (Logo, eingebettete Schrift) werden nicht eingecheckt
+*_schema.pdf
+*_listen.pdf

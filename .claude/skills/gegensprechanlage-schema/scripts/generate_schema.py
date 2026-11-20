@@ -13,7 +13,7 @@ Determinismus: gleiche Eingabe -> byte-identisches PDF.
 import argparse
 import hashlib
 import json
-import math
+import os
 import re
 import sys
 
@@ -157,38 +157,95 @@ C_WHITE = HexColor("#FFFFFF")
 C_BLACK = HexColor("#000000")
 C_SW = HexColor("#DDE6F0")
 
-F = "Helvetica"
-FB = "Helvetica-Bold"
+
+
+def _plankopf_laden():
+    """Laedt den Skill mp-plankopf. Ohne ihn wird kein Plan erzeugt (kein Ersatzrahmen)."""
+    hier = os.path.dirname(os.path.abspath(__file__))
+    kandidaten = [os.environ.get("MP_PLANKOPF_SKILL"),
+                  os.path.join(hier, "..", "..", "mp-plankopf"),
+                  os.path.join(os.path.expanduser("~"), ".claude", "skills", "mp-plankopf")]
+    for k in kandidaten:
+        if k and os.path.isfile(os.path.join(k, "scripts", "plankopf.py")):
+            sys.path.insert(0, os.path.join(k, "scripts"))
+            import plankopf as modul
+            try:
+                modul._schrift()
+            except modul.PlankopfFehler as e:
+                sys.stderr.write("FEHLER (mp-plankopf): %s\n" % e)
+                sys.exit(3)
+            return modul
+    sys.stderr.write("FEHLER: Skill mp-plankopf nicht gefunden. Erwartet neben diesem Skill "
+                     "(.claude/skills/mp-plankopf), unter ~/.claude/skills/mp-plankopf oder im "
+                     "Ordner aus der Umgebungsvariable MP_PLANKOPF_SKILL.\n")
+    sys.exit(3)
+
+
+plankopf = _plankopf_laden()
+F = plankopf.FONT                 # Avenir LT Std 45 Book, wie der Plankopf
+FB = plankopf._S["fett"]        # Avenir LT Std 65 Medium, falls vorhanden
 
 # Blatt DIN A3 quer (pt)
-W_A3, H_A3 = 1190.55, 841.89
-W, H = W_A3, H_A3            # aktuelles Blatt, wird je Blatt ueber setze_blatt() gesetzt
-# Schemablatt: Hoehe 297 mm (DIN A3), Laenge in Faltschritten von 210 mm nach Bedarf
 MM = 72 / 25.4
-FORMATE_SCHEMA = [("DIN A3 quer (297 x 420 mm)" if n == 2 else "297 x %d mm" % (n * 210),
-                   W_A3 if n == 2 else round(n * 210 * MM, 2), H_A3) for n in range(2, 9)]
-# Listenblatt: gleiche Breite, Hoehe nach Bedarf
-FORMATE_LISTE = [("DIN A3 quer", 1190.55, 841.89), ("DIN A2 hoch", 1190.55, 1683.78)]
-KX = 0.0                     # Verschiebung des Zentralenkopfs zur Blattmitte
-DY = 0.0                     # Verschiebung des Schemas zur Blattoberkante
-M = 28.0
-X0, X1, Y0, Y1 = M, W - M, M, H - M
-FUSS_H = 85.0
-SF_W = 420.0                 # Schriftfeldbreite
-COL_X0 = X0 + 12.0
+# Das Schema ist in einem festen Raster gezeichnet (Ursprung = Rasterecke unten links,
+# Oberkante bei RASTER_OBEN) und wird in den Zeichenbereich des Plankopf-Layouts geschoben.
+RASTER_W = 1190.55
+RASTER_OBEN = 813.89
+RASTER_LINKS = 28.0
+COL_X0 = RASTER_LINKS + 12.0
 COL_W = 111.0
+X_MITTE = RASTER_W / 2
+# Schemablatt: Hoehe 420 mm, damit Aenderungsindex und Legende ueber den Plankopf passen;
+# Laenge nach Bedarf. Listenblatt: Breite 594 mm, Hoehe nach Bedarf.
+BLAETTER_SCHEMA = [("DIN A2 quer (594 x 420 mm)", {"format": "A2"})] + [
+    ("%d x 420 mm" % w, {"format": "benutzerdefiniert", "breite_mm": w, "hoehe_mm": 420})
+    for w in range(840, 1891, 210)]
+BLAETTER_LISTE = [("DIN A2 quer (594 x 420 mm)", {"format": "A2"}),
+                  ("DIN A1 hoch (594 x 841 mm)", {"format": "A1", "ausrichtung": "hoch"})]
+LEGENDE_MIN_MM = 100.0       # Platzbedarf der Schemalegende in der Legendenzone
+SUMMEN_MIN_MM = 65.0
+ZB = (0.0, 0.0, 0.0, 0.0)    # Zeichenbereich (x, y, breite, hoehe) in pt, aus mp-plankopf
+LEG = (0.0, 0.0, 0.0, 0.0)   # Legendenzone in pt, aus mp-plankopf
+KX = 0.0                     # Verschiebung des Zentralenkopfs zur Mitte des Zeichenbereichs
+TX = 0.0                     # Verschiebung des Rasters nach rechts
+DY = 0.0                     # Verschiebung des Rasters nach oben
 
 
-def setze_blatt(w, h):
-    """Stellt das aktuelle Blattformat ein (Rahmen, Schriftfeld, Zeichenflaeche)."""
-    global W, H, X1, Y1, KX, DY
-    W, H = w, h
-    X1, Y1 = W - M, H - M
-    KX, DY = (W - W_A3) / 2, H - H_A3
+def zonen_setzen(layout):
+    """Uebernimmt Zeichenbereich und Legendenzone aus dem Layout von mp-plankopf."""
+    global ZB, LEG, KX, TX, DY
+    z = layout["zonen"]
+    ZB = tuple(z["zeichenbereich"][k] * MM for k in ("x", "y", "breite", "hoehe"))
+    LEG = tuple(z["legende"][k] * MM for k in ("x", "y", "breite", "hoehe"))
+    TX = ZB[0] - RASTER_LINKS
+    DY = ZB[1] + ZB[3] - RASTER_OBEN
+    KX = ZB[0] + ZB[2] / 2 - X_MITTE - TX
 
 
-def spalten_je_blatt(w):
-    return int((w - 2 * M - 24) / COL_W)
+def spalten_je_blatt():
+    return int((ZB[2] - 24) / COL_W)
+
+
+def plankopf_spec(modell, blatt, planart, inhalt, nr, anzahl, legende):
+    """Eingabe fuer mp-plankopf aus den Projektdaten; 'plankopf' in der JSON hat Vorrang."""
+    p, pk = modell["projekt"], modell["plankopf"]
+    d = p["datum"]
+    felder = {"Plannummer": p["plan_nr"], "Maßstab": "ohne", "Planart": planart,
+              "aktuelle Änderung Index": "" if p["index"] == "-" else p["index"],
+              "erstellt Datum": "%s.%s.%s" % (d[8:10], d[5:7], d[0:4])}
+    felder.update(pk.get("felder", {}))
+    frei = {"Kopf links": {"titel": "Projekt-Nr.", "zeilen": [p["nummer"]]},
+            "Kopf rechts": {"titel": "Gewerk", "zeilen": ["KG 452 Gegensprechanlage"]},
+            "Block 1": {"titel": "Bauvorhaben", "zeilen": [p["name"]]},
+            "Block 2": {"titel": "Bauherr", "zeilen": [p["bauherr"]]},
+            "Block 3": {"titel": "Planer", "zeilen": [p["planer"]]},
+            "Block 4": {"titel": "Planinhalt", "zeilen": [inhalt, "Blatt %d / %d" % (nr, anzahl)]}}
+    frei.update(pk.get("freifelder", {}))
+    spec = {"blatt": blatt, "felder": felder, "freifelder": frei, "legende": legende}
+    for k in ("logo", "zusatzfelder", "aenderungsindex", "optionen"):
+        if k in pk:
+            spec[k] = pk[k]
+    return spec
 
 
 class EingabeFehler(Exception):
@@ -252,7 +309,7 @@ def _id(d, pfad):
 
 def validieren(roh):
     _obj(roh, "wurzel", {"projekt", "netz", "zentrale", "verteiler", "sprechstellen",
-                         "schnittstellen"},
+                         "schnittstellen", "plankopf"},
          ("projekt", "verteiler", "sprechstellen"))
 
     p = _obj(roh["projekt"], "projekt",
@@ -321,6 +378,13 @@ def validieren(roh):
                                     "potentialfreie Kontakte", 34),
                 "meldungen": meld},
     }
+
+    # wird unveraendert an mp-plankopf durchgereicht und dort geprueft
+    pk = dict(_obj(roh.get("plankopf", {}), "plankopf",
+                   {"logo", "felder", "freifelder", "zusatzfelder", "aenderungsindex", "optionen"}))
+    for k in ("felder", "freifelder"):
+        if not isinstance(pk.get(k, {}), dict):
+            raise EingabeFehler("plankopf.%s: Objekt erwartet" % k)
 
     ueber = {}
     for key, wert in sorted(_obj(roh.get("schnittstellen", {}), "schnittstellen",
@@ -484,7 +548,7 @@ def validieren(roh):
     spalten = [s for v in gruppen for s in stationen if s["verteiler"] == v["id"]]
     return {"projekt": projekt, "netz": netz, "zentrale": zentrale,
             "verteiler": verteiler, "gruppen": gruppen, "spalten": spalten,
-            "schnittstellen": ueber}
+            "schnittstellen": ueber, "plankopf": pk}
 
 # --------------------------------------------------------------------------
 # Zeichenhilfen
@@ -595,39 +659,16 @@ def badge(c, x, y, w, h, label, aktiv, farbe):
 # --------------------------------------------------------------------------
 # Blattrahmen, Schriftfeld, Legende
 # --------------------------------------------------------------------------
-def rahmen(c, modell, inhalt, blatt, blaetter):
-    p = modell["projekt"]
-    c.setLineWidth(1.2)
-    c.setStrokeColor(C_BLACK)
-    c.rect(X0, Y0, X1 - X0, Y1 - Y0, stroke=1, fill=0)
-    linie(c, [(X0, Y0 + FUSS_H), (X1, Y0 + FUSS_H)], C_BLACK, 1.0)
-    sx = X1 - SF_W
-    linie(c, [(sx, Y0), (sx, Y0 + FUSS_H)], C_BLACK, 1.0)
-    linie(c, [(sx, Y0 + 55), (X1, Y0 + 55)], C_BLACK, 0.6)
-    linie(c, [(sx, Y0 + 28), (X1, Y0 + 28)], C_BLACK, 0.6)
-    text(c, "Projekt", sx + 4, Y0 + 77, 5.5, farbe=C_GREY)
-    text(c, p["name"], sx + 4, Y0 + 62, 11, FB, max_w=SF_W - 8, min_size=7)
-    text(c, "Planinhalt", sx + 4, Y0 + 48, 5.5, farbe=C_GREY)
-    text(c, inhalt, sx + 4, Y0 + 34, 10, FB, max_w=SF_W - 8, min_size=7)
-    zellen = [("Bauherr", p["bauherr"], 90), ("Planer", p["planer"], 90),
-              ("Projekt-Nr.", p["nummer"], 60), ("Plan-Nr.", p["plan_nr"], 70),
-              ("Datum", p["datum"], 50), ("Index", p["index"], 25),
-              ("Blatt", "%d / %d" % (blatt, blaetter), 35)]
-    x = sx
-    for kopf, wert, breite in zellen:
-        if x > sx:
-            linie(c, [(x, Y0), (x, Y0 + 28)], C_BLACK, 0.6)
-        text(c, kopf, x + 3, Y0 + 20, 5.5, farbe=C_GREY)
-        text(c, wert, x + 3, Y0 + 7, 7.5, FB, max_w=breite - 6)
-        x += breite
-
-
 def legende(c, modell):
+    """Schemalegende in der Legendenzone von mp-plankopf (unter deren Titelzeile)."""
     netz = modell["netz"]
-    y = Y0 + FUSS_H
-    x = X0 + 8
-    text(c, "Legende Leitungen", x, y - 11, 7, FB)
-    zeilen = [
+    x = LEG[0] + 3 * MM
+    y = LEG[1] + LEG[3] - 9 * MM - 13
+    breite = LEG[2] - 6 * MM
+
+    text(c, "Leitungen", x, y, 7.5, FB)
+    y -= 10
+    for farbe, lw, dash, label in [
         (C_CU, 1.4, None, "%s, IP-Datenleitung mit PoE (bis %d m)" % (netz["kupfer_typ"], MAX_KUPFER_M)),
         (C_LWL, 2.2, None, "%s, Lichtwellenleiter (über %d m)" % (netz["lwl_typ"], MAX_KUPFER_M)),
         (C_230, 1.2, None, "230 V AC, lokale Einspeisung PoE-Injektor"),
@@ -637,33 +678,32 @@ def legende(c, modell):
         (C_LINE, 0.8, None, "Zusatzgerät an Innensprechstelle (Taster, Wecker, Leuchte)"),
         (C_STOER, 1.2, DASH_STOER, "Störmeldungen an GLT"),
         (C_TK, 1.4, None, "Anbindung TK-Anlage / Wählgerät"),
-    ]
-    yy = y - 20
-    for farbe, lw, dash, label in zeilen:
-        linie(c, [(x, yy + 2), (x + 30, yy + 2)], farbe, lw, dash)
-        text(c, label, x + 36, yy, 6.2)
-        yy -= 7.4
+    ]:
+        linie(c, [(x, y + 2), (x + 34, y + 2)], farbe, lw, dash)
+        text(c, label, x + 42, y, 6.5, max_w=breite - 42)
+        y -= 8.4
 
-    x = X0 + 250
-    text(c, "Legende Geräte", x, y - 11, 7, FB)
-    yy = y - 21
+    y -= 7
+    text(c, "Geräte", x, y, 7.5, FB)
+    y -= 10
     for farbe, label in ((C_AUSSEN, "Außensprechstelle"), (C_INNEN, "Innensprechstelle"),
                          (C_CLIENT, "Software-Client / App (PC, Smartphone, Tablet)"),
                          (C_RELAIS, "IP-Relais (Smart Relais), Freigabe im gesicherten Bereich")):
-        box(c, x, yy - 1, 30, 6.5, fill=farbe, stroke=farbe)
-        text(c, label, x + 36, yy, 6.2)
-        yy -= 9
-    yy -= 1.5
+        box(c, x, y - 1, 34, 6.5, fill=farbe, stroke=farbe)
+        text(c, label, x + 42, y, 6.5, max_w=breite - 42)
+        y -= 9
+    y -= 1.5
     for label, aktiv, farbe, txt in (("VIDEO", True, C_VIDEO, "mit Videokamera / Bildschirm"),
                                      ("ZK", True, C_ZK, "mit Zugangskontrolle (Leser)"),
                                      ("ZK", False, C_ZK, "Ausstattung nicht vorhanden")):
-        badge(c, x, yy - 2, 30, 9, label, aktiv, farbe)
-        text(c, txt, x + 36, yy, 6.2)
-        yy -= 10.5
+        badge(c, x, y - 2, 34, 9, label, aktiv, farbe)
+        text(c, txt, x + 42, y, 6.5, max_w=breite - 42)
+        y -= 10.5
 
-    x = X0 + 450
-    text(c, "Planungsregeln", x, y - 11, 7, FB)
-    regeln = [
+    y -= 6
+    text(c, "Planungsregeln", x, y, 7.5, FB)
+    y -= 10
+    for r in [
         "Vernetzung durchgängig auf IP-Basis, Speisung der Sprechstellen über PoE.",
         "Leitungslänge bis %d m: Kupferleitung, PoE direkt vom Switch." % MAX_KUPFER_M,
         "Leitungslänge über %d m: LWL bis Medienkonverter (MK) am Einbauort," % MAX_KUPFER_M,
@@ -671,11 +711,9 @@ def legende(c, modell):
         "MK und Injektor benötigen einen 230-V-Anschluss am Einbauort.",
         "Störmeldungen werden zentral gesammelt und an die GLT übergeben.",
         "Schema ohne Maßstab; Leitungslängen laut Eingabedaten.",
-    ]
-    yy = y - 21
-    for r in regeln:
-        text(c, r, x, yy, 6.2, max_w=X1 - SF_W - x - 6)
-        yy -= 9.2
+    ]:
+        text(c, r, x, y, 6.5, max_w=breite)
+        y -= 8.4
 
 
 # --------------------------------------------------------------------------
@@ -683,7 +721,6 @@ def legende(c, modell):
 # --------------------------------------------------------------------------
 Y_KOPF = 742.0      # Unterkante Zentralgeraete
 H_KOPF = 56.0
-X_MITTE = W_A3 / 2          # Kopf ist im A3-Raster gezeichnet und wird um KX verschoben
 Y_CORE = 690.0
 Y_BUS = 676.0
 Y_SW = 614.0
@@ -725,19 +762,19 @@ def kopf(c, modell):
         wege = z["waehlgeraet"]["wege"]
         ys = [Y_KOPF + 32, Y_KOPF] if len(wege) == 2 else [Y_KOPF + 16]
         for weg, yb in zip(wege, ys):
-            bx = 990.0
+            bx = 980.0
             linie(c, [(wx + ww, yb + 12), (bx, yb + 12)], C_TK, 1.4)
-            box(c, bx, yb, 150, 24, fill=C_WHITE, lw=0.8, radius=6)
-            text(c, WAEHL_WEGE[weg], bx + 68, yb + 9, 7, FB, anker="m", max_w=120)
+            box(c, bx, yb, 140, 24, fill=C_WHITE, lw=0.8, radius=6)
+            text(c, WAEHL_WEGE[weg], bx + 62, yb + 9, 7, FB, anker="m", max_w=108)
             if weg == "mobil":   # Antennensymbol
-                ax, ay = bx + 138, yb + 5
+                ax, ay = bx + 128, yb + 5
                 linie(c, [(ax, ay), (ax, ay + 14)], C_LINE, 0.9)
                 linie(c, [(ax - 5, ay + 14), (ax, ay + 8), (ax + 5, ay + 14)], C_LINE, 0.9)
-        text(c, "Ziel: " + z["waehlgeraet"]["ziel"], 1065, Y_KOPF - 10, 6.2, anker="m", max_w=150)
+        text(c, "Ziel: " + z["waehlgeraet"]["ziel"], 1050, Y_KOPF - 10, 6.2, anker="m", max_w=140)
 
     # GLT
     if z["glt"]["vorhanden"]:
-        gx, gw, gy, gh = 45.0, 170.0, Y_KOPF - 14, H_KOPF + 14
+        gx, gw, gy, gh = 70.0, 170.0, Y_KOPF - 14, H_KOPF + 14
         box(c, gx, gy, gw, gh, fill=C_FILL, lw=1.0)
         text(c, z["glt"]["bezeichnung"], gx + gw / 2, gy + gh - 12, 8.5, FB, anker="m", max_w=gw - 8)
         yy = gy + gh - 22
@@ -821,7 +858,7 @@ def strang(c, modell, s, cx):
     if not n:
         return
     # Raster passt sich an, damit auch die Maximalbestueckung ueber dem Schriftfeld bleibt
-    pitch = min(26.0, (y - (Y0 + FUSS_H + 4 - DY)) / n)
+    pitch = min(26.0, (y - (ZB[1] + 6 - DY)) / n)
     bh = pitch - 6
     bw = W_ST - (26 if s["zusatz"] else 14)
     dash = DASH_RELAIS if aussen else DASH_FERN
@@ -849,9 +886,9 @@ def strang(c, modell, s, cx):
         linie(c, [(xr, y), (xr, yb + pitch + bh / 2)], C_LINE, 0.8)
 
 def schemaseite(c, modell, spalten, erste_ids):
-    # Schema ist im A3-Raster gezeichnet und haengt an der Blattoberkante
+    # Raster in den Zeichenbereich schieben: links buendig, oben buendig
     c.saveState()
-    c.translate(0, DY)
+    c.translate(TX, DY)
     c.saveState()
     c.translate(KX, 0)
     kopf(c, modell)
@@ -963,13 +1000,12 @@ def summen(c, modell):
         ("PoE-Injektoren 230 V", lwl),
         ("230-V-Anschlüsse am Einbauort", lwl),
     ]
-    y = Y0 + FUSS_H
-    text(c, "Summen", X0 + 8, y - 11, 7, FB)
-    for i, (label, wert) in enumerate(werte):
-        x = X0 + 8 + (i // 5) * 235
-        yy = y - 24 - (i % 5) * 11
-        text(c, label, x, yy, 6.5)
-        text(c, str(wert), x + 190, yy, 6.5, FB, anker="r")
+    x = LEG[0] + 3 * MM
+    y = LEG[1] + LEG[3] - 9 * MM - 12
+    for label, wert in werte:
+        text(c, label, x, y, 7)
+        text(c, str(wert), x + 200, y, 7, FB, anker="r")
+        y -= 10
 
 
 # --------------------------------------------------------------------------
@@ -1051,12 +1087,13 @@ def schnittstellenzeilen(modell):
 # --------------------------------------------------------------------------
 # Listenblaetter: Tabellen fliessen untereinander, Kopf wird je Blatt wiederholt
 # --------------------------------------------------------------------------
-LISTE_UNTEN = Y0 + FUSS_H + 8
-LISTE_X = COL_X0 - 2
+LISTE_BREITE = 1114.0        # Summe der Spaltenbreiten, wird auf den Zeichenbereich skaliert
 
 
 def listen_fluss(modell):
-    oben = Y1 - 12
+    oben = ZB[1] + ZB[3] - 8
+    unten = ZB[1] + 8
+    k = (ZB[2] - 16) / LISTE_BREITE
     tabellen = [
         ("Geräte- und Leitungsliste", SPALTEN_LISTE, listenzeilen(modell), False),
         ("Schnittstellenliste - Zuständigkeit der Gewerke nach DIN 276 (Kostengruppen)",
@@ -1066,6 +1103,7 @@ def listen_fluss(modell):
     seiten = [[]]
     y = oben
     for titel, spalten, zeilen, umbruch in tabellen:
+        spalten = [(n, b * k) for n, b in spalten]
         fertig = []
         for zl in zeilen:
             if umbruch:
@@ -1077,7 +1115,7 @@ def listen_fluss(modell):
             y -= 16
         kopf_offen = False
         for n, (zellen, h) in enumerate(fertig):
-            if y - h - (0 if kopf_offen else 34) < LISTE_UNTEN:
+            if y - h - (0 if kopf_offen else 34) < unten:
                 seiten.append([])
                 y = oben
                 kopf_offen = False
@@ -1093,7 +1131,7 @@ def listen_fluss(modell):
 
 def listenseite(c, modell, ops):
     summen(c, modell)
-    x = LISTE_X
+    x = ZB[0] + 8
     for op in ops:
         if op[0] == "titel":
             text(c, op[2], x, op[1] - 12, 9, FB)
@@ -1123,24 +1161,34 @@ def listenseite(c, modell, ops):
 # Hauptprogramm
 # --------------------------------------------------------------------------
 def neues_pdf(ziel, modell, titel):
-    c = canvas.Canvas(ziel, pagesize=(W, H), invariant=1, pageCompression=0)
+    c = canvas.Canvas(ziel, invariant=1, pageCompression=0, initialFontName=F)
     c.setTitle(titel + " - " + modell["projekt"]["name"])
     c.setAuthor(modell["projekt"]["planer"] or "-")
     c.setSubject("Gegensprechanlage IP / PoE")
-    c.setCreator("gegensprechanlage-schema")
+    c.setCreator("gegensprechanlage-schema + mp-plankopf %s" % plankopf.VERSION)
     return c
 
 
+PLANART_SCHEMA = "Schema Gegensprechanlage"
+PLANART_LISTEN = "Listen Gegensprechanlage"
+INHALT_SCHEMA = "Schema Gegensprechanlage (IP / PoE)"
+INHALT_LISTEN = "Geräte-, Leitungs- und Schnittstellenliste"
+LEG_SCHEMA = {"titel": "Legende", "min_hoehe_mm": LEGENDE_MIN_MM}
+LEG_LISTEN = {"titel": "Summen", "min_hoehe_mm": SUMMEN_MIN_MM}
+
+
 def erzeuge_schema(modell, ziel):
-    """Schema als eigenes Dokument; Blattformat nach Anzahl der Sprechstellen."""
+    """Schema als eigenes Dokument; Blattlaenge nach Anzahl der Sprechstellen."""
     sp = modell["spalten"]
-    name, w, h = FORMATE_SCHEMA[-1]
-    for name, w, h in FORMATE_SCHEMA:
-        if spalten_je_blatt(w) >= len(sp):
+    warnungen = []
+    for name, blatt in BLAETTER_SCHEMA:
+        zonen_setzen(plankopf.compute_layout(
+            plankopf_spec(modell, blatt, PLANART_SCHEMA, INHALT_SCHEMA, 1, 1, LEG_SCHEMA)))
+        if spalten_je_blatt() >= len(sp):
             break
-    setze_blatt(w, h)
-    je_blatt = spalten_je_blatt(w)
-    # Seitenumbruch (nur oberhalb der groessten Blattlaenge): Verteiler bleiben zusammen, sofern sie auf ein Blatt passen
+    je_blatt = spalten_je_blatt()
+    # Seitenumbruch (nur oberhalb der groessten Blattlaenge): Verteiler bleiben zusammen,
+    # sofern sie auf ein Blatt passen
     seiten = [[]]
     for v in modell["gruppen"]:
         gruppe = [s for s in sp if s["verteiler"] == v["id"]]
@@ -1154,33 +1202,36 @@ def erzeuge_schema(modell, ziel):
     erste_ids = {}
     for s in sp:
         erste_ids.setdefault(s["verteiler"], s["id"])
-    c = neues_pdf(ziel, modell, "Schema Gegensprechanlage")
-    for blatt, teil in enumerate(seiten, 1):
-        c.setPageSize((W, H))
-        rahmen(c, modell, "Schema Gegensprechanlage (IP / PoE)", blatt, len(seiten))
+    c = neues_pdf(ziel, modell, PLANART_SCHEMA)
+    for nr, teil in enumerate(seiten, 1):
+        layout = plankopf.draw(c, plankopf_spec(modell, blatt, PLANART_SCHEMA, INHALT_SCHEMA,
+                                                nr, len(seiten), LEG_SCHEMA))
+        warnungen = layout["warnungen"]
         legende(c, modell)
         schemaseite(c, modell, teil, erste_ids)
         c.showPage()
     c.save()
-    return name, len(seiten)
+    return name, len(seiten), warnungen
 
 
 def erzeuge_listen(modell, ziel):
     """Tabellen als eigenes Dokument; Blatthoehe nach Tabellenumfang."""
-    for name, w, h in FORMATE_LISTE:
-        setze_blatt(w, h)
+    warnungen = []
+    for name, blatt in BLAETTER_LISTE:
+        zonen_setzen(plankopf.compute_layout(
+            plankopf_spec(modell, blatt, PLANART_LISTEN, INHALT_LISTEN, 1, 1, LEG_LISTEN)))
         listen = listen_fluss(modell)
         if len(listen) == 1:
             break
-    c = neues_pdf(ziel, modell, "Listen Gegensprechanlage")
-    for blatt, teil in enumerate(listen, 1):
-        c.setPageSize((W, H))
-        rahmen(c, modell, "Gegensprechanlage - Geräte-, Leitungs- und Schnittstellenliste",
-               blatt, len(listen))
+    c = neues_pdf(ziel, modell, PLANART_LISTEN)
+    for nr, teil in enumerate(listen, 1):
+        layout = plankopf.draw(c, plankopf_spec(modell, blatt, PLANART_LISTEN, INHALT_LISTEN,
+                                                nr, len(listen), LEG_LISTEN))
+        warnungen = layout["warnungen"]
         listenseite(c, modell, teil)
         c.showPage()
     c.save()
-    return name, len(listen)
+    return name, len(listen), warnungen
 
 
 def main(argv=None):
@@ -1211,7 +1262,13 @@ def main(argv=None):
     basis = re.sub(r"\.(json|pdf)$", "", args.ausgabe or args.eingabe)
     for art, funktion in (("schema", erzeuge_schema), ("listen", erzeuge_listen)):
         ziel = "%s_%s.pdf" % (basis, art)
-        fmt, blaetter = funktion(modell, ziel)
+        try:
+            fmt, blaetter, warnungen = funktion(modell, ziel)
+        except plankopf.PlankopfFehler as e:
+            sys.stderr.write("EINGABEFEHLER (mp-plankopf): %s\n" % e)
+            return 2
+        for w in warnungen:
+            print("WARNUNG (mp-plankopf): %s" % w)
         with open(ziel, "rb") as fh:
             digest = hashlib.sha256(fh.read()).hexdigest()
         print("PDF: %s (%s, %d Blatt)" % (ziel, fmt, blaetter))
