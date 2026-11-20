@@ -61,6 +61,20 @@
       ]
     }
   ],
+  "plankopf": {
+    "logo": "Braunschweig",
+    "felder": {
+      "Status": "VORABZUG",
+      "MP_400_LB_Text": "Entwurfsplanung",
+      "MP_300_V0_Index": "a",
+      "MP_300_V0_Datum": "18.11.2026",
+      "MP_400_V0_Bearbeiter": "TGA",
+      "MP_400_V0_Bemerkung": "Ersterstellung"
+    },
+    "freifelder": {
+      "Block 2": {"titel": "Bauherr", "zeilen": ["Muster Immobilien GmbH"]}
+    }
+  },
   "wasseraufbereitung": {
     "enthaertung": true,
     "osmose": {

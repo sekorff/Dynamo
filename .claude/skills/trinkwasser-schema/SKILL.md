@@ -40,7 +40,8 @@ verletzt werden.
    python3 scripts/trinkwasser_schema.py anlage.json -o schema.pdf
    ```
 
-   Benötigt Python 3 mit `reportlab` (`pip install reportlab`). Exit-Code 2
+   Benötigt Python 3 mit `reportlab` und den Skill **mp-plankopf** (siehe
+   „Plankopf"). Exit-Code 2
    bedeutet einen Konfigurationsfehler; die Meldung nennt den Pfad des
    fehlerhaften Eintrags. Korrigiere die JSON-Datei, nicht das Skript.
 
@@ -76,14 +77,49 @@ den Versorgervorgaben:
 
 `"netzdruck"` oder `"dea"` erzwingen die Versorgungsart. Passt eine Druckstufe
 rechnerisch nicht (Netzdruck reicht nicht, Ruhedruck zu hoch), erscheint ein
-rot gedruckter Hinweis im Plan und in der Skriptausgabe - dann die Aufteilung
+Hinweis in der Legende („Weitere Festlegungen") und in der Skriptausgabe - dann die Aufteilung
 der Druckstufen mit dem Nutzer anpassen. Die Rechnung ist eine überschlägige
 Vorbemessung und ersetzt nicht die Bemessung nach DIN 1988-300; die Parameter
 lassen sich unter `bemessung` anpassen.
 
+## Plankopf
+
+Blattrahmen, Plankopf (Revit-Familie MP_400_Plankopf), Änderungsindex und
+Legende zeichnet nicht dieses Skript, sondern der Skill `mp-plankopf`
+(`scripts/plankopf.py`). Das Schema selbst steht im Zeichenbereich, den
+mp-plankopf meldet. Deshalb muss mp-plankopf installiert sein; gesucht wird in
+dieser Reihenfolge:
+
+1. `--plankopf <ordner>`
+2. Umgebungsvariable `MP_PLANKOPF_SKILL`
+3. Nachbarordner `../mp-plankopf` (beide Skills im selben Skill-Verzeichnis)
+4. `~/.claude/skills/mp-plankopf`
+
+Fehlt der Skill oder seine Schrift (Avenir LT Std), bricht das Skript mit einer
+Meldung ab - dann den Nutzer bitten, mp-plankopf bereitzustellen, und nicht auf
+einen selbst gezeichneten Plankopf ausweichen.
+
+Was automatisch befüllt wird:
+
+- **Felder** aus `projekt`: Plannummer, aktuelle Änderung Index, erstellt
+  Datum, erstellt von; Bauvorhaben, Planinhalt, Gewerk, Maßstab „ohne",
+  Planart „Strangschema".
+- **Legende** in der festen Reihenfolge von mp-plankopf: Linientypen und
+  Symbole (genau die, die auf dem Plan vorkommen - per Probelauf ermittelt),
+  Planungsgrundsätze, Normenverweise, Standortvorgaben des Versorgers, weitere
+  Festlegungen (Vorbemessung der Druckstufen, Hinweise).
+
+Alles Weitere (Logo des Standorts, Status, Planungsphase `MP_400_LB_Text`,
+Änderungsindex, geprüft, Bauherr/Architekt, Zusatzfelder, Dämmmatrix, festes
+Blattformat) gibt der Nutzer über den optionalen Abschnitt `plankopf` der
+Konfiguration vor; die Feldnamen sind die von mp-plankopf (dessen
+`references/api.md`). AKS-Bezeichnungen und Dämmmatrix nie erfinden.
+
 ## Ausgabe
 
-Eine PDF-Seite im Querformat; das Blattformat (A3 bis A0) wird aus der
-Anlagengröße bestimmt. Links das Gebäude mit Geschossbändern, farbig
-hinterlegten Druckstufen und Technikzentrale, rechts Versorgervorgaben,
-Druckstufentabelle, Hinweise, Legende und Schriftfeld.
+Eine PDF-Seite mit M&P-Planrahmen. Ohne Vorgabe wird das kleinste Blatt von A3
+bis A0 gewählt, auf dem Legende und Zeichnung Platz haben (wegen der Legende
+in der Regel mindestens A2). Links das Gebäude mit Geschossbändern, farbig
+hinterlegten Druckstufen und Technikzentrale, rechts die Plankopfspalte mit
+Legende, Änderungsindex und Plankopf. `WARNUNG Plankopf:`-Zeilen der Ausgabe an
+den Nutzer weitergeben.

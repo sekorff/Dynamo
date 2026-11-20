@@ -14,11 +14,16 @@ Windows-1252 darstellbar sein (Umlaute und ß sind in Ordnung).
 | `druckstufen` | ja | 1 bis 3 Druckstufen, von unten nach oben |
 | `wasseraufbereitung` | nein | Osmose und/oder VE-Wasser |
 | `bemessung` | nein | Parameter der Vorbemessung |
+| `plankopf` | nein | Angaben für den M&P-Plankopf (Skill mp-plankopf) |
 
 ## `projekt`
 
 `name`, `standort`, `datum` (Pflicht, freier Text, z. B. `"18.11.2026"`),
 optional `plan_nr`, `index`, `bearbeiter`.
+
+Daraus werden die Plankopffelder vorbelegt: `plan_nr` → `Plannummer`, `index` →
+`aktuelle Änderung Index`, `datum` → `erstellt Datum`, `bearbeiter` →
+`erstellt von`, `name` + `standort` → Freifeld „Bauvorhaben".
 
 ## `versorger`
 
@@ -102,3 +107,34 @@ auto:      Netzdruck, wenn versorgungsdruck_min >= p_erf, sonst DEA
 DEA:       Solldruck = p_Stufe, auf 0,1 bar aufgerundet
 Netzdruck: Druckminderer, wenn versorgungsdruck_max - 0,0981 * h_unten > max_ruhedruck
 ```
+
+## `plankopf` (alle optional)
+
+Wird an den Skill mp-plankopf durchgereicht und dort geprüft; Feldnamen und
+Wertebereiche stehen in dessen `references/api.md`. Angaben hier überschreiben
+die Vorbelegung aus `projekt`.
+
+| Schlüssel | Inhalt |
+|---|---|
+| `blatt` | festes Blatt, z. B. `{"format": "A1"}`; ohne Angabe automatische Wahl A3 bis A0 |
+| `logo` | `Gruppe` (Vorgabe), `Braunschweig`, `Dresden`, `Duesseldorf`, `Essen`, `Hamburg`, `Magdeburg`, `Mannheim`, `Muenchen`, `Stuttgart`, `null` |
+| `felder` | Familienparameter, z. B. `Status`, `MP_400_LB_Text`, `MP_300_V0_Index`, `MP_300_V0_Datum`, `MP_400_V0_Bearbeiter`, `MP_400_V0_Bemerkung` |
+| `zellen` | `Maßstab`, `Planart`, `geprüft Datum`, `geprüft von`, `Basisplan Index`, `Basisplan Datum` |
+| `freifelder` | `Kopf links`, `Kopf rechts`, `Block 1` bis `Block 4`; vorbelegt sind `Kopf rechts` (Gewerk), `Block 1` (Bauvorhaben), `Block 4` (Planinhalt) |
+| `zusatzfelder` | Liste zusätzlicher Felder über dem Änderungsindex |
+| `aenderungsindex` | `{"modus": "voll" / "kompakt" / "aus"}` |
+| `optionen` | `randtext`, `lochstreifen`, `blattkante` |
+| `daemmmatrix` | Dämmmatrix für die Legende - nur angeben, wenn bekannt |
+
+```json
+"plankopf": {
+  "logo": "Braunschweig",
+  "felder": {"Status": "VORABZUG", "MP_400_LB_Text": "Entwurfsplanung",
+             "MP_300_V0_Index": "V0", "MP_300_V0_Datum": "18.11.2026",
+             "MP_400_V0_Bearbeiter": "TGA", "MP_400_V0_Bemerkung": "Ersterstellung"},
+  "freifelder": {"Block 2": {"titel": "Bauherr", "zeilen": ["Muster GmbH"]}}
+}
+```
+
+Die Legende wird nicht konfiguriert: Linientypen und Symbole ergeben sich aus
+dem Planinhalt, Standortvorgaben aus `versorger`.

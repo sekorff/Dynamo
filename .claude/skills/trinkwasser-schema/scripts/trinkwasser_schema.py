@@ -13,10 +13,17 @@ Fest eingebaute Regeln (nicht abschaltbar):
 Aufruf:
   python3 trinkwasser_schema.py anlage.json -o schema.pdf
   python3 trinkwasser_schema.py anlage.json --check      # nur pruefen/berechnen
+
+Blattrahmen, Plankopf und Legende zeichnet der Skill "mp-plankopf"
+(scripts/plankopf.py). Er wird gesucht ueber --plankopf, die Umgebungsvariable
+MP_PLANKOPF_SKILL, den Nachbarordner ../mp-plankopf und ~/.claude/skills/mp-plankopf.
 """
 import argparse
+import importlib.util
+import io
 import json
 import math
+import os
 import sys
 
 from reportlab.pdfbase.pdfmetrics import stringWidth
@@ -40,6 +47,8 @@ BEMESSUNG_DEFAULT = {
 WWB_ARTEN = ("zentral", "dezentral", "keine")
 VERSORGUNG_ARTEN = ("auto", "netzdruck", "dea")
 DEA_ANSCHLUSS = ("unmittelbar", "mittelbar")
+PLANKOPF_KEYS = ("blatt", "logo", "felder", "zellen", "freifelder", "zusatzfelder",
+                 "aenderungsindex", "optionen", "daemmmatrix")
 
 
 class ConfigError(Exception):
@@ -94,7 +103,12 @@ def validate(cfg):
     """Prueft die Konfiguration und liefert ein normalisiertes Modell."""
     _keys(cfg, "konfiguration",
           ("projekt", "versorger", "geschosse", "druckstufen"),
-          ("wasseraufbereitung", "bemessung"))
+          ("wasseraufbereitung", "bemessung", "plankopf"))
+    pk = cfg.get("plankopf", {})
+    _keys(pk, "plankopf", (), PLANKOPF_KEYS)
+    for k in ("felder", "zellen", "freifelder"):
+        if k in pk and not isinstance(pk[k], dict):
+            raise ConfigError(f"plankopf.{k}: Objekt erwartet")
 
     p = cfg["projekt"]
     _keys(p, "projekt", ("name", "standort", "datum"), ("plan_nr", "index", "bearbeiter"))
@@ -227,7 +241,8 @@ def validate(cfg):
             aufb["netze"].append({"medium": med, "verbraucher": verbraucher})
 
     model = {"projekt": projekt, "versorger": versorger, "bemessung": bem,
-             "geschosse": geschosse, "stufen": stufen, "aufbereitung": aufb}
+             "geschosse": geschosse, "stufen": stufen, "aufbereitung": aufb,
+             "plankopf": pk}
     berechne(model)
     return model
 
@@ -301,24 +316,37 @@ def kote_txt(x):
 # --------------------------------------------------------------------------
 # Zeichnen
 # --------------------------------------------------------------------------
-STY = {  # Medium: (Farbe, Strichstaerke, Strichmuster)
-    "PWC": ((0.00, 0.55, 0.27), 1.4, None),
-    "PWH": ((0.85, 0.10, 0.10), 1.4, None),
-    "PWHC": ((0.60, 0.15, 0.60), 1.1, (4, 2)),
-    "BW": ((0.35, 0.35, 0.35), 1.2, (6, 2, 1, 2)),
-    "RO": ((0.00, 0.45, 0.75), 1.4, (8, 2)),
-    "VE": ((0.85, 0.50, 0.00), 1.4, (2, 2)),
+STY = {  # Medium: (Farbe, Strichstaerke pt, Strichmuster pt, Legende: Strich, Staerke mm, Text)
+    "PWC": ((0.00, 0.55, 0.27), 1.4, None, "voll", 0.5, "PWC - Trinkwasser kalt"),
+    "PWH": ((0.85, 0.10, 0.10), 1.4, None, "voll", 0.5, "PWH - Trinkwasser warm"),
+    "PWHC": ((0.60, 0.15, 0.60), 1.1, (4.5, 2.25), "gestrichelt", 0.35, "PWH-C - Zirkulation"),
+    "BW": ((0.35, 0.35, 0.35), 1.1, (6, 1.8, 0.9, 1.8), "strichpunkt", 0.35,
+           "Betriebswasser nach Trennstation (kein Trinkwasser)"),
+    "RO": ((0.00, 0.45, 0.75), 1.4, (4.5, 2.25), "gestrichelt", 0.5, "RO - Osmosewasser (Permeat)"),
+    "VE": ((0.85, 0.50, 0.00), 1.4, (0.9, 1.8), "punktiert", 0.5, "VE - vollentsalztes Wasser"),
 }
-MEDIEN_TXT = {
-    "PWC": "PWC  Trinkwasser kalt",
-    "PWH": "PWH  Trinkwasser warm",
-    "PWHC": "PWH-C  Zirkulation",
-    "BW": "Betriebswasser nach Trennstation",
-    "RO": "RO  Osmosewasser (Permeat)",
-    "VE": "VE  vollentsalztes Wasser",
-}
+MEDIEN = ("PWC", "PWH", "PWHC", "BW", "RO", "VE")
+SYMBOLE = [  # Schluessel, Legendensymbol (mp-plankopf), Text - feste Reihenfolge
+    ("AV", "dreieck", "Absperrarmatur (Doppeldreieck)"),
+    ("WZ", "quadrat", "WZ - Wasserzähler"),
+    ("F", "quadrat", "Filter, rückspülbar (Rechteck mit Diagonale)"),
+    ("DM", "dreieck", "DM - Druckminderer (Armatur mit Dreieck)"),
+    ("DEA", "kreis", "DEA - Druckerhöhungsanlage"),
+    ("P", "kreis", "Pumpe (Zirkulation / Permeat)"),
+    ("VB", "quadrat", "Vorbehälter / Permeatbehälter (oben offen)"),
+    ("TWE", "quadrat", "TWE - zentraler Trinkwassererwärmer"),
+    ("DWE", "quadrat", "DWE - dezentraler Trinkwassererwärmer"),
+    ("HS", "quadrat", "HS - Hygienestation am Strangende, mit Ablauf"),
+    ("TS", "quadrat", "TS - Trennstation"),
+    ("AZ", "kreis", "AZ - Außenzapfstelle"),
+    ("AK", "raute", "AK - Anbindung adiabate Kühlung"),
+    ("EST", "quadrat", "Entnahmestellen / Verbraucher (abgerundetes Rechteck)"),
+    ("ENTH", "quadrat", "ENTH - Enthärtung"),
+    ("UO", "quadrat", "UO - Umkehrosmose"),
+    ("VE", "quadrat", "VE - Vollentsalzung"),
+]
 TINT = [(0.90, 0.95, 1.00), (1.00, 0.96, 0.86), (0.95, 0.90, 0.98)]
-FONT, FONT_B = "Helvetica", "Helvetica-Bold"
+FONT, FONT_B = "Helvetica", "Helvetica-Bold"  # wird in render() auf Avenir LT Std gesetzt
 
 # Geometrie (Punkte)
 FH = 78          # Hoehe Geschossband
@@ -328,20 +356,19 @@ INTAKE_W = 215   # Hausanschluss / Geschossbeschriftung
 EQ_W = 110       # Apparatespalte je Druckstufe
 SP = 140         # Strangabstand
 SP_AUFB = 115    # Strangabstand Aufbereitung
-PANEL_W = 320
-GAP = 16
-MARGIN = 30
-FORMATE = [("A3", 1190.55, 841.89), ("A2", 1683.78, 1190.55),
-           ("A1", 2383.94, 1683.78), ("A0", 3370.39, 2383.94)]
+RAND_MM = 6.0    # Abstand der Zeichnung zum Rand des Zeichenbereichs
+FORMATE = ("A3", "A2", "A1", "A0")
 
 
 class Zeichner:
     def __init__(self, c, model):
         self.c, self.m = c, model
+        self.used_med, self.used_sym = set(), set()
 
     # ---- Grundelemente ----
     def pipe(self, med, pts):
-        col, w, dash = STY[med]
+        col, w, dash = STY[med][:3]
+        self.used_med.add(med)
         c = self.c
         c.setStrokeColorRGB(*col)
         c.setLineWidth(w)
@@ -392,6 +419,7 @@ class Zeichner:
 
     # ---- Symbole (x, y = Mittelpunkt) ----
     def valve(self, x, y, vertical=False, s=5.0):
+        self.used_sym.add("AV")
         self._sym()
         p = self.c.beginPath()
         a, b = s, s * 0.65
@@ -406,6 +434,7 @@ class Zeichner:
 
     def dm(self, x, y, vertical=False):
         self.valve(x, y, vertical)
+        self.used_sym.add("DM")
         c = self.c
         if vertical:
             c.line(x, y, x - 8, y)
@@ -425,15 +454,18 @@ class Zeichner:
         else:
             self.c.rect(x - w / 2, y - h / 2, w, h, stroke=1, fill=1)
         if label:
+            self.used_sym.add(label)
             self.text(x, y - size * 0.35, label, size, True, "c")
 
     def filt(self, x, y):
         self.box(x, y, 16, 12, "")
+        self.used_sym.add("F")
         self.c.setDash([1.5, 1.5])
         self.c.line(x - 8, y - 6, x + 8, y + 6)
         self.c.setDash([])
 
-    def pump(self, x, y, r=8.0, direction="up"):
+    def pump(self, x, y, r=8.0, direction="up", key="P"):
+        self.used_sym.add(key)
         self._sym()
         c = self.c
         c.circle(x, y, r, stroke=1, fill=1)
@@ -449,6 +481,7 @@ class Zeichner:
         c.drawPath(p, stroke=1, fill=0)
 
     def tank(self, x, y, w=18.0, h=16.0):
+        self.used_sym.add("VB")
         self._sym()
         c = self.c
         c.rect(x - w / 2, y - h / 2, w, h, stroke=0, fill=1)
@@ -477,20 +510,23 @@ class Zeichner:
         self.box(x, y, 18, 10, "TS", 5.5, 1.2)
 
     def az(self, x, y):
+        self.used_sym.add("AZ")
         self._sym()
         self.c.circle(x, y, 6, stroke=1, fill=1)
         self.text(x, y - 1.9, "AZ", 5, True, "c")
 
     def ak(self, x, y):
+        self.used_sym.add("AK")
         self._sym()
         c = self.c
         p = c.beginPath()
-        p.moveTo(x - 6, y); p.lineTo(x - 3, y + 5.5); p.lineTo(x + 3, y + 5.5)
-        p.lineTo(x + 6, y); p.lineTo(x + 3, y - 5.5); p.lineTo(x - 3, y - 5.5); p.close()
+        p.moveTo(x - 7.5, y); p.lineTo(x, y + 6.5); p.lineTo(x + 7.5, y); p.lineTo(x, y - 6.5)
+        p.close()
         c.drawPath(p, stroke=1, fill=1)
         self.text(x, y - 1.9, "AK", 5, True, "c")
 
     def est(self, x, y, w=12.0, h=22.0):
+        self.used_sym.add("EST")
         self.box(x, y, w, h, "", r=2)
 
     # ---- Layout ----
@@ -526,9 +562,7 @@ class Zeichner:
                 n["xe"] = n["xs"] + SP_AUFB - 20
             x = a["netze"][-1]["xe"] + 8
         self.draw_w = x
-        self.draw_h = max(ZH + len(m["geschosse"]) * FH + ROOF, 600)
-        self.W = self.draw_w + GAP + PANEL_W
-        self.H = self.draw_h
+        self.draw_h = ZH + len(m["geschosse"]) * FH + ROOF
         self.yz0 = 0.0
         self.yf = [ZH + i * FH for i in range(len(m["geschosse"]))]
         self.y_main = self.yz0 + 30
@@ -625,7 +659,7 @@ class Zeichner:
             elif k == "VB":
                 self.tank(xq, y)
             elif k == "DEA":
-                self.pump(xq, y)
+                self.pump(xq, y, key="DEA")
             else:
                 self.dm(xq, y, True)
             if label:
@@ -750,166 +784,184 @@ class Zeichner:
             self.text(x + 34, y_hs + 3, med, 6.5, True, col=STY[med][0])
             self.text(x + 34, y_hs - 4, "Osmose" if med == "RO" else "VE-Wasser", 5.5)
 
-    # ---- Seitenfeld ----
-    def panel(self):
-        c, m = self.c, self.m
-        x0, w = self.draw_w + GAP, PANEL_W
-        c.setStrokeColorRGB(0, 0, 0)
-        c.setLineWidth(1.0)
-        c.rect(x0, 0, w, self.H, stroke=1, fill=0)
-        xi, wi = x0 + 8, w - 16
-        y = self.H - 14
-
-        def head(s):
-            nonlocal y
-            self.text(xi, y, s, 8, True)
-            c.setLineWidth(0.5)
-            c.line(xi, y - 3, xi + wi, y - 3)
-            y -= 13
-
-        def para(s, size=6, lead=7.5, bullet=False):
-            nonlocal y
-            lines = self.wrap(s, wi - (8 if bullet else 0), size)
-            for k, line in enumerate(lines):
-                if bullet and k == 0:
-                    self.text(xi, y, "-", size)
-                self.text(xi + (8 if bullet else 0), y, line, size)
-                y -= lead
-
-        v, b = m["versorger"], m["bemessung"]
-        head("Standortvorgaben Versorger")
-        para(v["name"])
-        para(f"Versorgungsdruck min. {bar(v['p_min'])} / max. {bar(v['p_max'])}"
-             + (f", Hausanschluss DN {v['dn']}" if v["dn"] else ""))
-        para(f"Anschluss Druckerhöhungsanlagen: {v['dea_anschluss']}")
-        for s in v["vorgaben"]:
-            para(s, bullet=True)
-        y -= 6
-
-        head("Druckstufen (Vorbemessung)")
-        cols = [0, 58, 138, 178, 262]
-        for cx, s in zip(cols, ["Stufe", "Geschosse", "p erf.", "Versorgung", "p Ruhe"]):
-            self.text(xi + cx, y, s, 6, True)
-        y -= 8
-        gs = m["geschosse"]
-        for st in m["stufen"]:
-            row = [st["name"][:14], f"{gs[st['lo']]['name']} - {gs[st['hi']]['name']}"[:20],
-                   bar(st["p_erf"]), self.vers_txt(st), bar(st["p_ruhe"])]
-            for cx, s in zip(cols, row):
-                self.text(xi + cx, y, s, 6)
-            y -= 8
-        y -= 2
-        para(f"p erf. = geod. Höhe + Mindestfließdruck {bar(b['mindestfliessdruck_bar'])} + "
-             "Verluste (Hausanschluss, Leitung, Stockwerk, WWB), bezogen auf den Hausanschluss. "
-             "p Ruhe = Ruhedruck an der untersten Entnahmestelle. Überschlägige Vorbemessung, "
-             "ersetzt nicht die Berechnung nach DIN 1988-300.", 5.5, 6.8)
-        y -= 6
-
-        head("Planungsgrundsätze / Hinweise")
-        para("Am Ende jedes Stranges ist eine Hygienestation (HS) angeordnet.", bullet=True)
-        para("Außenzapfstellen (AZ) und Anbindungen adiabater Kühlung (AK) sind ausschließlich "
-             "über eine Trennstation (TS) angeschlossen.", bullet=True)
-        if m["aufbereitung"]:
-            para("Osmose- und VE-Wasser sind über eine Trennstation vom Trinkwassernetz "
-                 "getrennt.", bullet=True)
-        for s in m["hinweise"]:
-            for k, line in enumerate(self.wrap("! " + s, wi, 6, True)):
-                self.text(xi, y, line, 6, True, col=(0.75, 0, 0))
-                y -= 7.5
-        y -= 6
-
-        head("Legende")
-        for med in ("PWC", "PWH", "PWHC", "BW", "RO", "VE"):
-            self.pipe(med, [(xi, y + 2), (xi + 30, y + 2)])
-            self.text(xi + 40, y, MEDIEN_TXT[med], 6)
-            y -= 10
-        y -= 4
-        sym = [
-            (lambda x, yy: self.valve(x, yy), "Absperrarmatur"),
-            (lambda x, yy: self.box(x, yy, 22, 11, "WZ", 5.5), "Wasserzähler"),
-            (lambda x, yy: self.filt(x, yy), "Filter (rückspülbar)"),
-            (lambda x, yy: self.dm(x, yy - 4), "DM  Druckminderer"),
-            (lambda x, yy: self.pump(x, yy, 6.5), "DEA  Druckerhöhungsanlage"),
-            (lambda x, yy: self.tank(x, yy, 16, 12), "Vorbehälter / Permeatbehälter"),
-            (lambda x, yy: self.box(x, yy, 22, 12, "TWE", 5, r=4),
-             "TWE  zentraler Trinkwassererwärmer"),
-            (lambda x, yy: self.box(x, yy, 20, 11, "DWE", 5),
-             "DWE  dezentraler Trinkwassererwärmer"),
-            (lambda x, yy: self.box(x, yy, 22, 11, "HS", 6, 1.2), "HS  Hygienestation (Strangende)"),
-            (lambda x, yy: self.ts(x, yy), "TS  Trennstation"),
-            (lambda x, yy: self.az(x, yy), "AZ  Außenzapfstelle"),
-            (lambda x, yy: self.ak(x, yy), "AK  Anbindung adiabate Kühlung"),
-            (lambda x, yy: self.est(x, yy, 10, 12), "Entnahmestellen / Verbraucher"),
-            (lambda x, yy: self.box(x, yy, 24, 11, "ENTH", 5), "Enthärtung"),
-            (lambda x, yy: self.box(x, yy, 24, 11, "UO", 5), "Umkehrosmose"),
-            (lambda x, yy: self.box(x, yy, 24, 11, "VE", 5), "Vollentsalzung"),
-        ]
-        col_w = wi / 2
-        y_start = y
-        half = (len(sym) + 1) // 2
-        for i, (fn, label) in enumerate(sym):
-            cx = xi + (i // half) * col_w
-            yy = y_start - (i % half) * 17
-            fn(cx + 15, yy + 2)
-            self.text(cx + 34, yy, label, 5.5)
-
-        # Schriftfeld
-        p = m["projekt"]
-        h = 86
-        c.setStrokeColorRGB(0, 0, 0)
-        c.setLineWidth(1.0)
-        c.setFillColorRGB(1, 1, 1)
-        c.rect(x0, 0, w, h, stroke=1, fill=1)
-        c.setLineWidth(0.5)
-        for yy in (22, 44, 64):
-            c.line(x0, yy, x0 + w, yy)
-        for xx in (w / 4, w / 2, 3 * w / 4):
-            c.line(x0 + xx, 0, x0 + xx, 22)
-        self.text(x0 + 6, 78, "Planinhalt", 5, col=(0.4, 0.4, 0.4))
-        self.text(x0 + 6, 68, "Trinkwasseranlage - Strangschema", 9, True)
-        self.text(x0 + 6, 57, "Projekt", 5, col=(0.4, 0.4, 0.4))
-        self.text(x0 + 6, 48, p["name"][:60], 8, True)
-        self.text(x0 + 6, 37, "Standort", 5, col=(0.4, 0.4, 0.4))
-        self.text(x0 + 6, 27, p["standort"][:70], 7)
-        cells = [("Plan-Nr.", p.get("plan_nr", "-")), ("Index", p.get("index", "-")),
-                 ("Datum", p["datum"]), ("Bearbeiter", p.get("bearbeiter", "-"))]
-        for i, (k, val) in enumerate(cells):
-            self.text(x0 + i * w / 4 + 5, 15, k, 5, col=(0.4, 0.4, 0.4))
-            self.text(x0 + i * w / 4 + 5, 5, val[:16], 7, True)
-        self.text(x0 + w - 6, 78, "ohne Maßstab", 5, align="r", col=(0.4, 0.4, 0.4))
-
     def alles(self):
         self.gebaeude()
         self.hausanschluss()
         for st in self.m["stufen"]:
             self.stufe(st)
         self.aufbereitung()
-        self.panel()
 
 
-def render(model, out_path):
-    c = canvas.Canvas(out_path, invariant=1, pageCompression=1)
+# --------------------------------------------------------------------------
+# Plankopf (Skill mp-plankopf)
+# --------------------------------------------------------------------------
+def lade_plankopf(pfad=None):
+    """Laedt scripts/plankopf.py des Skills mp-plankopf als Modul."""
+    hier = os.path.dirname(os.path.abspath(__file__))
+    kandidaten = [pfad, os.environ.get("MP_PLANKOPF_SKILL"),
+                  os.path.join(hier, "..", "..", "mp-plankopf"),
+                  os.path.join(os.path.expanduser("~"), ".claude", "skills", "mp-plankopf")]
+    for k in kandidaten:
+        if not k:
+            continue
+        datei = os.path.join(k, "scripts", "plankopf.py")
+        if os.path.isfile(datei):
+            spec = importlib.util.spec_from_file_location("mp_plankopf", datei)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            return mod
+        if k in (pfad, os.environ.get("MP_PLANKOPF_SKILL")):
+            raise ConfigError(f"Skill mp-plankopf nicht gefunden: {datei} fehlt")
+    raise ConfigError("Skill mp-plankopf nicht gefunden. Den Skill neben trinkwasser-schema "
+                      "installieren oder den Ordner mit --plankopf bzw. der Umgebungsvariable "
+                      "MP_PLANKOPF_SKILL angeben.")
+
+
+def plankopf_spec(model, used_med, used_sym):
+    """Baut die Eingabe fuer mp-plankopf: Felder aus dem Projekt, Legende aus dem Planinhalt."""
+    p, v, b, gs = model["projekt"], model["versorger"], model["bemessung"], model["geschosse"]
+    pk = model["plankopf"]
+
+    def rgb(c):
+        return "#%02X%02X%02X" % tuple(int(round(x * 255)) for x in c)
+
+    grundsaetze = [
+        "Am Ende jedes Stranges ist eine Hygienestation (HS) angeordnet.",
+        "Außenzapfstellen (AZ) und Anbindungen adiabater Kühlung (AK) sind ausschließlich über "
+        "eine Trennstation (TS) angeschlossen.",
+    ]
+    if model["aufbereitung"]:
+        grundsaetze.append("Osmose- und VE-Wasser sind über eine Trennstation vom "
+                           "Trinkwassernetz getrennt.")
+    normen = [
+        {"norm": "TrinkwV", "titel": "Trinkwasserverordnung"},
+        {"norm": "DIN EN 806", "titel": "Technische Regeln für Trinkwasser-Installationen"},
+        {"norm": "DIN 1988-100", "titel": "Schutz des Trinkwassers, Erhaltung der Trinkwassergüte"},
+        {"norm": "DIN 1988-300", "titel": "Ermittlung der Rohrdurchmesser"},
+        {"norm": "DIN EN 1717", "titel": "Schutz des Trinkwassers vor Verunreinigungen"},
+        {"norm": "VDI 6023 Blatt 1", "titel": "Hygiene in Trinkwasser-Installationen"},
+    ]
+    if any(st["versorgung"] == "dea" for st in model["stufen"]):
+        normen.insert(4, {"norm": "DIN 1988-500",
+                          "titel": "Druckerhöhungsanlagen mit drehzahlgeregelten Pumpen"})
+    standort = [
+        "Versorger: " + v["name"],
+        f"Versorgungsdruck am Hausanschluss min. {bar(v['p_min'])} / max. {bar(v['p_max'])}"
+        + (f", Hausanschluss DN {v['dn']}" if v["dn"] else ""),
+        f"Anschluss Druckerhöhungsanlagen: {v['dea_anschluss']}",
+    ] + v["vorgaben"]
+    weitere = []
+    for st in model["stufen"]:
+        weitere.append(
+            f"{st['name']} ({gs[st['lo']]['name']} bis {gs[st['hi']]['name']}): "
+            f"p erf. {bar(st['p_erf'])}, {Zeichner.vers_txt(None, st)}, Ruhedruck an der "
+            f"untersten Entnahmestelle {bar(st['p_ruhe'])}, WWB {st['wwb']}")
+    weitere.append(
+        f"p erf. = geodätische Höhe + Mindestfließdruck {bar(b['mindestfliessdruck_bar'])} + "
+        "Verluste (Hausanschluss, Leitung, Stockwerk, WWB), bezogen auf den Hausanschluss. "
+        "Überschlägige Vorbemessung, ersetzt nicht die Berechnung nach DIN 1988-300.")
+    weitere += ["HINWEIS: " + h for h in model["hinweise"]]
+    weitere.append("Schematische Darstellung ohne Maßstab; Höhenangaben OKFF bezogen auf das "
+                   "unterste Geschoss.")
+
+    abschnitte = {
+        "linientypen": [{"farbe": rgb(STY[m][0]), "strich": STY[m][3], "staerke_mm": STY[m][4],
+                         "text": STY[m][5]} for m in MEDIEN if m in used_med],
+        "symbole": [{"symbol": sym, "text": txt} for key, sym, txt in SYMBOLE if key in used_sym],
+        "planungsgrundsaetze": grundsaetze,
+        "normenverweise": normen,
+        "standortvorgaben": standort,
+        "weitere_festlegungen": weitere,
+    }
+    if "daemmmatrix" in pk:
+        abschnitte["daemmmatrix"] = pk["daemmmatrix"]
+
+    felder = {"erstellt Datum": p["datum"]}
+    for quelle, ziel in (("plan_nr", "Plannummer"), ("index", "aktuelle Änderung Index"),
+                         ("bearbeiter", "erstellt von")):
+        if quelle in p:
+            felder[ziel] = p[quelle]
+    felder.update(pk.get("felder", {}))
+    zellen = {"Maßstab": "ohne", "Planart": "Strangschema"}
+    zellen.update(pk.get("zellen", {}))
+    frei = {
+        "Kopf rechts": {"titel": "Gewerk", "zeilen": ["Sanitär / Trinkwasser"]},
+        "Block 1": {"titel": "Bauvorhaben", "zeilen": [p["name"], p["standort"]]},
+        "Block 4": {"titel": "Planinhalt", "zeilen": ["Trinkwasseranlage - Strangschema"]},
+    }
+    frei.update(pk.get("freifelder", {}))
+    spec = {"felder": felder, "zellen": zellen, "freifelder": frei,
+            "legende": {"titel": "Legende", "abschnitte": abschnitte}}
+    for k in ("logo", "zusatzfelder", "aenderungsindex", "optionen"):
+        if k in pk:
+            spec[k] = pk[k]
+    return spec
+
+
+def render(model, out_path, plankopf_pfad=None):
+    global FONT, FONT_B
+    pkm = lade_plankopf(plankopf_pfad)
+    try:
+        pkm._schrift()
+        FONT, FONT_B = pkm.FONT, pkm._S["fett"]
+
+        # Probelauf: ermittelt, welche Linientypen und Symbole der Plan tatsaechlich enthaelt
+        probe = Zeichner(canvas.Canvas(io.BytesIO(), invariant=1), model)
+        probe.layout()
+        probe.alles()
+        spec = plankopf_spec(model, probe.used_med, probe.used_sym)
+        need_w, need_h = probe.draw_w + 24, probe.draw_h   # 24: Netzanschlusspfeil links
+
+        def passung(blatt):
+            lay = pkm.compute_layout(dict(spec, blatt=blatt))
+            zb = lay["zonen"]["zeichenbereich"]
+            if not zb:
+                raise pkm.PlankopfFehler("Blatt hat keinen Zeichenbereich")
+            k = pkm.MM
+            sc = min((zb["breite"] - 2 * RAND_MM) * k / need_w,
+                     (zb["hoehe"] - 2 * RAND_MM) * k / need_h)
+            return lay, zb, sc
+
+        if "blatt" in model["plankopf"]:
+            blatt = model["plankopf"]["blatt"]
+            lay, zb, sc = passung(blatt)
+        else:
+            # kleinstes Format, auf dem Legende und Zeichnung (mit >= 85 % Groesse) Platz haben
+            fehler = None
+            for i, fmt in enumerate(FORMATE):
+                blatt = {"format": fmt}
+                try:
+                    lay, zb, sc = passung(blatt)
+                except pkm.PlankopfFehler as e:
+                    fehler = e
+                    continue
+                fehler = None
+                if sc >= 0.85:
+                    break
+            if fehler is not None:
+                raise fehler
+        sc = min(sc, 1.5)
+
+        c = canvas.Canvas(out_path, invariant=1, pageCompression=1, initialFontName=pkm.FONT)
+        c.setTitle("Trinkwasseranlage - Strangschema: " + model["projekt"]["name"])
+        c.setAuthor(model["projekt"].get("bearbeiter", ""))
+        c.setSubject("Trinkwasseranlagen-Schema")
+        c.setCreator("trinkwasser-schema / mp-plankopf %s" % pkm.VERSION)
+        layout = pkm.draw(c, dict(spec, blatt=blatt), lay)
+    except pkm.PlankopfFehler as e:
+        raise ConfigError("Plankopf: %s" % e)
+    k = pkm.MM
+    c.saveState()
+    c.translate(zb["x"] * k + (zb["breite"] * k - need_w * sc) / 2 + 24 * sc,
+                zb["y"] * k + (zb["hoehe"] * k - need_h * sc) / 2)
+    c.scale(sc, sc)
     z = Zeichner(c, model)
     z.layout()
-    need_w, need_h = z.W + 24, z.H  # 24: Platz fuer Netzanschlusspfeil links
-    name, pw, ph = FORMATE[-1]
-    for fmt in FORMATE:  # kleinstes Format, auf dem der Inhalt mit >= 85 % Groesse Platz hat
-        if (fmt[1] - 2 * MARGIN >= 0.85 * need_w
-                and fmt[2] - 2 * MARGIN >= 0.85 * need_h):
-            name, pw, ph = fmt
-            break
-    scale = min((pw - 2 * MARGIN) / need_w, (ph - 2 * MARGIN) / need_h, 1.5)
-    c.setPageSize((pw, ph))
-    c.setTitle("Trinkwasseranlage - Strangschema: " + model["projekt"]["name"])
-    c.setAuthor(model["projekt"].get("bearbeiter", ""))
-    c.setSubject("Trinkwasseranlagen-Schema")
-    c.setCreator("trinkwasser-schema")
-    c.translate((pw - need_w * scale) / 2 + 24 * scale, (ph - need_h * scale) / 2)
-    c.scale(scale, scale)
     z.alles()
+    c.restoreState()
     c.showPage()
     c.save()
-    return name
+    return layout
 
 
 def bericht(model):
@@ -930,6 +982,7 @@ def main(argv=None):
     ap.add_argument("config", help="JSON-Konfiguration der Anlage")
     ap.add_argument("-o", "--output", help="Ausgabe-PDF (Standard: <config>.pdf)")
     ap.add_argument("--check", action="store_true", help="nur pruefen und Vorbemessung ausgeben")
+    ap.add_argument("--plankopf", help="Ordner des Skills mp-plankopf")
     args = ap.parse_args(argv)
     try:
         with open(args.config, encoding="utf-8") as f:
@@ -945,8 +998,15 @@ def main(argv=None):
     if args.check:
         return 0
     out = args.output or (args.config.rsplit(".", 1)[0] + ".pdf")
-    fmt = render(model, out)
-    print(f"PDF geschrieben: {out} (Format {fmt} quer)")
+    try:
+        layout = render(model, out, args.plankopf)
+    except ConfigError as e:
+        print(f"FEHLER: {e}", file=sys.stderr)
+        return 2
+    for w in layout["warnungen"]:
+        print("WARNUNG Plankopf: " + w)
+    bl = layout["blatt"]
+    print(f"PDF geschrieben: {out} (Blatt {bl['format']} {bl['ausrichtung']})")
     return 0
 
 
