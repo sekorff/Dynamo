@@ -24,3 +24,12 @@ Prinzipschema: `RWA_Sonnenschutz_Verdunkelung_Schema.svg` (Vorschau als `.png`).
 - Die Vorlaufzeit von 60 s verlängert die Gesamtöffnungszeit des NRWG gegenüber EN 12101-2 und ist als Abweichung abzustimmen.
 
 Prinzipschema, keine Ausführungsplanung.
+
+## Ausführungsschema D+H / WAREMA
+
+`RWA_Ausfuehrungsschema_DH_WAREMA.svg` (Vorschau als `.png`) zeigt dieselbe Funktion mit konkreten Geräten, Kabelliste und Geräteliste:
+
+- RWA-Zentrale D+H RZN 4404-K V2 mit Anlaufverzögerungsmodul AT 41, RWA-Taster RT 45 und D+H-Fensterantrieb 24 V DC.
+- Je Behang ein WAREMA MSE Notstrom-Kit (Art.-Nr. 2013983 REG / 2014062 AP) mit USV (Art.-Nr. 2013984).
+
+Entwurf zur Abstimmung mit den Herstellern. Die offenen Punkte stehen im Schema unter „Vor Ausführung zu klären“; Klemmenbezeichnungen und Typen sind vor der Verdrahtung mit den aktuellen Anleitungen abzugleichen.
