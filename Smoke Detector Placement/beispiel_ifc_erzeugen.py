@@ -9,6 +9,16 @@ import ifcopenshell
 import ifcopenshell.api
 
 # (Nummer, Name, Grundriss-Polygon [m], lichte Hoehe [m], Hohlraum ueber Abhangdecke [m] oder None)
+# Art der Abhangdecke je Raum: Name mit Rastermass, "PLATTEN" = einzeln modellierte Platten
+DECKENART = {
+    "01": "Rasterdecke Mineralfaser 625x625",
+    "02": "Rasterdecke 600x600",
+    "03": "Rasterdecke 625x625",
+    "04": "Abhangdecke GK",
+    "05": "PLATTEN",
+    "08": "Abhangdecke GK",
+}
+PLATTE = 0.625
 RAEUME_EG = [
     ("0.01", "Grossraumbuero", [(0, 0), (20, 0), (20, 12), (0, 12)], 3.0, 0.50),
     ("0.02", "Flur", [(0, 12.2), (32, 12.2), (32, 14.2), (0, 14.2)], 2.8, 0.70),
@@ -79,8 +89,23 @@ def erzeugen(pfad: str) -> None:
             raum.LongName = name
             rohdecke = hoehe
             if hohlraum is not None:  # Raumvolumen endet an der Abhangdecke
-                bauteil("IfcCovering", f"Abhangdecke {nummer}", geschoss, hoehe_ok, polygon,
-                        hoehe, DECKENSTAERKE, typ="CEILING")
+                art = DECKENART[nummer[-2:]]
+                if art == "PLATTEN":  # jede Platte ein eigenes Bauteil, Rest als Randzuschnitt
+                    xs = [p[0] for p in polygon]
+                    ys = [p[1] for p in polygon]
+                    x = min(xs)
+                    while x < max(xs) - 1e-6:
+                        x1, y = min(x + PLATTE, max(xs)), min(ys)
+                        while y < max(ys) - 1e-6:
+                            y1 = min(y + PLATTE, max(ys))
+                            bauteil("IfcCovering", "Deckenplatte", geschoss, hoehe_ok,
+                                    [(x, y), (x1, y), (x1, y1), (x, y1)], hoehe, DECKENSTAERKE,
+                                    typ="CEILING")
+                            y = y1
+                        x = x1
+                else:
+                    bauteil("IfcCovering", f"{art} {nummer}", geschoss, hoehe_ok, polygon,
+                            hoehe, DECKENSTAERKE, typ="CEILING")
                 rohdecke = hoehe + DECKENSTAERKE + hohlraum
             bauteil("IfcSlab", f"Decke ueber {nummer}", geschoss, hoehe_ok, polygon,
                     rohdecke, 0.25, typ="FLOOR")

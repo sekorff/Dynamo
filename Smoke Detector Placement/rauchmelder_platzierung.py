@@ -18,6 +18,9 @@ Zusaetzlich wird jeder Raum untersucht auf
   * Abhangdecken (IfcCovering CEILING): ist der Hohlraum zwischen Abhangdecke
     und Rohdecke hoeher als `zwischendecke_min` (0,29 m), erhaelt er eigene
     Zwischendeckenmelder.
+  * Rasterdecken: liegt eine Rasterdecke vor, sitzt jeder Melder mittig auf
+    einer vollen Rasterplatte; Zwischendeckenmelder werden gegenueber dem
+    Raummelder um eine Rasterplatte versetzt (gerade oder diagonal).
   * Unterzuege (IfcBeam): trennt ein Unterzug die Decke, wird jedes Deckenfeld
     wie ein eigener Raum projektiert (gilt fuer Raum und Zwischendecke).
 
@@ -29,6 +32,7 @@ from __future__ import annotations
 import argparse
 import csv
 import math
+import re
 import sys
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -76,6 +80,16 @@ class Regeln:
     min_flaeche: float = 0.0
     # Hohlraum ueber der Abhangdecke: oberhalb dieser Hoehe eigene Melder
     zwischendecke_min: float = 0.29
+    # Rasterdecke: Rastermass [m] fuer als Rasterdecke erkannte Abhangdecken ohne
+    # Massangabe im Modell (0 = keine Annahme)
+    rasterdecke: float = 0.0
+    # jede Abhangdecke ohne Massangabe als Rasterdecke mit `rasterdecke` behandeln
+    rasterdecke_alle: bool = False
+    # Lage des Rasters, wenn im Modell nicht definiert: "mitte" (symmetrisch) oder "ecke"
+    raster_ursprung: str = "mitte"
+    # Versatz Zwischendeckenmelder zum Raummelder: "auto" (erst gerade, dann
+    # diagonal), "gerade" oder "diagonal"
+    zd_versatz: str = "auto"
     # Unterzuege trennen die Decke ab dieser Hoehe unter der Decke (0 = immer)
     unterzug_min: float = 0.0
     # Deckenfelder unterhalb dieser Flaeche gelten als Restflaeche (kein Melder)
@@ -89,6 +103,16 @@ class Regeln:
 
 
 @dataclass
+class Raster:
+    """Plattenraster einer Rasterdecke im um `winkel` gedrehten System."""
+    ru: float
+    rv: float
+    winkel: float | None = None                  # None = Hauptrichtung des Raums
+    ursprung: tuple[float, float] | None = None  # eine Plattenecke; None = nicht definiert
+    quelle: str = ""
+
+
+@dataclass
 class Bauteil:
     """Abhangdecke, Unterzug oder Rohdecke: Grundriss und Hoehenlage."""
     art: str
@@ -96,6 +120,8 @@ class Bauteil:
     polygon: Polygon
     z_unten: float
     z_oben: float
+    raster: Raster | None = None   # nur Abhangdecke: erkanntes Plattenraster
+    ist_raster: bool = False       # als Rasterdecke bezeichnet, Mass unbekannt
 
 
 @dataclass
@@ -108,6 +134,8 @@ class Bereich:
     z_unten: float
     z_oben: float
     winkel: float = 0.0
+    raster: Raster | None = None    # Rasterdecke: Melder nur mittig auf vollen Platten
+    decke: Polygon | None = None    # Flaeche der Rasterdecke
     melder: np.ndarray = field(default_factory=lambda: np.zeros((0, 2)))
     namen: list[str] = field(default_factory=list)
     a: float = 0.0
@@ -137,6 +165,7 @@ class Raum:
     element: object = None
     bereiche: list[Bereich] = field(default_factory=list)
     unterzuege: list[Polygon] = field(default_factory=list)
+    raster: list[tuple[Raster, Polygon]] = field(default_factory=list)  # fuer den Plan
     hinweise: list[str] = field(default_factory=list)
 
     @property
@@ -231,9 +260,92 @@ def lade_bauteile(modell: ifcopenshell.file) -> dict[str, list[Bauteil]]:
             polygon = _grundriss(verts, faces)
             if polygon is None:
                 continue
-            ergebnis[art].append(Bauteil(art, element.Name or element.GlobalId, polygon,
-                                         float(verts[:, 2].min()), float(verts[:, 2].max())))
+            bauteil = Bauteil(art, element.Name or element.GlobalId, polygon,
+                              float(verts[:, 2].min()), float(verts[:, 2].max()))
+            if art == "Abhangdecke":
+                bauteil.raster, bauteil.ist_raster = _raster_aus_angaben(element)
+            ergebnis[art].append(bauteil)
+    ergebnis["Abhangdecke"] = _platten_zusammenfassen(ergebnis["Abhangdecke"])
     return ergebnis
+
+
+_RASTERMASS = re.compile(r"(?<![\d.,])(\d{3,4})\s*(?:mm)?\s*[x×]\s*(\d{3,4})(?![\d.,]*\s*[x×])")
+_RASTERWORT = re.compile(r"raster|kassette|lay-?in|grid|tile", re.IGNORECASE)
+
+
+def _raster_aus_angaben(element) -> tuple[Raster | None, bool]:
+    """Sucht ein Rastermass wie "625x625" in Name, Typ, Material und Eigenschaften."""
+    texte = [element.Name, getattr(element, "ObjectType", None), element.Description]
+    typ = ifcopenshell.util.element.get_type(element)
+    if typ is not None:
+        texte += [typ.Name, typ.Description]
+    try:
+        texte += [m.Name for m in ifcopenshell.util.element.get_materials(element)]
+    except Exception:
+        pass
+    try:
+        psets = ifcopenshell.util.element.get_psets(element)
+    except Exception:
+        psets = {}
+    for pset in psets.values():
+        for schluessel, wert in pset.items():
+            if isinstance(wert, str):
+                texte.append(wert)
+            elif isinstance(wert, (int, float)) and not isinstance(wert, bool) \
+                    and re.search(r"raster|grid|modul", schluessel, re.IGNORECASE):
+                mass = wert / 1000.0 if wert > 10 else float(wert)  # mm oder m
+                if 0.3 <= mass <= 1.25:
+                    return Raster(mass, mass, quelle=f"Eigenschaft {schluessel}"), True
+    text = " | ".join(t for t in texte if t)
+    for treffer in _RASTERMASS.finditer(text):
+        a, b = (int(g) / 1000.0 for g in treffer.groups())
+        if 0.3 <= a <= 1.25 and 0.3 <= b <= 1.25:
+            return Raster(a, b, quelle=f'Angabe "{treffer.group(0)}"'), True
+    return None, bool(_RASTERWORT.search(text))
+
+
+def _platten_zusammenfassen(decken: list[Bauteil]) -> list[Bauteil]:
+    """Einzeln modellierte Deckenplatten zu einer Rasterdecke zusammenfassen;
+    Rastermass und -lage ergeben sich dann aus den Platten selbst."""
+    def rechteckig(d: Bauteil) -> bool:
+        return d.polygon.area <= 2.5 and \
+            d.polygon.area >= 0.95 * d.polygon.minimum_rotated_rectangle.area
+
+    platten = [d for d in decken if rechteckig(d)]
+    rest = [d for d in decken if not rechteckig(d)]
+    je_hoehe: dict[float, list[Bauteil]] = defaultdict(list)
+    for platte in platten:
+        je_hoehe[round(platte.z_unten, 2)].append(platte)
+    for gruppe in je_hoehe.values():
+        fugen = 0.03  # Platten ueber Tragschienen hinweg verbinden
+        gesamt = unary_union([p.polygon.buffer(fugen, join_style="mitre") for p in gruppe])
+        for teil in _polygone(gesamt):
+            mitglieder = [p for p in gruppe if teil.contains(p.polygon.representative_point())]
+            if len(mitglieder) < 4:
+                rest += mitglieder
+                continue
+            flaeche = teil.buffer(-fugen, join_style="mitre")
+            muster = sorted(mitglieder, key=lambda p: p.polygon.area)[len(mitglieder) // 2]
+            winkel = hauptwinkel(muster.polygon)
+            grenzen = np.array([affinity.rotate(p.polygon, -winkel, origin=(0, 0)).bounds
+                                for p in mitglieder])
+            masse = []
+            for a, b in ((0, 2), (1, 3)):
+                platte = float(np.median(grenzen[:, b] - grenzen[:, a]))
+                kanten = np.unique(np.round(grenzen[:, a], 3))
+                schritte = np.diff(kanten)
+                schritte = schritte[(schritte > 0.8 * platte) & (schritte < 1.5 * platte)]
+                masse.append(float(np.median(schritte)) if len(schritte) else platte)
+            # Bezugsplatte: eine volle Platte (nicht der Randzuschnitt)
+            voll = grenzen[np.argmax((grenzen[:, 2] - grenzen[:, 0]) * (grenzen[:, 3] - grenzen[:, 1]))]
+            mitte = ((voll[0] + voll[2]) / 2, (voll[1] + voll[3]) / 2)
+            raster = Raster(masse[0], masse[1], winkel,
+                            (mitte[0] - masse[0] / 2, mitte[1] - masse[1] / 2),
+                            f"{len(mitglieder)} modellierte Platten")
+            rest.append(Bauteil("Abhangdecke", "Rasterdecke", flaeche,
+                                min(p.z_unten for p in mitglieder),
+                                max(p.z_oben for p in mitglieder), raster, True))
+    return rest
 
 
 def _polygone(geom) -> list[Polygon]:
@@ -269,7 +381,7 @@ def bilde_bereiche(raum: Raum, bauteile: dict[str, list[Bauteil]], regeln: Regel
     """Untersucht den Raum auf Abhangdecken und Unterzuege und legt die
     zu ueberwachenden Bereiche (Deckenfelder, Zwischendecken) an."""
     winkel = hauptwinkel(raum.polygon)
-    raum.bereiche, raum.unterzuege = [], []
+    raum.bereiche, raum.unterzuege, raum.raster = [], [], []
 
     # Abhangdecken im oberen Raumbereich bzw. direkt ueber dem Raumvolumen
     decken = []
@@ -282,10 +394,44 @@ def bilde_bereiche(raum: Raum, bauteile: dict[str, list[Bauteil]], regeln: Regel
         if flaeche.area > 0.25:
             decken.append((decke, flaeche))
 
+    # Rasterdecken: Mass und Lage des Plattenrasters festlegen
+    raster_je_decke: dict[int, Raster] = {}
+    for decke, flaeche in decken:
+        raster = decke.raster
+        if raster is None and regeln.rasterdecke > 0 and (decke.ist_raster or regeln.rasterdecke_alle):
+            raster = Raster(regeln.rasterdecke, regeln.rasterdecke, quelle="Vorgabe --rasterdecke")
+        if raster is None:
+            if decke.ist_raster:
+                raum.hinweise.append("Rasterdecke ohne Rastermass im Modell - "
+                                     "--rasterdecke angeben, Raster nicht beruecksichtigt")
+            continue
+        w = winkel if raster.winkel is None else raster.winkel
+        ursprung, lage = raster.ursprung, "aus Modell"
+        if ursprung is None:
+            # Lage im Modell nicht definiert: Annahme laut `raster_ursprung`
+            u0, v0, u1, v1 = affinity.rotate(flaeche, -w, origin=(0, 0)).bounds
+            ursprung = []
+            for anfang, ende, mass in ((u0, u1, raster.ru), (v0, v1, raster.rv)):
+                rest = (ende - anfang) % mass
+                if regeln.raster_ursprung == "ecke" or min(rest, mass - rest) < 0.005:
+                    ursprung.append(anfang)                     # volle Platten ab der Wand
+                else:
+                    ursprung.append(anfang + (rest - mass) / 2)  # Platte mittig, gleiche Randzuschnitte
+            lage = "Lage angenommen: " + ("ab Raumecke" if regeln.raster_ursprung == "ecke"
+                                          else "mittig im Raum")
+        fertig = Raster(raster.ru, raster.rv, w, tuple(ursprung), raster.quelle)
+        raster_je_decke[id(decke)] = fertig
+        raum.raster.append((fertig, flaeche))
+        raum.hinweise.append(f"Rasterdecke {raster.ru * 1000:.0f} x {raster.rv * 1000:.0f} mm "
+                             f"({raster.quelle}; {lage})")
+
     # Deckenhoehe des Raums: Unterkante Abhangdecke, wenn sie den Raum ueberwiegend bedeckt
     z_decke = raum.z_oben
+    raum_raster, raum_decke = None, None
     if decken and sum(f.area for _, f in decken) >= 0.5 * raum.flaeche:
-        z_decke = min(raum.z_oben, max(decken, key=lambda d: d[1].area)[0].z_unten)
+        haupt, raum_decke = max(decken, key=lambda d: d[1].area)
+        z_decke = min(raum.z_oben, haupt.z_unten)
+        raum_raster = raster_je_decke.get(id(haupt))
 
     felder, schnitt, reste = _deckenfelder(raum.polygon, raum.z_unten, z_decke,
                                            bauteile["Unterzug"], regeln)
@@ -295,7 +441,11 @@ def bilde_bereiche(raum: Raum, bauteile: dict[str, list[Bauteil]], regeln: Regel
     if reste:
         raum.hinweise.append(f"{reste} Restflaeche(n) < {regeln.min_feld} m2 ohne Melder")
     for nr, feld in enumerate(felder, 1):
-        raum.bereiche.append(Bereich("Raum", nr, feld, raum.z_unten, z_decke, winkel))
+        if raum_raster is not None:
+            raum.bereiche.append(Bereich("Raum", nr, feld, raum.z_unten, z_decke,
+                                         raum_raster.winkel, raum_raster, raum_decke))
+        else:
+            raum.bereiche.append(Bereich("Raum", nr, feld, raum.z_unten, z_decke, winkel))
 
     # Zwischendecken
     nr = 0
@@ -326,7 +476,10 @@ def bilde_bereiche(raum: Raum, bauteile: dict[str, list[Bauteil]], regeln: Regel
                 f"{reste} Restflaeche(n) < {regeln.min_feld} m2 in der Zwischendecke ohne Melder")
         for feld in felder:
             nr += 1
-            raum.bereiche.append(Bereich("Zwischendecke", nr, feld, decke.z_oben, z_roh, winkel))
+            raster = raster_je_decke.get(id(decke))
+            raum.bereiche.append(Bereich("Zwischendecke", nr, feld, decke.z_oben, z_roh,
+                                         winkel if raster is None else raster.winkel,
+                                         raster, flaeche if raster is not None else None))
 
 
 def _geschoss(element):
@@ -409,132 +562,243 @@ class Achsen:
         return self._achsen.items()
 
 
-def platziere(raum: Bereich, regeln: Regeln, achsen: Achsen) -> None:
-    """Bestimmt die Melderpositionen eines Bereichs und traegt sie dort ein."""
-    raum.a, raum.dh = regeln.werte(raum.flaeche, raum.hoehe)
-    if raum.art == "Raum" and raum.hoehe > regeln.max_hoehe:
-        raum.hinweise.append(
-            f"Raumhoehe {raum.hoehe:.2f} m > {regeln.max_hoehe:.1f} m: "
-            "punktfoermige Rauchmelder nicht geeignet")
+class _Feld:
+    """Geometrie und Regelpruefung eines Bereichs im gedrehten System
+    (Hauptrichtung bzw. Rasterrichtung = u-Achse)."""
 
-    # Alles Weitere im gedrehten System (Hauptrichtung des Raums = u-Achse)
-    poly = affinity.rotate(raum.polygon, -raum.winkel, origin=(0, 0))
-    u0, v0, u1, v1 = poly.bounds
-    laenge, breite = u1 - u0, v1 - v0
+    def __init__(self, b: Bereich, regeln: Regeln) -> None:
+        self.b, self.regeln = b, regeln
+        b.a, b.dh = regeln.werte(b.flaeche, b.hoehe)
+        if b.art == "Raum" and b.hoehe > regeln.max_hoehe:
+            b.hinweise.append(f"Raumhoehe {b.hoehe:.2f} m > {regeln.max_hoehe:.1f} m: "
+                              "punktfoermige Rauchmelder nicht geeignet")
+        self.poly = affinity.rotate(b.polygon, -b.winkel, origin=(0, 0))
+        self.u0, self.v0, u1, v1 = self.poly.bounds
+        self.laenge, self.breite = u1 - self.u0, v1 - self.v0
 
-    innen = poly.buffer(-regeln.wandabstand)
-    if innen.is_empty:
-        innen = None
-        raum.hinweise.append(
-            f"Raum zu schmal fuer Wandabstand {regeln.wandabstand:.2f} m")
+        self.zone = self.poly.buffer(-regeln.wandabstand)  # zulaessige Melderflaeche
+        if self.zone.is_empty:
+            self.zone = self.poly
+            b.hinweise.append(f"Flaeche zu schmal fuer Wandabstand {regeln.wandabstand:.2f} m")
 
-    pruef = _pruefpunkte(poly)
-    mindestzahl = max(1, math.ceil(raum.flaeche / raum.a - 1e-9))
-    dh = raum.dh
+        self.pruef = _pruefpunkte(self.poly)
+        self.mindestzahl = max(1, math.ceil(b.flaeche / b.a - 1e-9))
+        self.dh = b.dh
+        # Schmaler Gang: Abstand der Melder untereinander bis `gang_abstand`
+        schmal = min(self.laenge, self.breite)
+        if schmal < regeln.gang_breite and regeln.gang_abstand > 0:
+            self.dh = max(self.dh, math.hypot(regeln.gang_abstand / 2.0, schmal / 2.0))
+            self.mindestzahl = 1
 
-    # Schmaler Gang: Abstand der Melder untereinander bis `gang_abstand`
-    gang = min(laenge, breite) < regeln.gang_breite and regeln.gang_abstand > 0
-    if gang:
-        halb = regeln.gang_abstand / 2.0
-        dh = max(dh, math.hypot(halb, min(laenge, breite) / 2.0))
-        mindestzahl = 1
+        # Rasterdecke: zulaessig sind nur die Mitten voller Platten
+        self.platten = None   # Kennzahlen der zulaessigen Platten
+        self.us = self.vs = None
+        if b.raster is not None:
+            self._raster_vorbereiten()
 
-    def gueltig(punkte: np.ndarray) -> float | None:
-        """Gibt den max. Abstand zurueck, wenn alle Regeln eingehalten sind."""
-        if len(punkte) < mindestzahl:
+    def _raster_vorbereiten(self) -> None:
+        r = self.b.raster
+        ou, ov = r.ursprung
+        u0, v0, u1, v1 = self.poly.bounds
+        i = np.arange(math.floor((u0 - ou) / r.ru), math.ceil((u1 - ou) / r.ru) + 1)
+        j = np.arange(math.floor((v0 - ov) / r.rv), math.ceil((v1 - ov) / r.rv) + 1)
+        gi, gj = (g.ravel() for g in np.meshgrid(i, j))
+        decke = affinity.rotate(self.b.decke, -self.b.winkel, origin=(0, 0))
+        decke = decke.intersection(self.poly).buffer(0.005)
+        zellen = shapely.box(ou + gi * r.ru, ov + gj * r.rv,
+                             ou + (gi + 1) * r.ru, ov + (gj + 1) * r.rv)
+        cu, cv = ou + (gi + 0.5) * r.ru, ov + (gj + 0.5) * r.rv
+        gut = shapely.contains(decke, zellen) & shapely.contains_xy(self.zone, cu, cv)
+        if not gut.any():
+            self.b.hinweise.append("keine volle Rasterplatte mit Wandabstand - "
+                                   "Melder ohne Rasterbezug gesetzt")
+            return
+        self.platten = self._kennzahl(gi[gut], gj[gut])
+        self.us, self.vs = np.unique(cu[gut]), np.unique(cv[gut])
+
+    @staticmethod
+    def _kennzahl(i, j):
+        return np.asarray(i, dtype=np.int64) * 1_000_003 + np.asarray(j, dtype=np.int64)
+
+    def platte(self, punkte: np.ndarray):
+        """Plattenindex (i, j) und ob der Punkt mittig auf der Platte liegt."""
+        r = self.b.raster
+        fu = (punkte[:, 0] - r.ursprung[0]) / r.ru - 0.5
+        fv = (punkte[:, 1] - r.ursprung[1]) / r.rv - 0.5
+        i, j = np.rint(fu), np.rint(fv)
+        mittig = (np.abs(fu - i) * r.ru < 1e-3) & (np.abs(fv - j) * r.rv < 1e-3)
+        return i.astype(np.int64), j.astype(np.int64), mittig
+
+    def zulaessig(self, punkte: np.ndarray) -> np.ndarray:
+        """Maske: Wandabstand eingehalten und (bei Rasterdecke) mittig auf voller Platte."""
+        maske = shapely.contains_xy(self.zone, punkte[:, 0], punkte[:, 1])
+        if self.platten is not None:
+            i, j, mittig = self.platte(punkte)
+            maske &= mittig & np.isin(self._kennzahl(i, j), self.platten)
+        return maske
+
+    def gueltig(self, punkte: np.ndarray) -> float | None:
+        """Gibt den max. Abstand zurueck, wenn A und DH eingehalten sind."""
+        if len(punkte) < self.mindestzahl:
             return None
-        abstand = _max_abstand(pruef, punkte)
-        return abstand if abstand <= dh + 1e-6 else None
+        abstand = _max_abstand(self.pruef, punkte)
+        return abstand if abstand <= self.dh + 1e-6 else None
 
-    def raster(nu: int, nv: int) -> np.ndarray:
-        us = u0 + (np.arange(nu) + 0.5) * laenge / nu
-        vs = v0 + (np.arange(nv) + 0.5) * breite / nv
+    def gitter(self, nu: int, nv: int) -> np.ndarray:
+        us = self.u0 + (np.arange(nu) + 0.5) * self.laenge / nu
+        vs = self.v0 + (np.arange(nv) + 0.5) * self.breite / nv
+        if self.platten is not None:  # Reihen auf die naechste Plattenmitte legen
+            us = np.unique(self.us[np.abs(self.us[None, :] - us[:, None]).argmin(axis=1)])
+            vs = np.unique(self.vs[np.abs(self.vs[None, :] - vs[:, None]).argmin(axis=1)])
         gu, gv = np.meshgrid(us, vs)
         punkte = np.column_stack([gu.ravel(), gv.ravel()])
-        if innen is not None:
-            punkte = punkte[shapely.contains_xy(innen, punkte[:, 0], punkte[:, 1])]
-        else:
-            punkte = punkte[shapely.contains_xy(poly, punkte[:, 0], punkte[:, 1])]
-        return punkte
+        return punkte[self.zulaessig(punkte)]
 
-    # Kandidaten nach Melderzahl, dann nach moeglichst quadratischen Feldern
-    max_n = 80
-    kandidaten = [
-        (nu * nv, abs(math.log((laenge / nu) / (breite / nv))), nu, nv)
-        for nu in range(1, max_n + 1) for nv in range(1, max_n + 1)
-        if laenge / nu >= 0.5 and breite / nv >= 0.5 or (nu == 1 or nv == 1)
-    ]
-    kandidaten.sort()
-
-    beste = None  # (anzahl, formabweichung, punkte, nu, nv, abstand)
-    grenze = None
-    for produkt, form, nu, nv in kandidaten:
-        if grenze is not None and produkt > grenze:
-            break
-        if produkt < mindestzahl:
-            continue
-        punkte = raster(nu, nv)
-        abstand = gueltig(punkte)
-        if abstand is None:
-            continue
-        schluessel = (len(punkte), form)
-        if beste is None or schluessel < beste[:2]:
-            beste = (len(punkte), form, punkte, nu, nv, abstand)
-        if grenze is None:
-            # verwinkelte Raeume: groebere Raster koennen weniger Melder ergeben
-            grenze = produkt * 1.5
-
-    if beste is None:
+    def suche(self) -> np.ndarray | None:
+        """Kleinstes regelkonformes Raster (Punkte im gedrehten System)."""
+        b, max_n = self.b, 80
+        # Kandidaten nach Melderzahl, dann nach moeglichst quadratischen Feldern
+        kandidaten = [
+            (nu * nv, abs(math.log((self.laenge / nu) / (self.breite / nv))), nu, nv)
+            for nu in range(1, max_n + 1) for nv in range(1, max_n + 1)
+            if self.laenge / nu >= 0.5 and self.breite / nv >= 0.5 or (nu == 1 or nv == 1)
+        ]
+        kandidaten.sort()
+        beste, grenze = None, None
+        for produkt, form, nu, nv in kandidaten:
+            if grenze is not None and produkt > grenze:
+                break
+            if produkt < self.mindestzahl:
+                continue
+            punkte = self.gitter(nu, nv)
+            if self.gueltig(punkte) is None:
+                continue
+            if beste is None or (len(punkte), form) < beste[:2]:
+                beste = (len(punkte), form, punkte, nu, nv)
+            if grenze is None:
+                # verwinkelte Flaechen: groebere Raster koennen weniger Melder ergeben
+                grenze = produkt * 1.5
+        if beste is not None:
+            b.raster_n = beste[3:]
+            return beste[2]
         # Notloesung: ein Melder im Punkt mit groesstem Wandabstand
-        kreis = shapely.maximum_inscribed_circle(poly)
-        punkte = np.asarray(kreis.coords)[:1]
-        raum.raster_n = (1, 1)
-        raum.max_abstand = _max_abstand(pruef, punkte)
-        if gueltig(punkte) is None:
-            raum.hinweise.append("kein regelkonformes Raster gefunden - manuell pruefen")
-    else:
-        _, _, punkte, nu, nv, abstand = beste
-        raum.raster_n = (nu, nv)
-        raum.max_abstand = abstand
-        punkte = _ausrichten(punkte, raum, regeln, achsen,
-                             innen if innen is not None else poly, gueltig)
-        raum.max_abstand = _max_abstand(pruef, punkte)
-
-    for richtung in (0, 1):
-        achsen.merken(raum.winkel, richtung, np.unique(np.round(punkte[:, richtung], 4)))
-    raum.melder = _drehen(punkte, -raum.winkel)
-
-
-def _ausrichten(punkte, raum, regeln, achsen, bereich, gueltig) -> np.ndarray:
-    """Verschiebt das Raumraster auf vorhandene Achsen bzw. das Deckenraster."""
-    if regeln.max_verschiebung <= 0:
+        punkte = np.asarray(shapely.maximum_inscribed_circle(self.poly).coords)[:1]
+        if self.platten is not None:
+            gu, gv = np.meshgrid(self.us, self.vs)
+            alle = np.column_stack([gu.ravel(), gv.ravel()])
+            alle = alle[self.zulaessig(alle)]
+            punkte = alle[[np.hypot(*(alle - punkte[0]).T).argmin()]]
+        b.raster_n = (1, 1)
+        if self.gueltig(punkte) is None:
+            b.hinweise.append("kein regelkonformes Raster gefunden - manuell pruefen")
         return punkte
-    punkte = punkte.copy()
-    for richtung in (0, 1):
-        eigene = np.unique(np.round(punkte[:, richtung], 4))
-        ziele = list(achsen.liste(raum.winkel, richtung))
-        if regeln.raster > 0:
-            ziele += [round(e / regeln.raster) * regeln.raster for e in eigene]
-        deltas = {round(z - e, 4) for z in ziele for e in eigene
-                  if abs(z - e) <= regeln.max_verschiebung}
-        if not deltas:
-            continue
 
-        def treffer(delta: float) -> int:
-            return sum(any(abs(e + delta - z) < 1e-3 for z in ziele) for e in eigene)
+    def ausrichten(self, punkte: np.ndarray, achsen: Achsen) -> np.ndarray:
+        """Verschiebt das Raster auf vorhandene Achsen bzw. das Deckenraster.
+        Bei einer Rasterdecke nur um ganze Platten."""
+        regeln, b = self.regeln, self.b
+        if regeln.max_verschiebung <= 0:
+            return punkte
+        punkte = punkte.copy()
+        for richtung in (0, 1):
+            eigene = np.unique(np.round(punkte[:, richtung], 4))
+            ziele = list(achsen.liste(b.winkel, richtung))
+            schritt = None
+            if self.platten is not None:
+                schritt = (b.raster.ru, b.raster.rv)[richtung]
+            elif regeln.raster > 0:
+                ziele += [round(e / regeln.raster) * regeln.raster for e in eigene]
+            deltas = {round(z - e, 4) for z in ziele for e in eigene
+                      if abs(z - e) <= regeln.max_verschiebung}
+            if schritt:
+                deltas = {d for d in deltas if abs(d / schritt - round(d / schritt)) * schritt < 1e-3}
+            if not deltas:
+                continue
 
-        for delta in sorted(deltas, key=lambda d: (-treffer(d), abs(d))):
-            if abs(delta) < 1e-6:
-                break  # liegt bereits auf einer Achse
-            versuch = punkte.copy()
-            versuch[:, richtung] += delta
-            if not shapely.contains_xy(bereich, versuch[:, 0], versuch[:, 1]).all():
-                continue
-            if gueltig(versuch) is None:
-                continue
-            punkte = versuch
-            break
-    return punkte
+            def treffer(delta: float) -> int:
+                return sum(any(abs(e + delta - z) < 1e-3 for z in ziele) for e in eigene)
+
+            for delta in sorted(deltas, key=lambda d: (-treffer(d), abs(d))):
+                if abs(delta) < 1e-6:
+                    break  # liegt bereits auf einer Achse
+                versuch = punkte.copy()
+                versuch[:, richtung] += delta
+                if not self.zulaessig(versuch).all() or self.gueltig(versuch) is None:
+                    continue
+                punkte = versuch
+                break
+        return punkte
+
+    def eintragen(self, punkte: np.ndarray, achsen: Achsen) -> None:
+        b = self.b
+        b.max_abstand = _max_abstand(self.pruef, punkte)
+        for richtung in (0, 1):
+            achsen.merken(b.winkel, richtung, np.unique(np.round(punkte[:, richtung], 4)))
+        b.melder = _drehen(punkte, -b.winkel)
+
+
+def platziere(bereich: Bereich, regeln: Regeln, achsen: Achsen) -> None:
+    """Bestimmt die Melderpositionen eines Bereichs und traegt sie dort ein."""
+    feld = _Feld(bereich, regeln)
+    punkte = feld.suche()
+    if not bereich.hinweise or "manuell" not in bereich.hinweise[-1]:
+        punkte = feld.ausrichten(punkte, achsen)
+    feld.eintragen(punkte, achsen)
+
+
+def platziere_zwischendecke(bereich: Bereich, raum: Raum, regeln: Regeln, achsen: Achsen) -> None:
+    """Zwischendeckenmelder ueber einer Rasterdecke: gegenueber dem Raummelder
+    um eine Rasterplatte versetzt (gerade oder diagonal)."""
+    feld = _Feld(bereich, regeln)
+    if feld.platten is None:
+        return platziere(bereich, regeln, achsen)
+    r = bereich.raster
+    gerade = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    diagonal = [(1, 1), (-1, 1), (1, -1), (-1, -1)]
+    versatz = {"gerade": gerade, "diagonal": diagonal}.get(regeln.zd_versatz, gerade + diagonal)
+    schritte = [np.array([di * r.ru, dj * r.rv]) for di, dj in versatz]
+
+    # Raummelder unter derselben Rasterdecke, im gedrehten System
+    rm = [_drehen(b.melder, bereich.winkel) for b in raum.bereiche
+          if b.art == "Raum" and b.raster is bereich.raster and len(b.melder)]
+    rm = np.vstack(rm) if rm else np.zeros((0, 2))
+    belegt = feld._kennzahl(*feld.platte(rm)[:2]) if len(rm) else np.array([], dtype=np.int64)
+
+    def frei(punkte: np.ndarray) -> bool:
+        """Kein Zwischendeckenmelder auf der Platte eines Raummelders."""
+        return not np.isin(feld._kennzahl(*feld.platte(punkte)[:2]), belegt).any()
+
+    def versetzt(basis: np.ndarray, auswahl) -> np.ndarray | None:
+        for schritt in auswahl:
+            versuch = basis + schritt
+            if feld.zulaessig(versuch).all() and feld.gueltig(versuch) is not None and frei(versuch):
+                return versuch
+        return None
+
+    alle = [np.array([di * r.ru, dj * r.rv]) for di, dj in gerade + diagonal]
+    # 1. Wahl: jeder Raummelder in diesem Feld bekommt seinen versetzten Partner
+    im_feld = rm[shapely.contains_xy(feld.poly, rm[:, 0], rm[:, 1])] if len(rm) else rm
+    if len(im_feld):
+        punkte = versetzt(im_feld, schritte)
+        if punkte is not None:
+            bereich.raster_n = (0, 0)  # Positionen aus den Raummeldern abgeleitet
+            return feld.eintragen(punkte, achsen)
+
+    # 2. Wahl: eigenes Raster fuer dieses Feld, bei Bedarf um eine Platte verschoben
+    punkte = feld.ausrichten(feld.suche(), achsen)
+    if not frei(punkte):
+        neu = versetzt(punkte, schritte)
+        if neu is None and len(schritte) < len(alle):
+            neu = versetzt(punkte, alle)
+            if neu is not None:
+                bereich.hinweise.append(f"Versatz '{regeln.zd_versatz}' nicht regelkonform moeglich - "
+                                        "andere Nachbarplatte gewaehlt")
+        if neu is None:
+            bereich.hinweise.append("Versatz zum Raummelder um eine Rasterplatte nicht moeglich - "
+                                    "manuell pruefen")
+        else:
+            punkte = neu
+    feld.eintragen(punkte, achsen)
 
 
 def platziere_alle(raeume: list[Raum], regeln: Regeln,
@@ -550,8 +814,11 @@ def platziere_alle(raeume: list[Raum], regeln: Regeln,
         bilde_bereiche(raum, bauteile, regeln)
         bereiche += raum.bereiche
     # Raeume vor Zwischendecken, grosse Flaechen zuerst: sie geben die Achsen vor
-    for bereich in sorted(bereiche, key=lambda b: (b.art != "Raum", -b.flaeche)):
+    for bereich in sorted((b for b in bereiche if b.art == "Raum"), key=lambda b: -b.flaeche):
         platziere(bereich, regeln, achsen)
+    zwischendecken = [(b, raum) for raum in raeume for b in raum.bereiche if b.art != "Raum"]
+    for bereich, raum in sorted(zwischendecken, key=lambda z: -z[0].flaeche):
+        platziere_zwischendecke(bereich, raum, regeln, achsen)
     # Melder je Raum durchnummerieren: RM = Raummelder, ZD = Zwischendeckenmelder
     for raum in raeume:
         for art, kuerzel in (("Raum", "RM"), ("Zwischendecke", "ZD")):
@@ -632,6 +899,19 @@ def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str
             ax.fill(x, y, facecolor="#f4f6f8", edgecolor="#2c3e50", lw=1.2, zorder=1)
             for ring in raum.polygon.interiors:
                 ax.fill(*ring.xy, facecolor="white", edgecolor="#2c3e50", lw=1.0, zorder=1)
+            for raster, decke in raum.raster:  # Plattenraster der Rasterdecke
+                rand, = ax.fill(*decke.exterior.xy, facecolor="none", edgecolor="none")
+                u0, v0, u1, v1 = affinity.rotate(decke, -raster.winkel, origin=(0, 0)).bounds
+                for achse, (anfang, ende, mass, start) in enumerate((
+                        (u0, u1, raster.ru, raster.ursprung[0]),
+                        (v0, v1, raster.rv, raster.ursprung[1]))):
+                    k = np.arange(math.ceil((anfang - start) / mass), math.floor((ende - start) / mass) + 1)
+                    for wert in start + k * mass:
+                        linie = np.array([[wert, v0], [wert, v1]] if achse == 0
+                                         else [[u0, wert], [u1, wert]])
+                        linie = _drehen(linie, -raster.winkel)
+                        strich, = ax.plot(linie[:, 0], linie[:, 1], color="#aab7c4", lw=0.3, zorder=1.2)
+                        strich.set_clip_path(rand)
             for unterzug in raum.unterzuege:
                 ax.fill(*unterzug.exterior.xy, facecolor="#95a5a6", edgecolor="#566573",
                         lw=0.6, hatch="////", zorder=3)
@@ -670,6 +950,7 @@ def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str
             Line2D([], [], marker="s", ls="", markerfacecolor="none", markeredgecolor="#1f618d",
                    markersize=9, label="Zwischendeckenmelder"),
             Patch(facecolor="#95a5a6", edgecolor="#566573", hatch="////", label="Unterzug"),
+            Line2D([], [], color="#aab7c4", lw=0.6, label="Rasterdecke"),
             Line2D([], [], color="#c0392b", lw=0.8, ls="-.", label="Melderachse"),
         ], loc="upper left", bbox_to_anchor=(1.01, 1.0), fontsize=7, frameon=False)
         sicher = "".join(c if c.isalnum() or c in "-_" else "_" for c in geschoss)
@@ -760,7 +1041,7 @@ def bericht(raeume: list[Raum]) -> None:
             n = len(b.melder)
             art = b.art + (f" F{b.feld}" if mehrere[b.art] else "")
             print(f"{kopf if i == 0 else '':<38}{art:<16}{b.flaeche:>7.1f} {b.hoehe:>6.2f}"
-                  f"{b.a:>5.0f}{b.dh:>6.1f}{'%dx%d' % b.raster_n if n else '-':>8}{n:>7}"
+                  f"{b.a:>5.0f}{b.dh:>6.1f}{('%dx%d' % b.raster_n if b.raster_n != (0, 0) else 'RM+1') if n else '-':>8}{n:>7}"
                   f"{b.max_abstand if n else 0:>10.2f}")
             for hinweis in b.hinweise:
                 print(f"{'':38}! {hinweis}")
@@ -797,6 +1078,14 @@ def main(argv=None) -> int:
     g.add_argument("--min-flaeche", type=float, default=d.min_flaeche, help="Raeume darunter ohne Melder [m2] (%(default)s)")
     g.add_argument("--zwischendecke-min", type=float, default=d.zwischendecke_min,
                    help="Hohlraumhoehe ueber Abhangdecke [m], ab der Zwischendeckenmelder gesetzt werden (%(default)s)")
+    g.add_argument("--rasterdecke", type=float, default=d.rasterdecke,
+                   help="Rastermass [m] fuer Rasterdecken ohne Massangabe im Modell, z.B. 0.625 (%(default)s)")
+    g.add_argument("--rasterdecke-alle", action="store_true",
+                   help="jede Abhangdecke ohne Massangabe als Rasterdecke mit --rasterdecke behandeln")
+    g.add_argument("--raster-ursprung", choices=["mitte", "ecke"], default=d.raster_ursprung,
+                   help="Lage des Plattenrasters, wenn im Modell nicht definiert (%(default)s)")
+    g.add_argument("--zd-versatz", choices=["auto", "gerade", "diagonal"], default=d.zd_versatz,
+                   help="Versatz Zwischendeckenmelder zum Raummelder um eine Rasterplatte (%(default)s)")
     g.add_argument("--unterzug-min", type=float, default=d.unterzug_min,
                    help="Unterzughoehe unter der Decke [m], ab der die Decke geteilt wird; 0 = immer (%(default)s)")
     g.add_argument("--min-feld", type=float, default=d.min_feld,
