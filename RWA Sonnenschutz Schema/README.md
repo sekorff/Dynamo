@@ -1,0 +1,26 @@
+# RWA-Fenster mit außenliegendem Sonnenschutz und innenliegender Verdunkelung
+
+Prinzipschema: `RWA_Sonnenschutz_Verdunkelung_Schema.svg` (Vorschau als `.png`).
+
+## Funktion
+
+**Brandfall (Priorität 1)** – die RWA-Zentrale ist führend.
+
+1. Auslösung über RWA-Druckknopfmelder oder BMA.
+2. Die RWA-Zentrale steuert die Notstrom-Kits von Sonnenschutz und Verdunkelung an (Notfahrt AUF).
+3. Beide Anlagen melden „Parkposition erreicht“ zurück; überwachte Laufzeit maximal 60 s.
+4. Erst nach beiden Rückmeldungen wird der Fensterantrieb freigegeben, das Fenster öffnet.
+5. Alarm, Endlagen und Störungen gehen an die GLT.
+
+**Lüftung (Priorität 2)** – Befehl Lüften AUF/ZU von der GLT an die RWA-Zentrale. Das Fenster öffnet nur bei geschlossener Sicherheitskette: Sonnenschutz und Verdunkelung in Parkposition, keine Störung, kein RWA-Alarm. Solange das Fenster nicht geschlossen ist, sind beide Behänge gegen Fahren gesperrt.
+
+**Meldungen an die GLT** – je Anlage Betrieb, Sammelstörung, Netzausfall/Akkustörung und Position; von der RWA zusätzlich Alarm, Fenster AUF/ZU und Laufzeitüberschreitung.
+
+**Notstrom** – Akku in RWA-Zentrale (72 h) und in den Notstrom-Kits von Sonnenschutz und Verdunkelung.
+
+## Offene Punkte
+
+- Verhalten des Fensters, wenn nach 60 s keine Rückmeldung vorliegt (Zwangsöffnung oder Sperre), ist mit dem Brandschutzkonzept festzulegen.
+- Die Vorlaufzeit von 60 s verlängert die Gesamtöffnungszeit des NRWG gegenüber EN 12101-2 und ist als Abweichung abzustimmen.
+
+Prinzipschema, keine Ausführungsplanung.
