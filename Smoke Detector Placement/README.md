@@ -33,6 +33,7 @@ Ausgaben (neben der IFC-Datei oder im Ordner `-o`):
 |---|---|
 | `*_rauchmelder.csv` | je Melder: Geschoss, Raum, Bereich (Raum/Zwischendecke), Deckenfeld, Bezeichnung, X/Y/Z in m (Z = Montagehöhe), A, DH, Hinweise |
 | `*_druckknopfmelder.csv` | je Druckknopfmelder: Geschoss, Raum, Bezeichnung, X/Y/Z in m, Grund |
+| `*_meldegruppen.csv` | Meldegruppenzuordnung je Raum und Melderart – bearbeitbar, wird beim nächsten Lauf übernommen |
 | `*_rauchmelder_<Geschoss>.png` | Grundriss mit Raum- und Zwischendeckenmeldern, Deckenraster, Unterzügen und Achsen |
 | `*_rauchmelder.ifc` | Ursprungsmodell plus Rauchmelder als `IfcSensor` (`SMOKESENSOR`) und Druckknopfmelder als `IfcAlarm` (`MANUALPULLBOX`), dem Geschoss zugeordnet |
 
@@ -124,8 +125,58 @@ Montagehöhe 1,4 m über Fußboden (`--dkm-hoehe`). Ausgabe in
 `*_druckknopfmelder.csv`, im Plan (grüne Raute) und in der IFC als `IfcAlarm`
 (`MANUALPULLBOX`).
 
+## Meldegruppen
+
+Alle Melder werden Meldegruppen zugeordnet. Die Zuordnung steht in der Tabelle
+`<IFC-Name>_meldegruppen.csv` (Semikolon-getrennt, direkt in Excel zu öffnen) –
+eine Zeile je Raum und Melderart (`RM` Raummelder, `ZD` Zwischendeckenmelder,
+`DKM` Druckknopfmelder).
+
+**Automatische Strategie**
+
+- getrennte Gruppen für Raummelder, Zwischendeckenmelder und Druckknopfmelder
+- eigene Gruppen je Geschoss; Treppenhäuser geschossübergreifend als eine Gruppe
+- Verkehrswege getrennt von den übrigen Räumen
+- benachbarte Räume gemeinsam, solange höchstens 5 Räume, 400 m² und 32 Melder
+  zusammenkommen; größere Räume bilden eine eigene Gruppe
+- Druckknopfmelder je Geschoss, höchstens 10 je Gruppe
+- Nummerierung geschossweise von unten, ab `--mg-start`
+
+**Nachträglich ändern**
+
+1. Tabelle öffnen und die Spalten `Meldegruppe`, `Meldegruppen_Text` und
+   `Bemerkung` nach Bedarf ändern; speichern (CSV).
+2. Programm erneut starten. Liegt die Tabelle im Ausgabeordner, wird sie
+   automatisch übernommen (oder ausdrücklich mit `--meldegruppen datei.csv`).
+
+Dabei gilt:
+
+- Zuordnungen aus der Tabelle haben immer Vorrang und werden nie automatisch
+  verändert (Status `Tabelle`).
+- Räume, die neu im Modell sind, deren Zeile gelöscht oder deren Feld
+  `Meldegruppe` geleert wurde, werden automatisch neuen Gruppen hinter der
+  höchsten vorhandenen Nummer zugeordnet (Status `neu`).
+- Zeilen zu Räumen, die im Modell keine Melder mehr haben, entfallen.
+- Die Spalte `Pruefung` meldet je Gruppe Verstöße gegen die Grenzwerte (mehr als
+  32 automatische bzw. 10 Druckknopfmelder, gemischte Melderarten, mehrere
+  Geschosse, zu viele Räume oder zu viel Fläche). Das sind Hinweise – die
+  Zuordnung aus der Tabelle bleibt bestehen.
+- Der Text einer Gruppe kommt aus ihrer ersten Zeile mit Text; automatisch
+  erzeugte Texte werden nach dem Verschieben von Räumen nicht nachgeführt.
+- Vor dem Überschreiben wird die vorherige Tabelle als `.bak` gesichert. Mit
+  `--meldegruppen-neu` wird die Tabelle verworfen und neu gebildet.
+
+Die Räume werden über die `Raum_GUID` wiedererkannt; diese Spalte und `Art`
+dürfen nicht verändert werden. Meldegruppe und laufende Meldernummer stehen in
+den Melder-CSV, in der IFC-Beschreibung und im Plan. Die Meldernummern werden
+je Gruppe fortlaufend vergeben und ändern sich, wenn Räume umgruppiert werden.
+
 ## Grenzen
 
+- Meldegruppen: Die Grenzwerte (32 Melder, 10 Druckknopfmelder, 5 Räume, 400 m²,
+  1600 m²) sind Voreinstellungen; Brandabschnitte werden nicht ausgewertet,
+  weil sie im Modell nicht zuverlässig vorliegen – Gruppen über
+  Brandabschnittsgrenzen sind in der Tabelle zu trennen.
 - Druckknopfmelder: Ohne `IfcDoor` im Modell gibt es keine Melder an Ausgängen.
   Als „Ausgang ins Freie“ zählt jede EG-Tür mit nur einem angrenzenden Raum –
   also auch Terrassentüren und Türen zu nicht modellierten Bereichen. Die

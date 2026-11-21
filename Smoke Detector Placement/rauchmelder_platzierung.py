@@ -23,6 +23,9 @@ Zusaetzlich wird jeder Raum untersucht auf
     Raummelder um eine Rasterplatte versetzt (gerade oder diagonal).
   * Druckknopfmelder: an jedem Ausgang in ein Treppenhaus und an jedem Ausgang
     ins Freie im Erdgeschoss (IfcDoor), dazu in Verkehrswegen alle 25 m.
+  * Meldegruppen: alle Melder werden nach einer Strategie Meldegruppen
+    zugeordnet. Die Zuordnung steht in einer Tabelle (CSV), die nachtraeglich
+    bearbeitet werden kann; beim naechsten Lauf wird sie uebernommen.
   * Unterzuege (IfcBeam): trennt ein Unterzug die Decke, wird jedes Deckenfeld
     wie ein eigener Raum projektiert (gilt fuer Raum und Zwischendecke).
 
@@ -102,6 +105,13 @@ class Regeln:
     muster_treppenhaus: str = r"trepp|\btrh\b|stair"
     muster_verkehrsweg: str = r"flur|gang|korridor|corridor|verkehr|foyer|lobby|windfang|diele|hallway"
     erdgeschoss: str = ""         # Name des Erdgeschosses ("" = automatisch)
+    # Meldegruppen
+    mg_max_melder: int = 32        # automatische Melder je Meldegruppe
+    mg_max_dkm: int = 10           # Druckknopfmelder je Meldegruppe
+    mg_max_raeume: int = 5         # Raeume je Meldegruppe (mehrere Raeume)
+    mg_max_flaeche: float = 400.0  # m2 je Meldegruppe bei mehreren Raeumen
+    mg_max_gesamt: float = 1600.0  # m2 je Meldegruppe insgesamt
+    mg_start: int = 1              # erste Meldegruppennummer
     # Unterzuege trennen die Decke ab dieser Hoehe unter der Decke (0 = immer)
     unterzug_min: float = 0.0
     # Deckenfelder unterhalb dieser Flaeche gelten als Restflaeche (kein Melder)
@@ -200,6 +210,8 @@ class Raum:
     verkehrsweg: bool = False
     tueren: list[Polygon] = field(default_factory=list)
     druckknopf: list[Druckknopf] = field(default_factory=list)
+    mg: dict[str, str] = field(default_factory=dict)       # Art (RM/ZD/DKM) -> Meldegruppe
+    adresse: dict[str, tuple[str, int]] = field(default_factory=dict)  # Melder -> (MG, Nr.)
 
     @property
     def flaeche(self) -> float:
@@ -1048,12 +1060,10 @@ def _verkehrsweg(raum: Raum, regeln: Regeln) -> None:
         raum.druckknopf.append(Druckknopf(punkt.x, punkt.y, z, f"Verkehrsweg, alle {grenzwert:.0f} m"))
 
 
-def platziere_druckknopfmelder(modell: ifcopenshell.file, raeume: list[Raum], regeln: Regeln) -> int:
-    """Druckknopfmelder an Ausgaengen (Treppenhaus, ins Freie im EG) und in Verkehrswegen.
-    Rueckgabe: Anzahl der ausgewerteten Tueren."""
+def klassifiziere_raeume(modell: ifcopenshell.file, raeume: list[Raum], regeln: Regeln) -> None:
+    """Kennzeichnet Treppenhaeuser und Verkehrswege (Raumname bzw. IfcStair im Raum)."""
     treppe = re.compile(regeln.muster_treppenhaus, re.IGNORECASE)
     weg = re.compile(regeln.muster_verkehrsweg, re.IGNORECASE)
-    eg = _erdgeschoss(modell, regeln)
 
     # Treppen im Modell kennzeichnen den Raum ebenfalls als Treppenhaus
     einstellungen = ifcopenshell.geom.settings()
@@ -1076,6 +1086,14 @@ def platziere_druckknopfmelder(modell: ifcopenshell.file, raeume: list[Raum], re
             raum.polygon.contains(p) and unten < raum.z_oben and oben > raum.z_unten
             for p, unten, oben in treppen)
         raum.verkehrsweg = not raum.treppenhaus and bool(weg.search(text))
+
+
+def platziere_druckknopfmelder(modell: ifcopenshell.file, raeume: list[Raum], regeln: Regeln) -> int:
+    """Druckknopfmelder an Ausgaengen (Treppenhaus, ins Freie im EG) und in Verkehrswegen.
+    Rueckgabe: Anzahl der ausgewerteten Tueren."""
+    eg = _erdgeschoss(modell, regeln)
+    klassifiziere_raeume(modell, raeume, regeln)
+    for raum in raeume:
         raum.druckknopf, raum.tueren = [], []
 
     def setzen(raum: Raum, tuer: Tuer, grund: str) -> None:
@@ -1111,11 +1129,11 @@ def schreibe_csv_dkm(raeume: list[Raum], pfad: Path) -> None:
     with pfad.open("w", newline="", encoding="utf-8-sig") as datei:
         w = csv.writer(datei, delimiter=";")
         w.writerow(["Geschoss", "Raumnummer", "Raumname", "Raum_GUID", "Melder",
-                    "X_m", "Y_m", "Z_m", "Grund"])
+                    "Meldegruppe", "Meldernummer", "X_m", "Y_m", "Z_m", "Grund"])
         for raum in sorted(raeume, key=lambda r: (r.geschoss, r.nummer)):
             for d in raum.druckknopf:
                 w.writerow([raum.geschoss, raum.nummer, raum.name, raum.guid, d.name,
-                            f"{d.x:.3f}", f"{d.y:.3f}", f"{d.z:.3f}", d.grund])
+                            *raum.adresse.get(d.name, ("", "")), f"{d.x:.3f}", f"{d.y:.3f}", f"{d.z:.3f}", d.grund])
 
 
 def bericht_dkm(raeume: list[Raum]) -> None:
@@ -1133,26 +1151,259 @@ def bericht_dkm(raeume: list[Raum]) -> None:
 
 
 # --------------------------------------------------------------------------- #
+# Meldegruppen
+# --------------------------------------------------------------------------- #
+MG_ARTEN = {"RM": "Rauchmelder Raum", "ZD": "Rauchmelder Zwischendecke", "DKM": "Druckknopfmelder"}
+MG_SPALTEN = ["Meldegruppe", "Meldegruppen_Text", "Art", "Geschoss", "Raumnummer", "Raumname",
+              "Melderanzahl", "Flaeche_m2", "Status", "Pruefung", "Bemerkung", "Raum_GUID"]
+
+
+def _melder_der_art(raum: Raum, art: str) -> list[str]:
+    """Bezeichnungen der Melder eines Raums je Art."""
+    if art == "DKM":
+        return [d.name for d in raum.druckknopf]
+    bereich = "Raum" if art == "RM" else "Zwischendecke"
+    return [n for b in raum.bereiche if b.art == bereich for n in b.namen]
+
+
+def _mg_schluessel(mg: str):
+    """Sortierung: Zahlen numerisch, alles andere dahinter alphabetisch."""
+    try:
+        return (0, float(mg.replace(",", ".")), "")
+    except ValueError:
+        return (1, 0.0, mg)
+
+
+def lese_meldegruppen(pfad: Path) -> dict[tuple[str, str], dict[str, str]]:
+    """Liest die (bearbeitete) Meldegruppentabelle: (Raum_GUID, Art) -> Zeile."""
+    try:
+        text = pfad.read_text(encoding="utf-8-sig")
+    except UnicodeDecodeError:
+        text = pfad.read_text(encoding="cp1252")  # von Excel als ANSI gespeichert
+    kopf = text.splitlines()[0] if text.strip() else ""
+    trenner = ";" if kopf.count(";") >= kopf.count(",") else ","
+    vorgabe = {}
+    for zeile in csv.DictReader(text.splitlines(), delimiter=trenner):
+        zeile = {(k or "").strip(): (v or "").strip() for k, v in zeile.items()}
+        if zeile.get("Raum_GUID") and zeile.get("Art") in MG_ARTEN:
+            vorgabe[(zeile["Raum_GUID"], zeile["Art"])] = zeile
+    return vorgabe
+
+
+def bilde_meldegruppen(raeume: list[Raum], regeln: Regeln,
+                       vorgabe: dict[tuple[str, str], dict[str, str]] | None = None) -> list[dict]:
+    """Ordnet alle Melder Meldegruppen zu und liefert die Zeilen der Tabelle.
+
+    Zuordnungen aus `vorgabe` (bearbeitete Tabelle) haben Vorrang. Alles Uebrige
+    wird automatisch gruppiert:
+      * getrennte Gruppen fuer Raummelder, Zwischendeckenmelder und Druckknopfmelder
+      * je Geschoss eigene Gruppen; Treppenhaeuser geschossuebergreifend als eine Gruppe
+      * Verkehrswege getrennt von den uebrigen Raeumen
+      * benachbarte Raeume gemeinsam, solange Raumzahl, Flaeche und Melderzahl
+        die Grenzwerte einhalten
+    """
+    vorgabe = vorgabe or {}
+    hoehe = {}
+    for raum in raeume:
+        hoehe[raum.geschoss] = min(hoehe.get(raum.geschoss, math.inf), raum.z_unten)
+    ordnung = lambda r: (hoehe[r.geschoss], r.geschoss, r.nummer, r.guid)  # noqa: E731
+
+    einheiten = [(raum, art) for raum in sorted(raeume, key=ordnung) for art in MG_ARTEN
+                 if _melder_der_art(raum, art)]
+    texte: dict[str, str] = {}
+    status: dict[tuple[str, str], str] = {}
+    bemerkung: dict[tuple[str, str], str] = {}
+    for raum in raeume:
+        raum.mg, raum.adresse = {}, {}
+    offen = []
+    for raum, art in einheiten:
+        zeile = vorgabe.get((raum.guid, art))
+        if zeile:
+            bemerkung[(raum.guid, art)] = zeile.get("Bemerkung", "")
+        if zeile and zeile.get("Meldegruppe"):
+            mg = zeile["Meldegruppe"]
+            raum.mg[art] = mg
+            status[(raum.guid, art)] = "Tabelle"
+            if zeile.get("Meldegruppen_Text"):
+                texte.setdefault(mg, zeile["Meldegruppen_Text"])
+        else:
+            offen.append((raum, art))
+            status[(raum.guid, art)] = "neu" if vorgabe else "auto"
+
+    # Naechste freie Nummer hinter den vorhandenen
+    belegt = [k[1] for k in (_mg_schluessel(r.mg[a]) for r, a in einheiten if a in r.mg) if k[0] == 0]
+    naechste = max([regeln.mg_start - 1] + [int(b) for b in belegt]) + 1
+
+    def neue_gruppe(mitglieder: list[Raum], art: str, bezeichnung: str) -> None:
+        nonlocal naechste
+        mg = str(naechste)
+        naechste += 1
+        for raum in mitglieder:
+            raum.mg[art] = mg
+        nummern = ", ".join(r.nummer or r.name or "?" for r in mitglieder[:4])
+        if len(mitglieder) > 4:
+            nummern += f" +{len(mitglieder) - 4}"
+        texte[mg] = f"{bezeichnung} {nummern}".strip()
+
+    def benachbart(liste: list[Raum], art: str, grenze_melder: int) -> list[list[Raum]]:
+        """Fasst benachbarte Raeume innerhalb der Grenzwerte zusammen."""
+        gruppen, rest = [], list(liste)
+        while rest:
+            gruppe = [rest.pop(0)]
+            melder = len(_melder_der_art(gruppe[0], art))
+            flaeche = gruppe[0].flaeche
+            gewachsen = True
+            while gewachsen:
+                gewachsen = False
+                for raum in list(rest):
+                    n = len(_melder_der_art(raum, art))
+                    if (len(gruppe) < regeln.mg_max_raeume
+                            and flaeche + raum.flaeche <= regeln.mg_max_flaeche
+                            and melder + n <= grenze_melder
+                            and any(raum.polygon.distance(g.polygon) <= 0.6 for g in gruppe)):
+                        gruppe.append(raum)
+                        rest.remove(raum)
+                        melder, flaeche, gewachsen = melder + n, flaeche + raum.flaeche, True
+            gruppen.append(gruppe)
+        return gruppen
+
+    # Treppenhaeuser: uebereinander liegende Raeume bilden eine Gruppe (Raummelder)
+    treppen = [r for r, a in offen if a == "RM" and r.treppenhaus]
+    while treppen:
+        kern = [treppen.pop(0)]
+        for raum in list(treppen):
+            if any(raum.polygon.intersection(k.polygon).area > 0.5 * min(raum.flaeche, k.flaeche)
+                   for k in kern):
+                kern.append(raum)
+                treppen.remove(raum)
+        neue_gruppe(kern, "RM", "Treppenhaus")
+
+    for geschoss in sorted(hoehe, key=lambda g: (hoehe[g], g)):
+        hier = [(r, a) for r, a in offen if r.geschoss == geschoss and a not in r.mg]
+        for art, name in (("RM", "RM"), ("ZD", "Zwischendecke")):
+            wege = [r for r, a in hier if a == art and r.verkehrsweg]
+            sonst = [r for r, a in hier if a == art and not r.verkehrsweg]
+            for liste, zusatz in ((wege, " Verkehrsweg"), (sonst, "")):
+                for gruppe in benachbart(liste, art, regeln.mg_max_melder):
+                    neue_gruppe(gruppe, art, f"{geschoss} {name}{zusatz}")
+        # Druckknopfmelder: je Geschoss, hoechstens `mg_max_dkm` je Gruppe
+        gruppe, anzahl = [], 0
+        for raum in [r for r, a in hier if a == "DKM"]:
+            n = len(raum.druckknopf)
+            if gruppe and anzahl + n > regeln.mg_max_dkm:
+                neue_gruppe(gruppe, "DKM", f"{geschoss} Druckknopfmelder")
+                gruppe, anzahl = [], 0
+            gruppe.append(raum)
+            anzahl += n
+        if gruppe:
+            neue_gruppe(gruppe, "DKM", f"{geschoss} Druckknopfmelder")
+
+    # Meldernummern innerhalb der Gruppe fortlaufend
+    zaehler: dict[str, int] = defaultdict(int)
+    for raum, art in sorted(einheiten, key=lambda e: (_mg_schluessel(e[0].mg[e[1]]), ordnung(e[0]))):
+        for name in _melder_der_art(raum, art):
+            zaehler[raum.mg[art]] += 1
+            raum.adresse[name] = (raum.mg[art], zaehler[raum.mg[art]])
+
+    pruefung = pruefe_meldegruppen(einheiten, regeln)
+    zeilen = []
+    for raum, art in sorted(einheiten, key=lambda e: (_mg_schluessel(e[0].mg[e[1]]), ordnung(e[0]))):
+        mg = raum.mg[art]
+        zeilen.append({
+            "Meldegruppe": mg, "Meldegruppen_Text": texte.get(mg, ""), "Art": art,
+            "Geschoss": raum.geschoss, "Raumnummer": raum.nummer, "Raumname": raum.name,
+            "Melderanzahl": len(_melder_der_art(raum, art)), "Flaeche_m2": f"{raum.flaeche:.1f}",
+            "Status": status[(raum.guid, art)], "Pruefung": " | ".join(pruefung.get(mg, [])),
+            "Bemerkung": bemerkung.get((raum.guid, art), ""), "Raum_GUID": raum.guid})
+    return zeilen
+
+
+def pruefe_meldegruppen(einheiten: list[tuple[Raum, str]], regeln: Regeln) -> dict[str, list[str]]:
+    """Prueft jede Meldegruppe gegen die Grenzwerte; Rueckgabe: Meldegruppe -> Hinweise."""
+    gruppen: dict[str, list[tuple[Raum, str]]] = defaultdict(list)
+    for raum, art in einheiten:
+        gruppen[raum.mg[art]].append((raum, art))
+    ergebnis = {}
+    for mg, mitglieder in gruppen.items():
+        hinweise = []
+        arten = {a for _, a in mitglieder}
+        raeume = list({r.guid: r for r, _ in mitglieder}.values())
+        automatisch = sum(len(_melder_der_art(r, a)) for r, a in mitglieder if a != "DKM")
+        dkm = sum(len(_melder_der_art(r, a)) for r, a in mitglieder if a == "DKM")
+        flaeche = sum(r.flaeche for r in raeume)
+        if "DKM" in arten and len(arten) > 1:
+            hinweise.append("Druckknopfmelder und automatische Melder gemischt")
+        if {"RM", "ZD"} <= arten:
+            hinweise.append("Raum- und Zwischendeckenmelder gemischt")
+        if automatisch > regeln.mg_max_melder:
+            hinweise.append(f"{automatisch} automatische Melder > {regeln.mg_max_melder}")
+        if dkm > regeln.mg_max_dkm:
+            hinweise.append(f"{dkm} Druckknopfmelder > {regeln.mg_max_dkm}")
+        if len({r.geschoss for r in raeume}) > 1 and not all(r.treppenhaus for r in raeume):
+            hinweise.append("mehrere Geschosse in einer Meldegruppe")
+        if arten != {"DKM"}:
+            if flaeche > regeln.mg_max_gesamt:
+                hinweise.append(f"Flaeche {flaeche:.0f} m2 > {regeln.mg_max_gesamt:.0f} m2")
+            elif len(raeume) > 1 and not all(r.treppenhaus for r in raeume):
+                if len(raeume) > regeln.mg_max_raeume:
+                    hinweise.append(f"{len(raeume)} Raeume > {regeln.mg_max_raeume}")
+                if flaeche > regeln.mg_max_flaeche:
+                    hinweise.append(f"mehrere Raeume mit {flaeche:.0f} m2 > {regeln.mg_max_flaeche:.0f} m2")
+        if hinweise:
+            ergebnis[mg] = hinweise
+    return ergebnis
+
+
+def schreibe_meldegruppen(zeilen: list[dict], pfad: Path) -> None:
+    if pfad.exists():  # bearbeitete Tabelle nie ohne Sicherung ueberschreiben
+        pfad.with_suffix(pfad.suffix + ".bak").write_bytes(pfad.read_bytes())
+    with pfad.open("w", newline="", encoding="utf-8-sig") as datei:
+        w = csv.DictWriter(datei, fieldnames=MG_SPALTEN, delimiter=";")
+        w.writeheader()
+        w.writerows(zeilen)
+
+
+def bericht_meldegruppen(zeilen: list[dict]) -> None:
+    print(f"\n{'MG':>4}  {'Text':<34}{'Art':<8}{'Raeume':<31}{'Melder':>7}{'Flaeche':>9}  Status")
+    print("-" * 105)
+    gruppen: dict[str, list[dict]] = defaultdict(list)
+    for zeile in zeilen:
+        gruppen[zeile["Meldegruppe"]].append(zeile)
+    for mg, liste in gruppen.items():
+        raeume = ", ".join(dict.fromkeys(f"{z['Geschoss']} {z['Raumnummer']}" for z in liste))
+        flaeche = sum({z["Raum_GUID"]: float(z["Flaeche_m2"]) for z in liste}.values())
+        print(f"{mg:>4}  {liste[0]['Meldegruppen_Text'][:33]:<34}"
+              f"{'/'.join(dict.fromkeys(z['Art'] for z in liste)):<8}"
+              f"{raeume[:30]:<31}{sum(z['Melderanzahl'] for z in liste):>7}{flaeche:>9.1f}"
+              f"  {'/'.join(dict.fromkeys(z['Status'] for z in liste))}")
+        if liste[0]["Pruefung"]:
+            print(f"      ! {liste[0]['Pruefung']}")
+    print("-" * 105)
+    print(f"Meldegruppen: {len(gruppen)}   mit Hinweis: "
+          f"{sum(1 for l in gruppen.values() if l[0]['Pruefung'])}")
+
+
+# --------------------------------------------------------------------------- #
 # Ausgabe
 # --------------------------------------------------------------------------- #
 def schreibe_csv(raeume: list[Raum], pfad: Path) -> None:
     with pfad.open("w", newline="", encoding="utf-8-sig") as datei:
         w = csv.writer(datei, delimiter=";")
         w.writerow(["Geschoss", "Raumnummer", "Raumname", "Raum_GUID", "Bereich", "Deckenfeld",
-                    "Melder", "X_m", "Y_m", "Z_m", "Feldflaeche_m2", "Hoehe_m",
+                    "Melder", "Meldegruppe", "Meldernummer", "X_m", "Y_m", "Z_m", "Feldflaeche_m2", "Hoehe_m",
                     "A_m2", "DH_m", "max_Abstand_m", "Hinweise"])
         for raum in sorted(raeume, key=lambda r: (r.geschoss, r.nummer)):
             kopf = [raum.geschoss, raum.nummer, raum.name, raum.guid]
             if not raum.bereiche:
-                w.writerow(kopf + [""] * 11 + [" | ".join(raum.hinweise)])
+                w.writerow(kopf + [""] * 13 + [" | ".join(raum.hinweise)])
             for b in raum.bereiche:
                 hinweise = " | ".join(raum.hinweise + b.hinweise)
                 fuss = [f"{b.flaeche:.2f}", f"{b.hoehe:.2f}", f"{b.a:.0f}", f"{b.dh:.2f}",
                         f"{b.max_abstand:.2f}" if len(b.melder) else "", hinweise]
                 if len(b.melder) == 0:
-                    w.writerow(kopf + [b.art, b.feld, "", "", "", ""] + fuss)
+                    w.writerow(kopf + [b.art, b.feld, "", "", "", "", "", ""] + fuss)
                 for name, (x, y) in zip(b.namen, b.melder):
-                    w.writerow(kopf + [b.art, b.feld, name,
+                    w.writerow(kopf + [b.art, b.feld, name, *raum.adresse.get(name, ("", "")),
                                        f"{x:.3f}", f"{y:.3f}", f"{b.z_oben:.3f}"] + fuss)
 
 
@@ -1237,7 +1488,8 @@ def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str
             zd = raum.anzahl("Zwischendecke")
             hoehe = raum.bereiche[0].hoehe if raum.bereiche else raum.hoehe
             ax.annotate(f"{raum.nummer} {raum.name}\n{raum.flaeche:.1f} m² · h {hoehe:.2f} m"
-                        f"\n{raum.anzahl('Raum')} Melder" + (f" + {zd} ZD" if zd else ""),
+                        f"\n{raum.anzahl('Raum')} Melder" + (f" + {zd} ZD" if zd else "")
+                        + ("\nMG " + " · ".join(f"{a} {m}" for a, m in raum.mg.items()) if raum.mg else ""),
                         (p.x, p.y), ha="center", va="center", fontsize=6.5, color="#2c3e50",
                         zorder=6, xytext=(0, -14), textcoords="offset points")
         ax.set_xlim(grenzen[0] - 1, grenzen[2] + 1)
@@ -1328,6 +1580,8 @@ def schreibe_ifc(modell: ifcopenshell.file, raeume: list[Raum], pfad: Path) -> N
                 modell.createIfcDirection(tuple(float(v) for v in ref))))
             form = (modell.createIfcProductDefinitionShape(None, None, [geometrie])
                     if geometrie is not None else None)
+            if name in raum.adresse:
+                beschreibung += ", Meldegruppe {}/{}".format(*raum.adresse[name])
             attribute = dict(GlobalId=ifcopenshell.guid.new(), OwnerHistory=historie,
                              Name=name, Description=beschreibung,
                              ObjectPlacement=platzierung, Representation=form)
@@ -1426,6 +1680,18 @@ def main(argv=None) -> int:
                    help="Regulaerer Ausdruck fuer Verkehrswege (%(default)s)")
     k.add_argument("--erdgeschoss", default=d.erdgeschoss,
                    help="Name des Erdgeschosses (Standard: automatisch)")
+    m = p.add_argument_group("Meldegruppen")
+    m.add_argument("--meldegruppen", type=Path,
+                   help="Meldegruppentabelle (CSV); Standard: <IFC-Name>_meldegruppen.csv im Ausgabeordner. "
+                        "Vorhandene Zuordnungen werden uebernommen")
+    m.add_argument("--meldegruppen-neu", action="store_true",
+                   help="vorhandene Tabelle ignorieren und alle Meldegruppen neu bilden")
+    m.add_argument("--mg-max-melder", type=int, default=d.mg_max_melder, help="automatische Melder je Gruppe (%(default)s)")
+    m.add_argument("--mg-max-dkm", type=int, default=d.mg_max_dkm, help="Druckknopfmelder je Gruppe (%(default)s)")
+    m.add_argument("--mg-max-raeume", type=int, default=d.mg_max_raeume, help="Raeume je Gruppe (%(default)s)")
+    m.add_argument("--mg-max-flaeche", type=float, default=d.mg_max_flaeche, help="[m2] bei mehreren Raeumen (%(default)s)")
+    m.add_argument("--mg-max-gesamt", type=float, default=d.mg_max_gesamt, help="[m2] je Gruppe insgesamt (%(default)s)")
+    m.add_argument("--mg-start", type=int, default=d.mg_start, help="erste Meldegruppennummer (%(default)s)")
     a = p.add_argument_group("Achsausrichtung")
     a.add_argument("--max-verschiebung", type=float, default=d.max_verschiebung,
                    help="max. Verschiebung eines Raumrasters auf gemeinsame Achsen [m], 0 = aus (%(default)s)")
@@ -1456,6 +1722,22 @@ def main(argv=None) -> int:
         anzahl = platziere_druckknopfmelder(modell, raeume, regeln)
         print(f"\nGefunden: {anzahl} Tueren, Erdgeschoss: {_erdgeschoss(modell, regeln)}")
         bericht_dkm(raeume)
+    else:
+        klassifiziere_raeume(modell, raeume, regeln)
+
+    mg_pfad = args.meldegruppen or ordner / f"{args.ifc.stem}_meldegruppen.csv"
+    vorgabe = {}
+    if mg_pfad.is_file() and not args.meldegruppen_neu:
+        vorgabe = lese_meldegruppen(mg_pfad)
+        print(f"\nMeldegruppentabelle uebernommen: {mg_pfad} ({len(vorgabe)} Zeilen)")
+    elif args.meldegruppen and not args.meldegruppen_neu:
+        print(f"  ! {mg_pfad} nicht gefunden - Meldegruppen werden neu gebildet", file=sys.stderr)
+    zeilen = bilde_meldegruppen(raeume, regeln, vorgabe)
+    bericht_meldegruppen(zeilen)
+    entfallen = len(set(vorgabe) - {(z["Raum_GUID"], z["Art"]) for z in zeilen})
+    if entfallen:
+        print(f"{entfallen} Zeile(n) der Tabelle ohne Melder im Modell - entfallen")
+    schreibe_meldegruppen(zeilen, mg_pfad)
 
     csv_pfad = ordner / f"{stamm}.csv"
     schreibe_csv(raeume, csv_pfad)
@@ -1464,6 +1746,7 @@ def main(argv=None) -> int:
         dkm_pfad = ordner / f"{args.ifc.stem}_druckknopfmelder.csv"
         schreibe_csv_dkm(raeume, dkm_pfad)
         print(f"CSV : {dkm_pfad}")
+    print(f"MG  : {mg_pfad}  (bearbeitbar; wird beim naechsten Lauf uebernommen)")
     if not args.kein_plan:
         for pfad in schreibe_plaene(raeume, achsen, ordner, stamm):
             print(f"Plan: {pfad}")
