@@ -21,6 +21,8 @@ Zusaetzlich wird jeder Raum untersucht auf
   * Rasterdecken: liegt eine Rasterdecke vor, sitzt jeder Melder mittig auf
     einer vollen Rasterplatte; Zwischendeckenmelder werden gegenueber dem
     Raummelder um eine Rasterplatte versetzt (gerade oder diagonal).
+  * Druckknopfmelder: an jedem Ausgang in ein Treppenhaus und an jedem Ausgang
+    ins Freie im Erdgeschoss (IfcDoor), dazu in Verkehrswegen alle 25 m.
   * Unterzuege (IfcBeam): trennt ein Unterzug die Decke, wird jedes Deckenfeld
     wie ein eigener Raum projektiert (gilt fuer Raum und Zwischendecke).
 
@@ -31,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import heapq
 import math
 import re
 import sys
@@ -41,8 +44,8 @@ from pathlib import Path
 import numpy as np
 import shapely
 from shapely import affinity
-from shapely.geometry import MultiPolygon, Polygon
-from shapely.ops import unary_union
+from shapely.geometry import MultiPoint, MultiPolygon, Point, Polygon
+from shapely.ops import nearest_points, unary_union
 
 import ifcopenshell
 import ifcopenshell.geom
@@ -90,6 +93,15 @@ class Regeln:
     # Versatz Zwischendeckenmelder zum Raummelder: "auto" (erst gerade, dann
     # diagonal), "gerade" oder "diagonal"
     zd_versatz: str = "auto"
+    # Druckknopfmelder (Handfeuermelder)
+    ohne_dkm: bool = False
+    dkm_abstand: float = 25.0     # m, Abstand der Melder entlang eines Verkehrswegs
+    dkm_hoehe: float = 1.4        # m ueber Fussboden
+    dkm_tuerabstand: float = 0.3  # m seitlich neben der Tueroeffnung
+    tuer_toleranz: float = 0.5    # m, max. Abstand Tuer - Raum (halbe Wanddicke)
+    muster_treppenhaus: str = r"trepp|\btrh\b|stair"
+    muster_verkehrsweg: str = r"flur|gang|korridor|corridor|verkehr|foyer|lobby|windfang|diele|hallway"
+    erdgeschoss: str = ""         # Name des Erdgeschosses ("" = automatisch)
     # Unterzuege trennen die Decke ab dieser Hoehe unter der Decke (0 = immer)
     unterzug_min: float = 0.0
     # Deckenfelder unterhalb dieser Flaeche gelten als Restflaeche (kein Melder)
@@ -154,6 +166,23 @@ class Bereich:
 
 
 @dataclass
+class Tuer:
+    name: str
+    polygon: Polygon
+    z_unten: float
+    extern: bool | None   # Pset_DoorCommon.IsExternal, falls vorhanden
+
+
+@dataclass
+class Druckknopf:
+    x: float
+    y: float
+    z: float
+    grund: str
+    name: str = ""
+
+
+@dataclass
 class Raum:
     guid: str
     nummer: str
@@ -167,6 +196,10 @@ class Raum:
     unterzuege: list[Polygon] = field(default_factory=list)
     raster: list[tuple[Raster, Polygon]] = field(default_factory=list)  # fuer den Plan
     hinweise: list[str] = field(default_factory=list)
+    treppenhaus: bool = False
+    verkehrsweg: bool = False
+    tueren: list[Polygon] = field(default_factory=list)
+    druckknopf: list[Druckknopf] = field(default_factory=list)
 
     @property
     def flaeche(self) -> float:
@@ -834,6 +867,272 @@ def platziere_alle(raeume: list[Raum], regeln: Regeln,
 
 
 # --------------------------------------------------------------------------- #
+# Druckknopfmelder
+# --------------------------------------------------------------------------- #
+def lade_tueren(modell: ifcopenshell.file) -> list[Tuer]:
+    einstellungen = ifcopenshell.geom.settings()
+    einstellungen.set("use-world-coords", True)
+    tueren = []
+    for element in modell.by_type("IfcDoor"):
+        if element.Representation is None:
+            continue
+        try:
+            shape = ifcopenshell.geom.create_shape(einstellungen, element)
+        except Exception:
+            continue
+        verts = np.asarray(shape.geometry.verts, dtype=float).reshape(-1, 3)
+        faces = np.asarray(shape.geometry.faces, dtype=int).reshape(-1, 3)
+        polygon = _grundriss(verts, faces)
+        if polygon is None:
+            continue
+        try:
+            extern = ifcopenshell.util.element.get_psets(element).get(
+                "Pset_DoorCommon", {}).get("IsExternal")
+        except Exception:
+            extern = None
+        tueren.append(Tuer(element.Name or element.GlobalId, polygon,
+                           float(verts[:, 2].min()), extern if isinstance(extern, bool) else None))
+    return tueren
+
+
+def _erdgeschoss(modell: ifcopenshell.file, regeln: Regeln) -> str | None:
+    """Name des Erdgeschosses: Vorgabe, sonst ueblicher Name, sonst Hoehe naechst 0."""
+    geschosse = modell.by_type("IfcBuildingStorey")
+    if not geschosse:
+        return None
+    name = lambda g: g.Name or g.GlobalId  # noqa: E731
+    if regeln.erdgeschoss:
+        for g in geschosse:
+            if name(g).lower() == regeln.erdgeschoss.lower():
+                return name(g)
+        print(f"  ! Geschoss '{regeln.erdgeschoss}' nicht gefunden - Erdgeschoss automatisch bestimmt",
+              file=sys.stderr)
+    ueblich = re.compile(r"^(eg|e0|e00|00|0|erdgeschoss|ground( floor)?|gf|l0|level 0)$", re.IGNORECASE)
+    for g in geschosse:
+        if ueblich.match(name(g).strip()):
+            return name(g)
+    faktor = ifcopenshell.util.unit.calculate_unit_scale(modell)
+    return name(min(geschosse, key=lambda g: abs((g.Elevation or 0.0) * faktor)))
+
+
+def _an_tuer(raum: Raum, tuer: Tuer, regeln: Regeln) -> tuple[float, float]:
+    """Wandpunkt im Raum seitlich neben der Tuer."""
+    rand = raum.polygon.exterior
+    s = rand.project(tuer.polygon.centroid)
+    mitte = rand.interpolate(s)
+    ecken = np.asarray(tuer.polygon.minimum_rotated_rectangle.exterior.coords)
+    breite = float(np.hypot(*np.diff(ecken, axis=0).T).max())
+    versatz = breite / 2 + regeln.dkm_tuerabstand
+    punkt = None
+    for richtung in (1, -1):
+        kandidat = rand.interpolate((s + richtung * versatz) % rand.length)
+        if punkt is None:
+            punkt = kandidat
+        if kandidat.distance(mitte) >= versatz - 0.05:  # gleiche Wand, nicht um die Ecke
+            punkt = kandidat
+            break
+    return punkt.x, punkt.y
+
+
+def _mittellinie(polygon: Polygon):
+    """Naeherung der Mittelachse eines Raums als Graph (Knoten, Nachbarlisten)."""
+    rand = shapely.segmentize(polygon.boundary, 0.5)
+    punkte = MultiPoint(shapely.get_coordinates(rand))
+    kanten = shapely.voronoi_polygons(punkte, only_edges=True)
+    abstand_max = shapely.maximum_inscribed_circle(polygon).length
+    grenze = min(0.4, 0.5 * abstand_max)
+    knoten: dict[tuple[float, float], int] = {}
+    nachbarn: list[list[tuple[int, float]]] = []
+
+    def index(p) -> int:
+        schluessel = (round(p[0], 3), round(p[1], 3))
+        if schluessel not in knoten:
+            knoten[schluessel] = len(nachbarn)
+            nachbarn.append([])
+        return knoten[schluessel]
+
+    for linie in shapely.get_parts(kanten):
+        xy = shapely.get_coordinates(linie)
+        for a, b in zip(xy[:-1], xy[1:]):
+            strecke = shapely.LineString([a, b])
+            if not polygon.contains(strecke):
+                continue
+            if min(polygon.boundary.distance(Point(a)), polygon.boundary.distance(Point(b))) < grenze:
+                continue  # Aeste in die Raumecken abschneiden
+            i, j = index(a), index(b)
+            laenge = float(np.hypot(*(b - a)))
+            nachbarn[i].append((j, laenge))
+            nachbarn[j].append((i, laenge))
+    return np.array(list(knoten.keys())).reshape(-1, 2), nachbarn
+
+
+def _wege(nachbarn, quellen: list[int]):
+    """Kuerzeste Wege von mehreren Quellen: Abstand, Vorgaenger, naechste Quelle."""
+    n = len(nachbarn)
+    abstand, vor, quelle = [math.inf] * n, [-1] * n, [-1] * n
+    halde = []
+    for q in quellen:
+        abstand[q], quelle[q] = 0.0, q
+        heapq.heappush(halde, (0.0, q))
+    while halde:
+        d, i = heapq.heappop(halde)
+        if d > abstand[i]:
+            continue
+        for j, laenge in nachbarn[i]:
+            if d + laenge < abstand[j]:
+                abstand[j], vor[j], quelle[j] = d + laenge, i, quelle[i]
+                heapq.heappush(halde, (d + laenge, j))
+    return abstand, vor, quelle
+
+
+def _verkehrsweg(raum: Raum, regeln: Regeln) -> None:
+    """Setzt entlang der Mittelachse des Verkehrswegs alle `dkm_abstand` einen Melder."""
+    knoten, nachbarn = _mittellinie(raum.polygon)
+    if len(knoten) < 2:
+        return
+    z = raum.z_unten + regeln.dkm_hoehe
+    grenzwert = regeln.dkm_abstand
+
+    def naechster(x: float, y: float) -> int:
+        return int(np.hypot(knoten[:, 0] - x, knoten[:, 1] - y).argmin())
+
+    quellen = [naechster(d.x, d.y) for d in raum.druckknopf]
+    neue: list[int] = []
+    if not quellen:  # kein Ausgang im Raum: am Ende des Verkehrswegs beginnen
+        abstand, _, _ = _wege(nachbarn, [0])
+        erreichbar = [i for i, d in enumerate(abstand) if d < math.inf]
+        start = max(erreichbar, key=lambda i: abstand[i])
+        quellen.append(start)
+        neue.append(start)
+
+    for _ in range(500):
+        abstand, vor, quelle = _wege(nachbarn, quellen)
+        # 1. Zwischen zwei Meldern: Luecke groesser als der Abstand gleichmaessig teilen
+        luecke = None
+        for i, liste in enumerate(nachbarn):
+            for j, laenge in liste:
+                if i < j and quelle[i] != quelle[j] and quelle[i] >= 0 and quelle[j] >= 0:
+                    gesamt = abstand[i] + laenge + abstand[j]
+                    if gesamt > grenzwert + 0.01 and (luecke is None or gesamt > luecke[0]):
+                        luecke = (gesamt, i, j)
+        if luecke is not None:
+            gesamt, i, j = luecke
+            ziel = gesamt / math.ceil(gesamt / grenzwert - 1e-9)
+            if ziel > abstand[i]:   # Zielpunkt liegt auf der Seite von j
+                i, ziel = j, gesamt - ziel
+            while vor[i] >= 0 and abstand[i] > ziel:
+                i = vor[i]
+            if abstand[i] < 1.0:    # zu nah am vorhandenen Melder: Rasterweite der Achse erreicht
+                break
+            quellen.append(i)
+            neue.append(i)
+            continue
+        # 2. Ende des Wegs: nach jeweils `dkm_abstand` ein weiterer Melder
+        fern = [i for i, d in enumerate(abstand) if d >= grenzwert]
+        if not fern:
+            break
+        i = min(fern, key=lambda k: (abstand[k] == math.inf, abstand[k]))
+        if abstand[i] > grenzwert and vor[i] >= 0 and abstand[vor[i]] > 1.0:
+            i = vor[i]  # letzter Knoten innerhalb des Abstands
+        quellen.append(i)
+        neue.append(i)
+
+    rand = raum.polygon.exterior
+    for i in neue:
+        wand = nearest_points(rand, Point(knoten[i]))[0]
+        s = rand.project(wand)
+        for versatz in (0.0, 0.8, -0.8, 1.6, -1.6):  # nicht in eine Tueroeffnung setzen
+            punkt = rand.interpolate((s + versatz) % rand.length)
+            if all(t.distance(punkt) > regeln.tuer_toleranz + 0.3 for t in raum.tueren):
+                break
+        raum.druckknopf.append(Druckknopf(punkt.x, punkt.y, z, f"Verkehrsweg, alle {grenzwert:.0f} m"))
+
+
+def platziere_druckknopfmelder(modell: ifcopenshell.file, raeume: list[Raum], regeln: Regeln) -> int:
+    """Druckknopfmelder an Ausgaengen (Treppenhaus, ins Freie im EG) und in Verkehrswegen.
+    Rueckgabe: Anzahl der ausgewerteten Tueren."""
+    treppe = re.compile(regeln.muster_treppenhaus, re.IGNORECASE)
+    weg = re.compile(regeln.muster_verkehrsweg, re.IGNORECASE)
+    eg = _erdgeschoss(modell, regeln)
+
+    # Treppen im Modell kennzeichnen den Raum ebenfalls als Treppenhaus
+    einstellungen = ifcopenshell.geom.settings()
+    einstellungen.set("use-world-coords", True)
+    treppen = []
+    for element in modell.by_type("IfcStair") + modell.by_type("IfcStairFlight"):
+        if element.Representation is None:
+            continue
+        try:
+            verts = np.asarray(ifcopenshell.geom.create_shape(einstellungen, element).geometry.verts
+                               ).reshape(-1, 3)
+        except Exception:
+            continue
+        treppen.append((Point(verts[:, 0].mean(), verts[:, 1].mean()), verts[:, 2].min(), verts[:, 2].max()))
+
+    for raum in raeume:
+        text = " ".join(t for t in (raum.nummer, raum.name,
+                                    getattr(raum.element, "ObjectType", None)) if t)
+        raum.treppenhaus = bool(treppe.search(text)) or any(
+            raum.polygon.contains(p) and unten < raum.z_oben and oben > raum.z_unten
+            for p, unten, oben in treppen)
+        raum.verkehrsweg = not raum.treppenhaus and bool(weg.search(text))
+        raum.druckknopf, raum.tueren = [], []
+
+    def setzen(raum: Raum, tuer: Tuer, grund: str) -> None:
+        x, y = _an_tuer(raum, tuer, regeln)
+        if any(math.hypot(d.x - x, d.y - y) < 3.0 for d in raum.druckknopf):
+            return  # benachbarte Tueren desselben Ausgangs: ein Melder genuegt
+        raum.druckknopf.append(Druckknopf(x, y, raum.z_unten + regeln.dkm_hoehe, grund))
+
+    tueren = lade_tueren(modell)
+    for tuer in tueren:
+        nah = sorted(((raum.polygon.distance(tuer.polygon), k) for k, raum in enumerate(raeume)
+                      if raum.z_unten - 0.3 <= tuer.z_unten <= raum.z_oben - 0.5
+                      and raum.polygon.distance(tuer.polygon) <= regeln.tuer_toleranz))[:2]
+        anliegend = [raeume[k] for _, k in nah]
+        for raum in anliegend:
+            raum.tueren.append(tuer.polygon)
+        if len(anliegend) == 2:
+            a, b = anliegend
+            if a.treppenhaus != b.treppenhaus:
+                setzen(b if a.treppenhaus else a, tuer, "Ausgang ins Treppenhaus")
+        elif len(anliegend) == 1 and tuer.extern is not False and anliegend[0].geschoss == eg:
+            setzen(anliegend[0], tuer, "Ausgang ins Freie (EG)")
+
+    for raum in raeume:
+        if raum.verkehrsweg:
+            _verkehrsweg(raum, regeln)
+        for nr, melder in enumerate(raum.druckknopf, 1):
+            melder.name = f"{raum.nummer or 'R'}-DKM{nr:02d}"
+    return len(tueren)
+
+
+def schreibe_csv_dkm(raeume: list[Raum], pfad: Path) -> None:
+    with pfad.open("w", newline="", encoding="utf-8-sig") as datei:
+        w = csv.writer(datei, delimiter=";")
+        w.writerow(["Geschoss", "Raumnummer", "Raumname", "Raum_GUID", "Melder",
+                    "X_m", "Y_m", "Z_m", "Grund"])
+        for raum in sorted(raeume, key=lambda r: (r.geschoss, r.nummer)):
+            for d in raum.druckknopf:
+                w.writerow([raum.geschoss, raum.nummer, raum.name, raum.guid, d.name,
+                            f"{d.x:.3f}", f"{d.y:.3f}", f"{d.z:.3f}", d.grund])
+
+
+def bericht_dkm(raeume: list[Raum]) -> None:
+    print(f"\n{'Geschoss':<10}{'Raum':<8}{'Name':<20}{'Druckknopfmelder':<18}{'X':>8}{'Y':>8}  Grund")
+    print("-" * 105)
+    for raum in sorted(raeume, key=lambda r: (r.geschoss, r.nummer)):
+        for d in raum.druckknopf:
+            print(f"{raum.geschoss[:9]:<10}{raum.nummer[:7]:<8}{raum.name[:19]:<20}{d.name:<18}"
+                  f"{d.x:>8.2f}{d.y:>8.2f}  {d.grund}")
+    print("-" * 105)
+    treppen = sorted(r.nummer for r in raeume if r.treppenhaus)
+    wege = sorted(r.nummer for r in raeume if r.verkehrsweg)
+    print(f"Druckknopfmelder: {sum(len(r.druckknopf) for r in raeume)}   "
+          f"Treppenhaeuser: {', '.join(treppen) or '-'}   Verkehrswege: {', '.join(wege) or '-'}")
+
+
+# --------------------------------------------------------------------------- #
 # Ausgabe
 # --------------------------------------------------------------------------- #
 def schreibe_csv(raeume: list[Raum], pfad: Path) -> None:
@@ -929,6 +1228,11 @@ def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str
                 else:
                     ax.scatter(b.melder[:, 0], b.melder[:, 1], s=110, marker="s",
                                facecolor="none", edgecolor="#1f618d", lw=1.3, zorder=4)
+            for tuer in raum.tueren:
+                ax.fill(*tuer.exterior.xy, facecolor="#e67e22", edgecolor="#a04000", lw=0.5, zorder=3.5)
+            if raum.druckknopf:
+                ax.scatter([d.x for d in raum.druckknopf], [d.y for d in raum.druckknopf], s=70,
+                           marker="D", color="#1e8449", edgecolor="white", lw=0.8, zorder=7)
             p = raum.polygon.representative_point()
             zd = raum.anzahl("Zwischendecke")
             hoehe = raum.bereiche[0].hoehe if raum.bereiche else raum.hoehe
@@ -942,13 +1246,16 @@ def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str
         n_rm = sum(r.anzahl("Raum") for r in liste)
         n_zd = sum(r.anzahl("Zwischendecke") for r in liste)
         ax.set_title(f"Rauchmelderplatzierung – {geschoss}  "
-                     f"({n_rm} Raummelder, {n_zd} Zwischendeckenmelder)", fontsize=10)
+                     f"({n_rm} Raummelder, {n_zd} Zwischendeckenmelder, "
+                     f"{sum(len(r.druckknopf) for r in liste)} Druckknopfmelder)", fontsize=10)
         ax.set_xlabel("X [m]")
         ax.set_ylabel("Y [m]")
         ax.legend(handles=[
             Line2D([], [], marker="o", ls="", color="#c0392b", markersize=6, label="Raummelder"),
             Line2D([], [], marker="s", ls="", markerfacecolor="none", markeredgecolor="#1f618d",
                    markersize=9, label="Zwischendeckenmelder"),
+            Line2D([], [], marker="D", ls="", color="#1e8449", markersize=7, label="Druckknopfmelder"),
+            Patch(facecolor="#e67e22", edgecolor="#a04000", label="Tür"),
             Patch(facecolor="#95a5a6", edgecolor="#566573", hatch="////", label="Unterzug"),
             Line2D([], [], color="#aab7c4", lw=0.6, label="Rasterdecke"),
             Line2D([], [], color="#c0392b", lw=0.8, ls="-.", label="Melderachse"),
@@ -962,7 +1269,8 @@ def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str
 
 
 def schreibe_ifc(modell: ifcopenshell.file, raeume: list[Raum], pfad: Path) -> None:
-    """Fuegt die Melder als IfcSensor (SMOKESENSOR) in das Modell ein und speichert es."""
+    """Fuegt Rauchmelder (IfcSensor SMOKESENSOR) und Druckknopfmelder (IfcAlarm
+    MANUALPULLBOX) in das Modell ein und speichert es."""
     faktor = 1.0 / ifcopenshell.util.unit.calculate_unit_scale(modell)  # m -> Modelleinheit
     ifc2x3 = modell.schema == "IFC2X3"
     kontext = next((k for k in modell.by_type("IfcGeometricRepresentationContext")
@@ -974,7 +1282,7 @@ def schreibe_ifc(modell: ifcopenshell.file, raeume: list[Raum], pfad: Path) -> N
     richtung_z = modell.createIfcDirection((0.0, 0.0, 1.0))
     richtung_x = modell.createIfcDirection((1.0, 0.0, 0.0))
     ursprung = modell.createIfcCartesianPoint((0.0, 0.0, 0.0))
-    darstellung = None
+    darstellung = darstellung_dkm = None
     if kontext is not None:
         profil = modell.createIfcCircleProfileDef(
             "AREA", None, modell.createIfcAxis2Placement2D(
@@ -984,6 +1292,14 @@ def schreibe_ifc(modell: ifcopenshell.file, raeume: list[Raum], pfad: Path) -> N
                 modell.createIfcCartesianPoint((0.0, 0.0, -0.05 * faktor)), richtung_z, richtung_x),
             richtung_z, 0.05 * faktor)
         darstellung = modell.createIfcShapeRepresentation(kontext, "Body", "SweptSolid", [koerper])
+        # Druckknopfmelder: Kasten 120 x 120 x 120 mm
+        kasten = modell.createIfcExtrudedAreaSolid(
+            modell.createIfcRectangleProfileDef("AREA", None, modell.createIfcAxis2Placement2D(
+                modell.createIfcCartesianPoint((0.0, 0.0)), None), 0.12 * faktor, 0.12 * faktor),
+            modell.createIfcAxis2Placement3D(
+                modell.createIfcCartesianPoint((0.0, 0.0, -0.06 * faktor)), richtung_z, richtung_x),
+            richtung_z, 0.12 * faktor)
+        darstellung_dkm = modell.createIfcShapeRepresentation(kontext, "Body", "SweptSolid", [kasten])
 
     je_geschoss = defaultdict(list)
     for raum in raeume:
@@ -995,26 +1311,31 @@ def schreibe_ifc(modell: ifcopenshell.file, raeume: list[Raum], pfad: Path) -> N
             bezug = geschoss.ObjectPlacement
         else:
             invers, bezug = np.eye(4), None
-        for bereich, name, x, y in ((b, n, m[0], m[1]) for b in raum.bereiche
-                                    for n, m in zip(b.namen, b.melder)):
-            lokal = invers @ np.array([x * faktor, y * faktor, bereich.z_oben * faktor, 1.0])
+        eintraege = [(n, m[0], m[1], b.z_oben, darstellung, "IfcSensor", "SMOKESENSOR",
+                      "Punktfoermiger Rauchmelder, "
+                      + ("Zwischendecke" if b.art == "Zwischendecke" else "Raum") + f" {raum.nummer}")
+                     for b in raum.bereiche for n, m in zip(b.namen, b.melder)]
+        eintraege += [(d.name, d.x, d.y, d.z, darstellung_dkm if darstellung is not None else None,
+                       "IfcAlarm", "MANUALPULLBOX", f"Druckknopfmelder, {d.grund}")
+                      for d in raum.druckknopf]
+        for name, x, y, z, geometrie, klasse, typ, beschreibung in eintraege:
+            lokal = invers @ np.array([x * faktor, y * faktor, z * faktor, 1.0])
             achse = invers[:3, :3] @ np.array([0.0, 0.0, 1.0])
             ref = invers[:3, :3] @ np.array([1.0, 0.0, 0.0])
             platzierung = modell.createIfcLocalPlacement(bezug, modell.createIfcAxis2Placement3D(
                 modell.createIfcCartesianPoint(tuple(float(v) for v in lokal[:3])),
                 modell.createIfcDirection(tuple(float(v) for v in achse)),
                 modell.createIfcDirection(tuple(float(v) for v in ref))))
-            form = (modell.createIfcProductDefinitionShape(None, None, [darstellung])
-                    if darstellung is not None else None)
-            ort = "Zwischendecke" if bereich.art == "Zwischendecke" else "Raum"
+            form = (modell.createIfcProductDefinitionShape(None, None, [geometrie])
+                    if geometrie is not None else None)
             attribute = dict(GlobalId=ifcopenshell.guid.new(), OwnerHistory=historie,
-                             Name=name, Description=f"Punktfoermiger Rauchmelder, {ort} {raum.nummer}",
+                             Name=name, Description=beschreibung,
                              ObjectPlacement=platzierung, Representation=form)
             if ifc2x3:
                 melder = modell.create_entity("IfcDistributionControlElement",
-                                              ObjectType="SMOKESENSOR", **attribute)
+                                              ObjectType=typ, **attribute)
             else:
-                melder = modell.create_entity("IfcSensor", PredefinedType="SMOKESENSOR", **attribute)
+                melder = modell.create_entity(klasse, PredefinedType=typ, **attribute)
             je_geschoss[geschoss].append(melder)
 
     for geschoss, melder in je_geschoss.items():
@@ -1022,7 +1343,7 @@ def schreibe_ifc(modell: ifcopenshell.file, raeume: list[Raum], pfad: Path) -> N
             continue
         modell.create_entity("IfcRelContainedInSpatialStructure",
                              GlobalId=ifcopenshell.guid.new(), OwnerHistory=historie,
-                             Name="Rauchmelder", RelatedElements=melder,
+                             Name="Brandmelder", RelatedElements=melder,
                              RelatingStructure=geschoss)
     modell.write(str(pfad))
 
@@ -1090,6 +1411,21 @@ def main(argv=None) -> int:
                    help="Unterzughoehe unter der Decke [m], ab der die Decke geteilt wird; 0 = immer (%(default)s)")
     g.add_argument("--min-feld", type=float, default=d.min_feld,
                    help="Deckenfelder unterhalb dieser Flaeche [m2] bleiben ohne Melder (%(default)s)")
+    k = p.add_argument_group("Druckknopfmelder")
+    k.add_argument("--ohne-dkm", action="store_true", help="keine Druckknopfmelder setzen")
+    k.add_argument("--dkm-abstand", type=float, default=d.dkm_abstand,
+                   help="Abstand der Druckknopfmelder in Verkehrswegen [m] (%(default)s)")
+    k.add_argument("--dkm-hoehe", type=float, default=d.dkm_hoehe, help="Montagehoehe [m] (%(default)s)")
+    k.add_argument("--dkm-tuerabstand", type=float, default=d.dkm_tuerabstand,
+                   help="seitlicher Abstand zur Tueroeffnung [m] (%(default)s)")
+    k.add_argument("--tuer-toleranz", type=float, default=d.tuer_toleranz,
+                   help="max. Abstand Tuer - Raum fuer die Zuordnung [m] (%(default)s)")
+    k.add_argument("--muster-treppenhaus", default=d.muster_treppenhaus,
+                   help="Regulaerer Ausdruck fuer Treppenhaus-Raeume (%(default)s)")
+    k.add_argument("--muster-verkehrsweg", default=d.muster_verkehrsweg,
+                   help="Regulaerer Ausdruck fuer Verkehrswege (%(default)s)")
+    k.add_argument("--erdgeschoss", default=d.erdgeschoss,
+                   help="Name des Erdgeschosses (Standard: automatisch)")
     a = p.add_argument_group("Achsausrichtung")
     a.add_argument("--max-verschiebung", type=float, default=d.max_verschiebung,
                    help="max. Verschiebung eines Raumrasters auf gemeinsame Achsen [m], 0 = aus (%(default)s)")
@@ -1116,10 +1452,18 @@ def main(argv=None) -> int:
         len(raeume), *(len(bauteile[k]) for k in ("Abhangdecke", "Unterzug", "Rohdecke"))))
     achsen = platziere_alle(raeume, regeln, bauteile)
     bericht(raeume)
+    if not regeln.ohne_dkm:
+        anzahl = platziere_druckknopfmelder(modell, raeume, regeln)
+        print(f"\nGefunden: {anzahl} Tueren, Erdgeschoss: {_erdgeschoss(modell, regeln)}")
+        bericht_dkm(raeume)
 
     csv_pfad = ordner / f"{stamm}.csv"
     schreibe_csv(raeume, csv_pfad)
     print(f"\nCSV : {csv_pfad}")
+    if not regeln.ohne_dkm:
+        dkm_pfad = ordner / f"{args.ifc.stem}_druckknopfmelder.csv"
+        schreibe_csv_dkm(raeume, dkm_pfad)
+        print(f"CSV : {dkm_pfad}")
     if not args.kein_plan:
         for pfad in schreibe_plaene(raeume, achsen, ordner, stamm):
             print(f"Plan: {pfad}")

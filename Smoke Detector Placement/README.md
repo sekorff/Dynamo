@@ -32,8 +32,9 @@ Ausgaben (neben der IFC-Datei oder im Ordner `-o`):
 | Datei | Inhalt |
 |---|---|
 | `*_rauchmelder.csv` | je Melder: Geschoss, Raum, Bereich (Raum/Zwischendecke), Deckenfeld, Bezeichnung, X/Y/Z in m (Z = Montagehöhe), A, DH, Hinweise |
+| `*_druckknopfmelder.csv` | je Druckknopfmelder: Geschoss, Raum, Bezeichnung, X/Y/Z in m, Grund |
 | `*_rauchmelder_<Geschoss>.png` | Grundriss mit Raum- und Zwischendeckenmeldern, Deckenraster, Unterzügen und Achsen |
-| `*_rauchmelder.ifc` | Ursprungsmodell plus Melder als `IfcSensor` (`SMOKESENSOR`), dem Geschoss zugeordnet |
+| `*_rauchmelder.ifc` | Ursprungsmodell plus Rauchmelder als `IfcSensor` (`SMOKESENSOR`) und Druckknopfmelder als `IfcAlarm` (`MANUALPULLBOX`), dem Geschoss zugeordnet |
 
 ## Verfahren
 
@@ -93,7 +94,42 @@ Ausgaben (neben der IFC-Datei oder im Ordner `-o`):
    geschoben – nur wenn danach weiterhin alle Regeln eingehalten sind.
    Die Achsen gelten über alle Geschosse.
 
+## Druckknopfmelder
+
+Zusätzlich zu den Rauchmeldern werden Druckknopfmelder (Handfeuermelder) gesetzt
+(abschaltbar mit `--ohne-dkm`):
+
+1. **Ausgang ins Treppenhaus** – an jeder Tür (`IfcDoor`), die einen Raum mit
+   einem Treppenhaus verbindet; der Melder sitzt auf der Raumseite an der Wand
+   neben der Tür.
+2. **Ausgang ins Freie im Erdgeschoss** – an jeder Tür im Erdgeschoss, an die nur
+   ein Raum grenzt (und die nicht als `IsExternal = false` gekennzeichnet ist).
+3. **Verkehrswege** – entlang der Mittelachse jedes Verkehrswegs wird, ausgehend
+   von den Meldern an den Ausgängen, alle 25 m (`--dkm-abstand`) ein weiterer
+   Melder gesetzt. Lücken zwischen zwei Meldern über 25 m werden gleichmäßig
+   geteilt. Hat ein Verkehrsweg keinen Ausgang, beginnt die Teilung an seinem Ende.
+
+Erkennung:
+
+- Türen werden den Räumen geometrisch zugeordnet (Abstand ≤ `--tuer-toleranz`,
+  Standard 0,5 m).
+- **Treppenhaus**: Raumnummer, -name oder -typ passt auf `--muster-treppenhaus`
+  (Standard: `trepp`, `TRH`, `stair`) oder im Raum liegt eine `IfcStair`.
+- **Verkehrsweg**: Name passt auf `--muster-verkehrsweg` (Standard u. a. `flur`,
+  `gang`, `korridor`, `foyer`, `verkehr`).
+- **Erdgeschoss**: Geschossname `EG`, `00`, `Erdgeschoss` o. ä., sonst das
+  Geschoss mit Höhe nächst 0; fest vorgebbar mit `--erdgeschoss`.
+
+Montagehöhe 1,4 m über Fußboden (`--dkm-hoehe`). Ausgabe in
+`*_druckknopfmelder.csv`, im Plan (grüne Raute) und in der IFC als `IfcAlarm`
+(`MANUALPULLBOX`).
+
 ## Grenzen
+
+- Druckknopfmelder: Ohne `IfcDoor` im Modell gibt es keine Melder an Ausgängen.
+  Als „Ausgang ins Freie“ zählt jede EG-Tür mit nur einem angrenzenden Raum –
+  also auch Terrassentüren und Türen zu nicht modellierten Bereichen. Die
+  Erkennung von Treppenhäusern und Verkehrswegen hängt an den Raumnamen.
 
 - Die Normwerte sind Voreinstellungen für flache Decken (Neigung ≤ 20°) und per
   Parameter änderbar. **Sie ersetzen keine Fachplanung** und sind gegen die gültige

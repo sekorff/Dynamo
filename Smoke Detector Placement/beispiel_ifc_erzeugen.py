@@ -33,6 +33,19 @@ RAEUME_EG = [
 DECKENSTAERKE = 0.02  # Abhangdecke
 
 # Unterzuege: (Name, Rechteck x0, y0, x1, y1 [m], Unterkante, Oberkante [m ueber Geschoss])
+# Treppenhaus am Ostende des Flurs (in jedem Geschoss)
+TREPPENHAUS = ("0.10", "Treppenhaus", [(32.2, 10), (36, 10), (36, 16.2), (32.2, 16.2)], 3.5, None)
+
+# Tueren: (Name, Rechteck x0, y0, x1, y1 [m], nur im Erdgeschoss?)
+TUEREN = [
+    ("T Flur-Treppenhaus", (32.0, 12.7, 32.2, 13.7), False),
+    ("T Flur-Buero 0.03", (2.0, 14.2, 3.0, 14.4), False),
+    ("T Flur-Grossraumbuero", (9.0, 12.0, 10.0, 12.2), False),
+    ("T Haupteingang", (-0.2, 12.7, 0.0, 13.7), True),
+    ("T Treppenhaus ins Freie", (36.0, 12.5, 36.2, 13.5), True),
+    ("T Halle ins Freie", (25.0, 26.0, 27.0, 26.2), True),
+]
+
 UNTERZUEGE_EG = [
     ("UZ Lager", (26.0, 5.85, 32.0, 6.15), 3.0, 3.5),           # sichtbar: teilt den Raum
     ("UZ Halle", (20.2, 20.0, 32.0, 20.4), 6.8, 7.5),           # sichtbar: teilt die Halle
@@ -77,7 +90,8 @@ def erzeugen(pfad: str) -> None:
         return element
 
     for geschossname, hoehe_ok, raeume, unterzuege in (
-            ("EG", 0.0, RAEUME_EG, UNTERZUEGE_EG), ("OG1", 8.0, RAEUME_EG[:6], UNTERZUEGE_EG[:1])):
+            ("EG", 0.0, RAEUME_EG + [TREPPENHAUS], UNTERZUEGE_EG),
+            ("OG1", 8.0, RAEUME_EG[:6] + [TREPPENHAUS], UNTERZUEGE_EG[:1])):
         geschoss = api("root.create_entity", modell, ifc_class="IfcBuildingStorey", name=geschossname)
         api("aggregate.assign_object", modell, products=[geschoss], relating_object=gebaeude)
         api("geometry.edit_object_placement", modell, product=geschoss,
@@ -109,6 +123,11 @@ def erzeugen(pfad: str) -> None:
                 rohdecke = hoehe + DECKENSTAERKE + hohlraum
             bauteil("IfcSlab", f"Decke ueber {nummer}", geschoss, hoehe_ok, polygon,
                     rohdecke, 0.25, typ="FLOOR")
+        for name, (x0, y0, x1, y1), nur_eg in TUEREN:
+            if nur_eg and geschossname != "EG":
+                continue
+            bauteil("IfcDoor", name, geschoss, hoehe_ok,
+                    [(x0, y0), (x1, y0), (x1, y1), (x0, y1)], 0.0, 2.1, typ="DOOR")
         for name, (x0, y0, x1, y1), uk, ok in unterzuege:
             bauteil("IfcBeam", name, geschoss, hoehe_ok,
                     [(x0, y0), (x1, y0), (x1, y1), (x0, y1)], uk, ok - uk, typ="BEAM")
