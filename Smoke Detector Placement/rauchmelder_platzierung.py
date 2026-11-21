@@ -14,6 +14,13 @@ Vorgehen je Raum
   4. Das Raster innerhalb der Toleranzen so verschieben, dass seine Reihen auf
      Achsen bereits bearbeiteter Raeume (oder einem Deckenraster) liegen.
 
+Zusaetzlich wird jeder Raum untersucht auf
+  * Abhangdecken (IfcCovering CEILING): ist der Hohlraum zwischen Abhangdecke
+    und Rohdecke hoeher als `zwischendecke_min` (0,29 m), erhaelt er eigene
+    Zwischendeckenmelder.
+  * Unterzuege (IfcBeam): trennt ein Unterzug die Decke, wird jedes Deckenfeld
+    wie ein eigener Raum projektiert (gilt fuer Raum und Zwischendecke).
+
 Die Normwerte sind Voreinstellungen und muessen vom Fachplaner gegen die
 gueltige Ausgabe der DIN VDE 0833-2 / VdS 2095 geprueft werden.
 """
@@ -67,12 +74,55 @@ class Regeln:
     raster: float = 0.0            # m, optionales Deckenraster (0 = aus)
     # Raeume unterhalb dieser Flaeche erhalten keinen Melder (0 = alle Raeume)
     min_flaeche: float = 0.0
+    # Hohlraum ueber der Abhangdecke: oberhalb dieser Hoehe eigene Melder
+    zwischendecke_min: float = 0.29
+    # Unterzuege trennen die Decke ab dieser Hoehe unter der Decke (0 = immer)
+    unterzug_min: float = 0.0
+    # Deckenfelder unterhalb dieser Flaeche gelten als Restflaeche (kein Melder)
+    min_feld: float = 0.5
 
     def werte(self, flaeche: float, hoehe: float) -> tuple[float, float]:
         """Liefert (A, DH) fuer einen Raum."""
         if flaeche <= self.grenzflaeche or hoehe > self.grenzhoehe:
             return self.a_gross, self.dh_gross
         return self.a_klein, self.dh_klein
+
+
+@dataclass
+class Bauteil:
+    """Abhangdecke, Unterzug oder Rohdecke: Grundriss und Hoehenlage."""
+    art: str
+    name: str
+    polygon: Polygon
+    z_unten: float
+    z_oben: float
+
+
+@dataclass
+class Bereich:
+    """Ein zu ueberwachendes Deckenfeld: Raum bzw. Zwischendecke, ggf. durch
+    Unterzuege begrenzt. `z_oben` ist die Montagehoehe der Melder."""
+    art: str            # "Raum" oder "Zwischendecke"
+    feld: int           # laufende Nummer des Deckenfelds im Raum
+    polygon: Polygon
+    z_unten: float
+    z_oben: float
+    winkel: float = 0.0
+    melder: np.ndarray = field(default_factory=lambda: np.zeros((0, 2)))
+    namen: list[str] = field(default_factory=list)
+    a: float = 0.0
+    dh: float = 0.0
+    raster_n: tuple[int, int] = (0, 0)
+    max_abstand: float = 0.0
+    hinweise: list[str] = field(default_factory=list)
+
+    @property
+    def flaeche(self) -> float:
+        return self.polygon.area
+
+    @property
+    def hoehe(self) -> float:
+        return self.z_oben - self.z_unten
 
 
 @dataclass
@@ -85,12 +135,8 @@ class Raum:
     z_unten: float
     z_oben: float
     element: object = None
-    melder: np.ndarray = field(default_factory=lambda: np.zeros((0, 2)))
-    a: float = 0.0
-    dh: float = 0.0
-    winkel: float = 0.0
-    raster_n: tuple[int, int] = (0, 0)
-    max_abstand: float = 0.0
+    bereiche: list[Bereich] = field(default_factory=list)
+    unterzuege: list[Polygon] = field(default_factory=list)
     hinweise: list[str] = field(default_factory=list)
 
     @property
@@ -100,6 +146,9 @@ class Raum:
     @property
     def hoehe(self) -> float:
         return self.z_oben - self.z_unten
+
+    def anzahl(self, art: str) -> int:
+        return sum(len(b.melder) for b in self.bereiche if b.art == art)
 
 
 # --------------------------------------------------------------------------- #
@@ -157,6 +206,127 @@ def lade_raeume(modell: ifcopenshell.file) -> list[Raum]:
             element=space,
         ))
     return raeume
+
+
+def lade_bauteile(modell: ifcopenshell.file) -> dict[str, list[Bauteil]]:
+    """Liest Abhangdecken, Unterzuege und Rohdecken (Meter, Weltkoordinaten)."""
+    einstellungen = ifcopenshell.geom.settings()
+    einstellungen.set("use-world-coords", True)
+    ergebnis: dict[str, list[Bauteil]] = {"Abhangdecke": [], "Unterzug": [], "Rohdecke": []}
+    quellen = [("Abhangdecke", "IfcCovering"), ("Unterzug", "IfcBeam"),
+               ("Rohdecke", "IfcSlab"), ("Rohdecke", "IfcRoof")]
+    for art, klasse in quellen:
+        for element in modell.by_type(klasse):
+            if art == "Abhangdecke" and \
+                    ifcopenshell.util.element.get_predefined_type(element) != "CEILING":
+                continue
+            if element.Representation is None:
+                continue
+            try:
+                shape = ifcopenshell.geom.create_shape(einstellungen, element)
+            except Exception:
+                continue
+            verts = np.asarray(shape.geometry.verts, dtype=float).reshape(-1, 3)
+            faces = np.asarray(shape.geometry.faces, dtype=int).reshape(-1, 3)
+            polygon = _grundriss(verts, faces)
+            if polygon is None:
+                continue
+            ergebnis[art].append(Bauteil(art, element.Name or element.GlobalId, polygon,
+                                         float(verts[:, 2].min()), float(verts[:, 2].max())))
+    return ergebnis
+
+
+def _polygone(geom) -> list[Polygon]:
+    if geom.is_empty:
+        return []
+    if isinstance(geom, Polygon):
+        return [geom]
+    return [g for g in getattr(geom, "geoms", []) if isinstance(g, Polygon)]
+
+
+def _deckenfelder(flaeche, z_boden: float, z_decke: float, unterzuege: list[Bauteil],
+                  regeln: Regeln) -> tuple[list[Polygon], list[Polygon], int]:
+    """Teilt eine Deckenflaeche an den Unterzuegen, die unter die Decke ragen.
+
+    Rueckgabe: (Deckenfelder, Grundrisse der wirksamen Unterzuege, Anzahl Restflaechen)
+    """
+    wirksam = [u.polygon for u in unterzuege
+               if u.z_unten < z_decke - max(regeln.unterzug_min, 0.01)  # ragt unter die Decke
+               and u.z_oben > z_decke - 0.05                            # reicht bis zur Decke
+               and u.z_oben > z_boden
+               and u.polygon.intersects(flaeche)
+               and u.polygon.intersection(flaeche).area > 0.01]
+    if not wirksam:
+        return _polygone(flaeche), [], 0
+    teile = _polygone(flaeche.difference(unary_union(wirksam)))
+    felder = [t for t in teile if t.area >= regeln.min_feld]
+    felder.sort(key=lambda t: (round(t.bounds[1], 2), round(t.bounds[0], 2)))
+    schnitt = [g for u in wirksam for g in _polygone(u.intersection(flaeche))]
+    return felder, schnitt, len(teile) - len(felder)
+
+
+def bilde_bereiche(raum: Raum, bauteile: dict[str, list[Bauteil]], regeln: Regeln) -> None:
+    """Untersucht den Raum auf Abhangdecken und Unterzuege und legt die
+    zu ueberwachenden Bereiche (Deckenfelder, Zwischendecken) an."""
+    winkel = hauptwinkel(raum.polygon)
+    raum.bereiche, raum.unterzuege = [], []
+
+    # Abhangdecken im oberen Raumbereich bzw. direkt ueber dem Raumvolumen
+    decken = []
+    for decke in bauteile["Abhangdecke"]:
+        if not (raum.z_unten + 0.5 * raum.hoehe < decke.z_unten <= raum.z_oben + 0.10):
+            continue
+        if not decke.polygon.intersects(raum.polygon):
+            continue
+        flaeche = decke.polygon.intersection(raum.polygon)
+        if flaeche.area > 0.25:
+            decken.append((decke, flaeche))
+
+    # Deckenhoehe des Raums: Unterkante Abhangdecke, wenn sie den Raum ueberwiegend bedeckt
+    z_decke = raum.z_oben
+    if decken and sum(f.area for _, f in decken) >= 0.5 * raum.flaeche:
+        z_decke = min(raum.z_oben, max(decken, key=lambda d: d[1].area)[0].z_unten)
+
+    felder, schnitt, reste = _deckenfelder(raum.polygon, raum.z_unten, z_decke,
+                                           bauteile["Unterzug"], regeln)
+    raum.unterzuege += schnitt
+    if len(felder) > 1:
+        raum.hinweise.append(f"Unterzug teilt den Raum in {len(felder)} Deckenfelder")
+    if reste:
+        raum.hinweise.append(f"{reste} Restflaeche(n) < {regeln.min_feld} m2 ohne Melder")
+    for nr, feld in enumerate(felder, 1):
+        raum.bereiche.append(Bereich("Raum", nr, feld, raum.z_unten, z_decke, winkel))
+
+    # Zwischendecken
+    nr = 0
+    for decke, flaeche in decken:
+        kandidaten = [r.z_unten for r in bauteile["Rohdecke"]
+                      if decke.z_oben - 0.02 <= r.z_unten <= decke.z_oben + 5.0
+                      and r.polygon.intersects(flaeche)
+                      and r.polygon.intersection(flaeche).area > 0.25]
+        if raum.z_oben > decke.z_oben + 0.01:
+            kandidaten.append(raum.z_oben)  # Raumvolumen reicht bis zur Rohdecke
+        if not kandidaten:
+            raum.hinweise.append("Abhangdecke ohne erkennbare Rohdecke - Hohlraum manuell pruefen")
+            continue
+        z_roh = min(kandidaten)
+        hohlraum = z_roh - decke.z_oben
+        if hohlraum <= regeln.zwischendecke_min + 1e-6:
+            raum.hinweise.append(f"Abhangdecke, Hohlraum {hohlraum:.2f} m: kein Zwischendeckenmelder")
+            continue
+        raum.hinweise.append(f"Abhangdecke, Hohlraum {hohlraum:.2f} m > "
+                             f"{regeln.zwischendecke_min:.2f} m: Zwischendeckenmelder")
+        felder, schnitt, reste = _deckenfelder(flaeche, decke.z_oben, z_roh,
+                                               bauteile["Unterzug"], regeln)
+        raum.unterzuege += schnitt
+        if len(felder) > 1:
+            raum.hinweise.append(f"Unterzug teilt die Zwischendecke in {len(felder)} Deckenfelder")
+        if reste:
+            raum.hinweise.append(
+                f"{reste} Restflaeche(n) < {regeln.min_feld} m2 in der Zwischendecke ohne Melder")
+        for feld in felder:
+            nr += 1
+            raum.bereiche.append(Bereich("Zwischendecke", nr, feld, decke.z_oben, z_roh, winkel))
 
 
 def _geschoss(element):
@@ -239,16 +409,15 @@ class Achsen:
         return self._achsen.items()
 
 
-def platziere(raum: Raum, regeln: Regeln, achsen: Achsen) -> None:
-    """Bestimmt die Melderpositionen eines Raums und traegt sie in `raum` ein."""
+def platziere(raum: Bereich, regeln: Regeln, achsen: Achsen) -> None:
+    """Bestimmt die Melderpositionen eines Bereichs und traegt sie dort ein."""
     raum.a, raum.dh = regeln.werte(raum.flaeche, raum.hoehe)
-    if raum.hoehe > regeln.max_hoehe:
+    if raum.art == "Raum" and raum.hoehe > regeln.max_hoehe:
         raum.hinweise.append(
             f"Raumhoehe {raum.hoehe:.2f} m > {regeln.max_hoehe:.1f} m: "
             "punktfoermige Rauchmelder nicht geeignet")
 
     # Alles Weitere im gedrehten System (Hauptrichtung des Raums = u-Achse)
-    raum.winkel = hauptwinkel(raum.polygon)
     poly = affinity.rotate(raum.polygon, -raum.winkel, origin=(0, 0))
     u0, v0, u1, v1 = poly.bounds
     laenge, breite = u1 - u0, v1 - v0
@@ -368,15 +537,32 @@ def _ausrichten(punkte, raum, regeln, achsen, bereich, gueltig) -> np.ndarray:
     return punkte
 
 
-def platziere_alle(raeume: list[Raum], regeln: Regeln) -> Achsen:
+def platziere_alle(raeume: list[Raum], regeln: Regeln,
+                   bauteile: dict[str, list[Bauteil]] | None = None) -> Achsen:
+    bauteile = bauteile or {"Abhangdecke": [], "Unterzug": [], "Rohdecke": []}
     achsen = Achsen()
-    # Grosse Raeume zuerst: sie geben die Achsen vor, kleine richten sich danach
-    for raum in sorted(raeume, key=lambda r: -r.flaeche):
+    bereiche: list[Bereich] = []
+    for raum in raeume:
         if raum.flaeche < regeln.min_flaeche:
             raum.hinweise.append(
                 f"Flaeche < {regeln.min_flaeche:.1f} m2: kein Melder vorgesehen")
             continue
-        platziere(raum, regeln, achsen)
+        bilde_bereiche(raum, bauteile, regeln)
+        bereiche += raum.bereiche
+    # Raeume vor Zwischendecken, grosse Flaechen zuerst: sie geben die Achsen vor
+    for bereich in sorted(bereiche, key=lambda b: (b.art != "Raum", -b.flaeche)):
+        platziere(bereich, regeln, achsen)
+    # Melder je Raum durchnummerieren: RM = Raummelder, ZD = Zwischendeckenmelder
+    for raum in raeume:
+        for art, kuerzel in (("Raum", "RM"), ("Zwischendecke", "ZD")):
+            nr = 0
+            for bereich in raum.bereiche:
+                if bereich.art != art:
+                    continue
+                bereich.namen = []
+                for _ in bereich.melder:
+                    nr += 1
+                    bereich.namen.append(f"{raum.nummer or 'R'}-{kuerzel}{nr:02d}")
     return achsen
 
 
@@ -386,25 +572,30 @@ def platziere_alle(raeume: list[Raum], regeln: Regeln) -> Achsen:
 def schreibe_csv(raeume: list[Raum], pfad: Path) -> None:
     with pfad.open("w", newline="", encoding="utf-8-sig") as datei:
         w = csv.writer(datei, delimiter=";")
-        w.writerow(["Geschoss", "Raumnummer", "Raumname", "Raum_GUID", "Melder",
-                    "X_m", "Y_m", "Z_m", "Raumflaeche_m2", "Raumhoehe_m",
+        w.writerow(["Geschoss", "Raumnummer", "Raumname", "Raum_GUID", "Bereich", "Deckenfeld",
+                    "Melder", "X_m", "Y_m", "Z_m", "Feldflaeche_m2", "Hoehe_m",
                     "A_m2", "DH_m", "max_Abstand_m", "Hinweise"])
         for raum in sorted(raeume, key=lambda r: (r.geschoss, r.nummer)):
             kopf = [raum.geschoss, raum.nummer, raum.name, raum.guid]
-            fuss = [f"{raum.flaeche:.2f}", f"{raum.hoehe:.2f}", f"{raum.a:.0f}",
-                    f"{raum.dh:.2f}", f"{raum.max_abstand:.2f}" if len(raum.melder) else "",
-                    " | ".join(raum.hinweise)]
-            if len(raum.melder) == 0:
-                w.writerow(kopf + ["", "", "", ""] + fuss)
-            for nr, (x, y) in enumerate(raum.melder, 1):
-                w.writerow(kopf + [f"{raum.nummer or 'R'}-RM{nr:02d}",
-                                   f"{x:.3f}", f"{y:.3f}", f"{raum.z_oben:.3f}"] + fuss)
+            if not raum.bereiche:
+                w.writerow(kopf + [""] * 11 + [" | ".join(raum.hinweise)])
+            for b in raum.bereiche:
+                hinweise = " | ".join(raum.hinweise + b.hinweise)
+                fuss = [f"{b.flaeche:.2f}", f"{b.hoehe:.2f}", f"{b.a:.0f}", f"{b.dh:.2f}",
+                        f"{b.max_abstand:.2f}" if len(b.melder) else "", hinweise]
+                if len(b.melder) == 0:
+                    w.writerow(kopf + [b.art, b.feld, "", "", "", ""] + fuss)
+                for name, (x, y) in zip(b.namen, b.melder):
+                    w.writerow(kopf + [b.art, b.feld, name,
+                                       f"{x:.3f}", f"{y:.3f}", f"{b.z_oben:.3f}"] + fuss)
 
 
 def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str) -> list[Path]:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch
 
     dateien = []
     je_geschoss: dict[str, list[Raum]] = defaultdict(list)
@@ -416,15 +607,20 @@ def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str
         bx, by = grenzen[2] - grenzen[0], grenzen[3] - grenzen[1]
         massstab = 14.0 / max(bx, by, 1.0)
         fig, ax = plt.subplots(figsize=(max(6, bx * massstab) + 1, max(4, by * massstab) + 1))
+        bereiche = [b for r in liste for b in r.bereiche]
 
-        # Achsen, auf denen in diesem Geschoss Melder liegen
+        # Achsen, auf denen in diesem Geschoss mehrere Melder liegen
         for (winkel, richtung), werte in achsen.alle():
+            gedreht = [_drehen(b.melder, winkel) for b in bereiche
+                       if abs(b.winkel - winkel) < 1e-6 and len(b.melder)]
+            if not gedreht:
+                continue
+            alle = np.unique(np.round(np.vstack(gedreht), 3), axis=0)
             for wert in werte:
-                belegt = [m for r in liste if abs(r.winkel - winkel) < 1e-6
-                          for m in _drehen(r.melder, winkel) if abs(m[richtung] - wert) < 2e-3]
+                belegt = alle[np.abs(alle[:, richtung] - wert) < 2e-3]
                 if len(belegt) < 2:
                     continue
-                andere = np.array([m[1 - richtung] for m in belegt])
+                andere = belegt[:, 1 - richtung]
                 ende = np.array([[wert, andere.min() - 1.0], [wert, andere.max() + 1.0]])
                 if richtung == 1:
                     ende = ende[:, ::-1]
@@ -433,28 +629,49 @@ def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str
 
         for raum in liste:
             x, y = raum.polygon.exterior.xy
-            flaeche, = ax.fill(x, y, facecolor="#f4f6f8", edgecolor="#2c3e50", lw=1.2, zorder=1)
+            ax.fill(x, y, facecolor="#f4f6f8", edgecolor="#2c3e50", lw=1.2, zorder=1)
             for ring in raum.polygon.interiors:
                 ax.fill(*ring.xy, facecolor="white", edgecolor="#2c3e50", lw=1.0, zorder=1)
-            for m in raum.melder:
-                kreis = ax.add_patch(plt.Circle(m, raum.dh, facecolor="#2980b9", alpha=0.07,
-                                                edgecolor="#2980b9", lw=0.4, zorder=1.5))
-                kreis.set_clip_path(flaeche)  # Ueberwachungsbereich nur im eigenen Raum
-            if len(raum.melder):
-                ax.scatter(raum.melder[:, 0], raum.melder[:, 1], s=28, color="#c0392b",
-                           edgecolor="white", lw=0.6, zorder=4)
+            for unterzug in raum.unterzuege:
+                ax.fill(*unterzug.exterior.xy, facecolor="#95a5a6", edgecolor="#566573",
+                        lw=0.6, hatch="////", zorder=3)
+            for b in raum.bereiche:
+                if len(b.melder) == 0:
+                    continue
+                if b.art == "Raum":
+                    feld, = ax.fill(*b.polygon.exterior.xy, facecolor="none", edgecolor="none")
+                    for m in b.melder:
+                        kreis = ax.add_patch(plt.Circle(m, b.dh, facecolor="#2980b9", alpha=0.07,
+                                                        edgecolor="#2980b9", lw=0.4, zorder=1.5))
+                        kreis.set_clip_path(feld)  # Ueberwachungsbereich nur im eigenen Feld
+                    ax.scatter(b.melder[:, 0], b.melder[:, 1], s=28, color="#c0392b",
+                               edgecolor="white", lw=0.6, zorder=5)
+                else:
+                    ax.scatter(b.melder[:, 0], b.melder[:, 1], s=110, marker="s",
+                               facecolor="none", edgecolor="#1f618d", lw=1.3, zorder=4)
             p = raum.polygon.representative_point()
-            ax.annotate(f"{raum.nummer} {raum.name}\n{raum.flaeche:.1f} m² · h {raum.hoehe:.2f} m"
-                        f"\n{len(raum.melder)} Melder", (p.x, p.y), ha="center", va="center",
-                        fontsize=6.5, color="#2c3e50", zorder=5,
-                        xytext=(0, -14), textcoords="offset points")
+            zd = raum.anzahl("Zwischendecke")
+            hoehe = raum.bereiche[0].hoehe if raum.bereiche else raum.hoehe
+            ax.annotate(f"{raum.nummer} {raum.name}\n{raum.flaeche:.1f} m² · h {hoehe:.2f} m"
+                        f"\n{raum.anzahl('Raum')} Melder" + (f" + {zd} ZD" if zd else ""),
+                        (p.x, p.y), ha="center", va="center", fontsize=6.5, color="#2c3e50",
+                        zorder=6, xytext=(0, -14), textcoords="offset points")
         ax.set_xlim(grenzen[0] - 1, grenzen[2] + 1)
         ax.set_ylim(grenzen[1] - 1, grenzen[3] + 1)
         ax.set_aspect("equal")
+        n_rm = sum(r.anzahl("Raum") for r in liste)
+        n_zd = sum(r.anzahl("Zwischendecke") for r in liste)
         ax.set_title(f"Rauchmelderplatzierung – {geschoss}  "
-                     f"({sum(len(r.melder) for r in liste)} Melder)", fontsize=10)
+                     f"({n_rm} Raummelder, {n_zd} Zwischendeckenmelder)", fontsize=10)
         ax.set_xlabel("X [m]")
         ax.set_ylabel("Y [m]")
+        ax.legend(handles=[
+            Line2D([], [], marker="o", ls="", color="#c0392b", markersize=6, label="Raummelder"),
+            Line2D([], [], marker="s", ls="", markerfacecolor="none", markeredgecolor="#1f618d",
+                   markersize=9, label="Zwischendeckenmelder"),
+            Patch(facecolor="#95a5a6", edgecolor="#566573", hatch="////", label="Unterzug"),
+            Line2D([], [], color="#c0392b", lw=0.8, ls="-.", label="Melderachse"),
+        ], loc="upper left", bbox_to_anchor=(1.01, 1.0), fontsize=7, frameon=False)
         sicher = "".join(c if c.isalnum() or c in "-_" else "_" for c in geschoss)
         pfad = ordner / f"{stamm}_{sicher}.png"
         fig.savefig(pfad, dpi=160, bbox_inches="tight")
@@ -497,8 +714,9 @@ def schreibe_ifc(modell: ifcopenshell.file, raeume: list[Raum], pfad: Path) -> N
             bezug = geschoss.ObjectPlacement
         else:
             invers, bezug = np.eye(4), None
-        for nr, (x, y) in enumerate(raum.melder, 1):
-            lokal = invers @ np.array([x * faktor, y * faktor, raum.z_oben * faktor, 1.0])
+        for bereich, name, x, y in ((b, n, m[0], m[1]) for b in raum.bereiche
+                                    for n, m in zip(b.namen, b.melder)):
+            lokal = invers @ np.array([x * faktor, y * faktor, bereich.z_oben * faktor, 1.0])
             achse = invers[:3, :3] @ np.array([0.0, 0.0, 1.0])
             ref = invers[:3, :3] @ np.array([1.0, 0.0, 0.0])
             platzierung = modell.createIfcLocalPlacement(bezug, modell.createIfcAxis2Placement3D(
@@ -507,9 +725,9 @@ def schreibe_ifc(modell: ifcopenshell.file, raeume: list[Raum], pfad: Path) -> N
                 modell.createIfcDirection(tuple(float(v) for v in ref))))
             form = (modell.createIfcProductDefinitionShape(None, None, [darstellung])
                     if darstellung is not None else None)
-            name = f"{raum.nummer or 'R'}-RM{nr:02d}"
+            ort = "Zwischendecke" if bereich.art == "Zwischendecke" else "Raum"
             attribute = dict(GlobalId=ifcopenshell.guid.new(), OwnerHistory=historie,
-                             Name=name, Description=f"Punktfoermiger Rauchmelder, Raum {raum.nummer}",
+                             Name=name, Description=f"Punktfoermiger Rauchmelder, {ort} {raum.nummer}",
                              ObjectPlacement=platzierung, Representation=form)
             if ifc2x3:
                 melder = modell.create_entity("IfcDistributionControlElement",
@@ -529,19 +747,28 @@ def schreibe_ifc(modell: ifcopenshell.file, raeume: list[Raum], pfad: Path) -> N
 
 
 def bericht(raeume: list[Raum]) -> None:
-    print(f"\n{'Geschoss':<14}{'Raum':<10}{'Name':<22}{'Flaeche':>9}{'Hoehe':>7}"
+    print(f"\n{'Geschoss':<10}{'Raum':<8}{'Name':<20}{'Bereich':<16}{'Flaeche':>8}{'Hoehe':>7}"
           f"{'A':>5}{'DH':>6}{'Raster':>8}{'Melder':>7}{'max.Abst.':>10}")
-    print("-" * 98)
+    print("-" * 105)
     for raum in sorted(raeume, key=lambda r: (r.geschoss, r.nummer)):
-        n = len(raum.melder)
-        print(f"{raum.geschoss[:13]:<14}{raum.nummer[:9]:<10}{raum.name[:21]:<22}"
-              f"{raum.flaeche:>8.1f} {raum.hoehe:>6.2f}{raum.a:>5.0f}{raum.dh:>6.1f}"
-              f"{'%dx%d' % raum.raster_n if n else '-':>8}{n:>7}"
-              f"{raum.max_abstand if n else 0:>10.2f}")
+        kopf = f"{raum.geschoss[:9]:<10}{raum.nummer[:7]:<8}{raum.name[:19]:<20}"
+        if not raum.bereiche:
+            print(kopf + "-")
+        mehrere = {art: sum(b.art == art for b in raum.bereiche) > 1
+                   for art in ("Raum", "Zwischendecke")}
+        for i, b in enumerate(raum.bereiche):
+            n = len(b.melder)
+            art = b.art + (f" F{b.feld}" if mehrere[b.art] else "")
+            print(f"{kopf if i == 0 else '':<38}{art:<16}{b.flaeche:>7.1f} {b.hoehe:>6.2f}"
+                  f"{b.a:>5.0f}{b.dh:>6.1f}{'%dx%d' % b.raster_n if n else '-':>8}{n:>7}"
+                  f"{b.max_abstand if n else 0:>10.2f}")
+            for hinweis in b.hinweise:
+                print(f"{'':38}! {hinweis}")
         for hinweis in raum.hinweise:
-            print(f"{'':14}! {hinweis}")
-    print("-" * 98)
-    print(f"Raeume: {len(raeume)}   Melder gesamt: {sum(len(r.melder) for r in raeume)}")
+            print(f"{'':38}> {hinweis}")
+    print("-" * 105)
+    print(f"Raeume: {len(raeume)}   Raummelder: {sum(r.anzahl('Raum') for r in raeume)}   "
+          f"Zwischendeckenmelder: {sum(r.anzahl('Zwischendecke') for r in raeume)}")
 
 
 # --------------------------------------------------------------------------- #
@@ -568,6 +795,12 @@ def main(argv=None) -> int:
     g.add_argument("--gang-breite", type=float, default=d.gang_breite, help="Gangregel bis Breite [m] (%(default)s)")
     g.add_argument("--gang-abstand", type=float, default=d.gang_abstand, help="Melderabstand im Gang [m], 0 = Gangregel aus (%(default)s)")
     g.add_argument("--min-flaeche", type=float, default=d.min_flaeche, help="Raeume darunter ohne Melder [m2] (%(default)s)")
+    g.add_argument("--zwischendecke-min", type=float, default=d.zwischendecke_min,
+                   help="Hohlraumhoehe ueber Abhangdecke [m], ab der Zwischendeckenmelder gesetzt werden (%(default)s)")
+    g.add_argument("--unterzug-min", type=float, default=d.unterzug_min,
+                   help="Unterzughoehe unter der Decke [m], ab der die Decke geteilt wird; 0 = immer (%(default)s)")
+    g.add_argument("--min-feld", type=float, default=d.min_feld,
+                   help="Deckenfelder unterhalb dieser Flaeche [m2] bleiben ohne Melder (%(default)s)")
     a = p.add_argument_group("Achsausrichtung")
     a.add_argument("--max-verschiebung", type=float, default=d.max_verschiebung,
                    help="max. Verschiebung eines Raumrasters auf gemeinsame Achsen [m], 0 = aus (%(default)s)")
@@ -589,7 +822,10 @@ def main(argv=None) -> int:
         print("Keine Raeume (IfcSpace) mit Geometrie gefunden.", file=sys.stderr)
         return 1
 
-    achsen = platziere_alle(raeume, regeln)
+    bauteile = lade_bauteile(modell)
+    print("Gefunden: {} Raeume, {} Abhangdecken, {} Unterzuege, {} Rohdecken".format(
+        len(raeume), *(len(bauteile[k]) for k in ("Abhangdecke", "Unterzug", "Rohdecke"))))
+    achsen = platziere_alle(raeume, regeln, bauteile)
     bericht(raeume)
 
     csv_pfad = ordner / f"{stamm}.csv"
