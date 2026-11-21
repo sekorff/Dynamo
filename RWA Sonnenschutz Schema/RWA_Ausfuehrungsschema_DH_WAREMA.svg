@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1670" width="1920" height="1670" font-family="Arial, Helvetica, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1730" width="1920" height="1730" font-family="Arial, Helvetica, sans-serif">
 <defs>
 <marker id="er" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#c62828"/></marker>
 <marker id="sr" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#c62828"/></marker>
@@ -11,413 +11,438 @@
 <marker id="ek" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#222"/></marker>
 <marker id="sk" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#222"/></marker>
 </defs>
-<rect width="1920" height="1670" fill="#fff"/>
+<rect width="1920" height="1730" fill="#fff"/>
 <text x="40" y="42" font-size="22" font-weight="700" fill="#222" text-anchor="start">Ausführungsschema: RWA-Fenster mit Sonnenschutz (außen) und Verdunkelung (innen)</text>
-<text x="40" y="66" font-size="13" fill="#555" text-anchor="start">RWA-Zentrale D+H Mechatronic RZN 4404-K V2 · Notstrom-Kits WAREMA (MSE Notstrom-Kit + USV) · Entwurf zur Abstimmung mit den Herstellern – Klemmen und Typen vor Verdrahtung prüfen</text>
+<text x="40" y="66" font-size="13" fill="#555" text-anchor="start">D+H RZN 4404-K V2 mit Jalousiemodul AT 41 · WAREMA MSE Notstrom-Kit + USV · Klemmen nach D+H 99.823.80 (06/19), D+H AT 41 Rev. 2.2 und WAREMA 2014458 (04/2022) · Seite 1 von 2</text>
 <text x="40" y="98" font-size="11" font-weight="700" fill="#555" text-anchor="start">FELD / AUSLÖSUNG</text>
-<rect x="40" y="108" width="270" height="100" rx="5" fill="#fdecea" stroke="#c62828" stroke-width="1.6"/>
+<rect x="40" y="108" width="270" height="104" rx="5" fill="#fdecea" stroke="#c62828" stroke-width="1.6"/>
 <rect x="40" y="108" width="28" height="20" rx="5" fill="#c62828"/>
 <text x="46" y="123" font-size="12" font-weight="700" fill="#fff" text-anchor="start">S1</text>
 <text x="76" y="123" font-size="12" font-weight="700" fill="#222" text-anchor="start">D+H RT 45</text>
-<text x="48" y="144" font-size="11" fill="#222" text-anchor="start">RWA-Taster (Druckknopfmelder)</text>
-<text x="48" y="159" font-size="11" fill="#222" text-anchor="start">max. 8 Stück je Linie</text>
-<text x="48" y="174" font-size="11" fill="#222" text-anchor="start">Endwiderstand im letzten Taster</text>
-<text x="48" y="189" font-size="11" fill="#222" text-anchor="start">auf Klemmen 3 / 8</text>
-<rect x="40" y="232" width="270" height="100" rx="5" fill="#fdecea" stroke="#c62828" stroke-width="1.6"/>
-<rect x="40" y="232" width="36" height="20" rx="5" fill="#c62828"/>
-<text x="46" y="247" font-size="12" font-weight="700" fill="#fff" text-anchor="start">BMA</text>
-<text x="84" y="247" font-size="12" font-weight="700" fill="#222" text-anchor="start">Brandfallsteuerung</text>
-<text x="48" y="268" font-size="11" fill="#222" text-anchor="start">potentialfreier Arbeitskontakt</text>
-<text x="48" y="283" font-size="11" fill="#222" text-anchor="start">Alarmwiderstand 1 kΩ am Kontakt</text>
-<text x="48" y="298" font-size="11" fill="#222" text-anchor="start">Endwiderstand 10 kΩ (Linie</text>
-<text x="48" y="313" font-size="11" fill="#222" text-anchor="start">überwacht)</text>
-<rect x="40" y="356" width="270" height="88" rx="5" fill="#fff7e6" stroke="#e08600" stroke-width="1.6"/>
-<rect x="40" y="356" width="28" height="20" rx="5" fill="#e08600"/>
-<text x="46" y="371" font-size="12" font-weight="700" fill="#fff" text-anchor="start">UV</text>
-<text x="76" y="371" font-size="12" font-weight="700" fill="#222" text-anchor="start">Unterverteilung 230 V AC</text>
-<text x="48" y="392" font-size="11" fill="#222" text-anchor="start">F1: eigener Stromkreis RWA</text>
-<text x="48" y="407" font-size="11" fill="#222" text-anchor="start">F2 / F3: je ein Stromkreis USV</text>
-<text x="48" y="422" font-size="11" fill="#222" text-anchor="start">gekennzeichnet, nicht über FI/Gruppe</text>
-<rect x="420" y="90" width="590" height="680" rx="5" fill="#fafafa" stroke="#888" stroke-width="1.5" stroke-dasharray="8 5"/>
-<text x="432" y="108" font-size="11" font-weight="700" fill="#555" text-anchor="start">SCHALTSCHRANK RWA  (E30-Gehäuse bzw. Aufstellort nach Brandschutzkonzept)</text>
-<rect x="440" y="120" width="340" height="350" rx="5" fill="#fff5f4" stroke="#c62828" stroke-width="1.6"/>
+<text x="48" y="144" font-size="11" fill="#222" text-anchor="start">RWA-Taster, max. 8 je Linie</text>
+<text x="48" y="159" font-size="11" fill="#222" text-anchor="start">Klemmen: 2 Linie · 1 – · 6 Kontrolle</text>
+<text x="48" y="174" font-size="11" fill="#222" text-anchor="start">4 Alarm · 7 ZU · 5 Störung</text>
+<text x="48" y="189" font-size="11" fill="#222" text-anchor="start">letzter Taster: 10 kΩ zwischen 3 – 8</text>
+<rect x="40" y="236" width="270" height="100" rx="5" fill="#fdecea" stroke="#c62828" stroke-width="1.6"/>
+<rect x="40" y="236" width="36" height="20" rx="5" fill="#c62828"/>
+<text x="46" y="251" font-size="12" font-weight="700" fill="#fff" text-anchor="start">BMA</text>
+<text x="84" y="251" font-size="12" font-weight="700" fill="#222" text-anchor="start">Brandfallsteuerung</text>
+<text x="48" y="272" font-size="11" fill="#222" text-anchor="start">potentialfreier Arbeitskontakt</text>
+<text x="48" y="287" font-size="11" fill="#222" text-anchor="start">Alarmwiderstand 1 kΩ in Reihe</text>
+<text x="48" y="302" font-size="11" fill="#222" text-anchor="start">Endwiderstand 10 kΩ parallel</text>
+<text x="48" y="317" font-size="11" fill="#222" text-anchor="start">(Linie überwacht)</text>
+<rect x="40" y="360" width="270" height="88" rx="5" fill="#fff7e6" stroke="#e08600" stroke-width="1.6"/>
+<rect x="40" y="360" width="28" height="20" rx="5" fill="#e08600"/>
+<text x="46" y="375" font-size="12" font-weight="700" fill="#fff" text-anchor="start">UV</text>
+<text x="76" y="375" font-size="12" font-weight="700" fill="#222" text-anchor="start">Unterverteilung 230 V AC</text>
+<text x="48" y="396" font-size="11" fill="#222" text-anchor="start">F1: eigener Stromkreis RWA (gekennz.)</text>
+<text x="48" y="411" font-size="11" fill="#222" text-anchor="start">F2 / F3: USV A4 / A6 – jeweils derselbe</text>
+<text x="48" y="426" font-size="11" fill="#222" text-anchor="start">Abgang wie der Sonnenschutzaktor</text>
+<rect x="420" y="90" width="590" height="690" rx="5" fill="#fafafa" stroke="#888" stroke-width="1.5" stroke-dasharray="8 5"/>
+<text x="432" y="108" font-size="11" font-weight="700" fill="#555" text-anchor="start">SCHALTSCHRANK RWA  (D+H-Gehäuse GEH-KST / GEH-S-RWA, Relais im Beistellgehäuse)</text>
+<rect x="440" y="120" width="340" height="340" rx="5" fill="#fff5f4" stroke="#c62828" stroke-width="1.6"/>
 <rect x="440" y="120" width="28" height="20" rx="5" fill="#c62828"/>
 <text x="446" y="135" font-size="12" font-weight="700" fill="#fff" text-anchor="start">A1</text>
 <text x="476" y="135" font-size="12" font-weight="700" fill="#222" text-anchor="start">D+H RZN 4404-K V2</text>
-<text x="450" y="158" font-size="11" fill="#222" text-anchor="start">RWA-Kompaktzentrale · 230 V AC, 50 Hz, 120 VA</text>
-<text x="450" y="173" font-size="11" fill="#222" text-anchor="start">Ausgang 24 V DC / 4 A</text>
-<rect x="450" y="200" width="112" height="20" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
-<text x="456" y="214" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">Netz L / N / PE</text>
-<text x="570" y="214" font-size="10.5" fill="#222" text-anchor="start">Versorgung 230 V AC</text>
-<rect x="450" y="224" width="112" height="20" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
-<text x="456" y="238" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">Linie RWA-Taster</text>
-<text x="570" y="238" font-size="10.5" fill="#222" text-anchor="start">RT 45, 6 Adern</text>
-<rect x="450" y="248" width="112" height="20" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
-<text x="456" y="262" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">RM</text>
-<text x="570" y="262" font-size="10.5" fill="#222" text-anchor="start">Brandmelder / BMA-Fremdansteuerung</text>
-<rect x="450" y="272" width="112" height="20" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
-<text x="456" y="286" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">Gruppe MOT</text>
-<text x="570" y="286" font-size="10.5" fill="#222" text-anchor="start">Antriebe 24 V DC, umpolend, 3-adrig</text>
-<rect x="450" y="296" width="112" height="20" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
-<text x="456" y="310" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">LT</text>
-<text x="570" y="310" font-size="10.5" fill="#222" text-anchor="start">Lüftungstaster-Eingang AUF / ZU</text>
-<rect x="450" y="320" width="112" height="20" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
-<text x="456" y="334" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">Z</text>
-<text x="570" y="334" font-size="10.5" fill="#222" text-anchor="start">Zentral ZU (Gruppe schließen)</text>
-<rect x="450" y="344" width="112" height="20" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
-<text x="456" y="358" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">A</text>
-<text x="570" y="358" font-size="10.5" fill="#222" text-anchor="start">Sammelalarm → K1</text>
-<rect x="450" y="368" width="112" height="20" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
-<text x="456" y="382" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">S</text>
-<text x="570" y="382" font-size="10.5" fill="#222" text-anchor="start">Sammelstörung → K2</text>
-<rect x="450" y="392" width="112" height="20" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
-<text x="456" y="406" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">K</text>
-<text x="570" y="406" font-size="10.5" fill="#222" text-anchor="start">Kontrolle</text>
-<rect x="450" y="424" width="320" height="36" rx="5" fill="#fff6e0" stroke="#e08600" stroke-width="1.5"/>
-<text x="458" y="447" font-size="11" font-weight="700" fill="#8a5200" text-anchor="start">G1  Akku 2 × 12 V / 2,2 Ah (D+H Typ 2) – Notstrom RWA</text>
-<rect x="800" y="120" width="195" height="118" rx="5" fill="#fff5f4" stroke="#c62828" stroke-width="1.6"/>
+<text x="450" y="156" font-size="10.5" fill="#222" text-anchor="start">230 V AC, 120 VA · Ausgang 24 V DC / 4 A · 1 Linie / 1 Gruppe</text>
+<rect x="450" y="172" width="92" height="21" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
+<text x="455" y="187" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">Netz</text>
+<text x="549" y="187" font-size="10.5" fill="#222" text-anchor="start">L · N  (PE nur Gehäuse KS)</text>
+<rect x="450" y="198" width="92" height="21" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
+<text x="455" y="213" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">RM  1 · 2</text>
+<text x="549" y="213" font-size="10.5" fill="#222" text-anchor="start">R · –   BMA / Brandmelder</text>
+<rect x="450" y="224" width="92" height="21" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
+<text x="455" y="239" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">RT  3 … 8</text>
+<text x="549" y="239" font-size="10.5" fill="#222" text-anchor="start">T · – · K · A · Z · S   RWA-Taster</text>
+<rect x="450" y="250" width="92" height="21" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
+<text x="455" y="265" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">LT  1 … 4</text>
+<text x="549" y="265" font-size="10.5" fill="#222" text-anchor="start">L · N– · Z · A   → Steckplatz AT 41</text>
+<rect x="450" y="276" width="92" height="21" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
+<text x="455" y="291" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">MOT  5 … 7</text>
+<text x="549" y="291" font-size="10.5" fill="#222" text-anchor="start">E · a · b   → Steckplatz AT 41</text>
+<rect x="450" y="302" width="92" height="21" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
+<text x="455" y="317" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">Ext. 1 … 7</text>
+<text x="549" y="317" font-size="10.5" fill="#222" text-anchor="start">N– · N+ · Z · + · M · D1 · D2</text>
+<rect x="450" y="328" width="92" height="21" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
+<text x="455" y="343" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">Stiftleiste</text>
+<text x="549" y="343" font-size="10.5" fill="#222" text-anchor="start">D1 · N– · N+ · S · – · A · K · Z · D2</text>
+<rect x="450" y="354" width="92" height="21" rx="2" fill="#fff" stroke="#222" stroke-width="1"/>
+<text x="455" y="369" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">DIP S1</text>
+<text x="549" y="369" font-size="10.5" fill="#222" text-anchor="start">1 = OFF (AUF-Laufzeitbegrenzung aus)</text>
+<rect x="450" y="388" width="320" height="62" rx="5" fill="#fff6e0" stroke="#e08600" stroke-width="1.5"/>
+<text x="458" y="406" font-size="10.5" fill="#8a5200" text-anchor="start">G1  Akku 2 × 12 V / 2,2 Ah (Typ 2, VdS)</text>
+<text x="458" y="422" font-size="10.5" fill="#8a5200" text-anchor="start">Notversorgung 72 h</text>
+<text x="458" y="438" font-size="10.5" fill="#8a5200" text-anchor="start">Sicherungen: Netz · Ext. Meldung F 1,25 A · Akku F 3,15 A</text>
+<rect x="800" y="120" width="195" height="160" rx="5" fill="#fff5f4" stroke="#c62828" stroke-width="1.6"/>
 <rect x="800" y="120" width="28" height="20" rx="5" fill="#c62828"/>
 <text x="806" y="135" font-size="12" font-weight="700" fill="#fff" text-anchor="start">A2</text>
 <text x="836" y="135" font-size="12" font-weight="700" fill="#222" text-anchor="start">D+H AT 41</text>
-<text x="808" y="156" font-size="11" fill="#222" text-anchor="start">Anlaufverzögerungsmodul</text>
-<text x="808" y="171" font-size="11" fill="#222" text-anchor="start">Steckplatz LT / MOT</text>
-<text x="808" y="186" font-size="11" fill="#222" text-anchor="start">Verzögerung per Poti =</text>
-<text x="808" y="201" font-size="11" fill="#222" text-anchor="start">1,5 × Einfahrzeit Behang</text>
-<text x="808" y="216" font-size="11" fill="#222" text-anchor="start">nur D+H-Antriebe mit BRV</text>
-<rect x="800" y="252" width="195" height="62" rx="5" fill="#fff" stroke="#222" stroke-width="1.6"/>
-<rect x="800" y="252" width="28" height="20" rx="5" fill="#222"/>
-<text x="806" y="267" font-size="12" font-weight="700" fill="#fff" text-anchor="start">K1</text>
-<text x="836" y="267" font-size="12" font-weight="700" fill="#222" text-anchor="start">Koppelrelais Alarm</text>
-<text x="808" y="288" font-size="11" fill="#222" text-anchor="start">24 V DC, 2 Wechsler</text>
-<text x="808" y="303" font-size="11" fill="#222" text-anchor="start">→ MSE A3 / A5, GLT, K5</text>
-<rect x="800" y="328" width="195" height="62" rx="5" fill="#fff" stroke="#222" stroke-width="1.6"/>
-<rect x="800" y="328" width="28" height="20" rx="5" fill="#222"/>
-<text x="806" y="343" font-size="12" font-weight="700" fill="#fff" text-anchor="start">K2</text>
-<text x="836" y="343" font-size="12" font-weight="700" fill="#222" text-anchor="start">Koppelrelais Störung</text>
-<text x="808" y="364" font-size="11" fill="#222" text-anchor="start">24 V DC, 1 Wechsler</text>
-<text x="808" y="379" font-size="11" fill="#222" text-anchor="start">→ GLT (Ruhestrom)</text>
-<rect x="800" y="404" width="195" height="66" rx="5" fill="#fff" stroke="#222" stroke-width="1.6"/>
-<rect x="800" y="404" width="28" height="20" rx="5" fill="#222"/>
-<text x="806" y="419" font-size="12" font-weight="700" fill="#fff" text-anchor="start">K5</text>
-<text x="836" y="419" font-size="12" font-weight="700" fill="#222" text-anchor="start">Zeitrelais 60 s</text>
-<text x="808" y="440" font-size="11" fill="#222" text-anchor="start">anzugverzögert, Start mit K1</text>
-<text x="808" y="455" font-size="11" fill="#222" text-anchor="start">→ Laufzeitstörung an GLT</text>
+<text x="808" y="156" font-size="11" fill="#222" text-anchor="start">Jalousiemodul, Id. 30.551.70</text>
+<text x="808" y="171" font-size="11" fill="#222" text-anchor="start">1 Aufm. · 2 N– · 3 zu · 4 auf</text>
+<text x="808" y="186" font-size="11" fill="#222" text-anchor="start">5 Überw. · 6 Mot.a · 7 Mot.b</text>
+<text x="808" y="201" font-size="11" fill="#222" text-anchor="start">P2 – P3: Kontakt „Flügel zu“</text>
+<text x="808" y="216" font-size="11" fill="#222" text-anchor="start">(max. 60 V / 2 A)</text>
+<text x="808" y="231" font-size="11" fill="#222" text-anchor="start">P4: Meldung vom BRV-Antrieb</text>
+<text x="808" y="246" font-size="11" fill="#222" text-anchor="start">Verzögerung 40 … 110 s (Poti)</text>
+<rect x="800" y="292" width="195" height="56" rx="5" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<rect x="800" y="292" width="28" height="20" rx="5" fill="#222"/>
+<text x="806" y="307" font-size="12" font-weight="700" fill="#fff" text-anchor="start">K1</text>
+<text x="836" y="307" font-size="12" font-weight="700" fill="#222" text-anchor="start">Relais Beschattung</text>
+<text x="808" y="328" font-size="11" fill="#222" text-anchor="start">Spule: + → P2 – P3 → K1 → –</text>
+<text x="808" y="343" font-size="11" fill="#222" text-anchor="start">2 Schließer → In3 A3 / A5</text>
+<rect x="800" y="358" width="195" height="50" rx="5" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<rect x="800" y="358" width="52" height="20" rx="5" fill="#222"/>
+<text x="806" y="373" font-size="12" font-weight="700" fill="#fff" text-anchor="start">K2 K3</text>
+<text x="860" y="373" font-size="12" font-weight="700" fill="#222" text-anchor="start">Alarm / Störung</text>
+<text x="808" y="394" font-size="11" fill="#222" text-anchor="start">Abgriff A / S gegen –  → GLT</text>
+<rect x="800" y="418" width="195" height="50" rx="5" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<rect x="800" y="418" width="28" height="20" rx="5" fill="#222"/>
+<text x="806" y="433" font-size="12" font-weight="700" fill="#fff" text-anchor="start">K6</text>
+<text x="836" y="433" font-size="12" font-weight="700" fill="#222" text-anchor="start">Zeitrelais 60 s</text>
+<text x="808" y="454" font-size="11" fill="#222" text-anchor="start">Laufzeitüberwachung → GLT</text>
 <rect x="440" y="494" width="165" height="66" rx="5" fill="#f1f8f1" stroke="#2e7d32" stroke-width="1.6"/>
 <rect x="440" y="494" width="28" height="20" rx="5" fill="#2e7d32"/>
-<text x="446" y="509" font-size="12" font-weight="700" fill="#fff" text-anchor="start">K3</text>
+<text x="446" y="509" font-size="12" font-weight="700" fill="#fff" text-anchor="start">K4</text>
 <text x="476" y="509" font-size="12" font-weight="700" fill="#222" text-anchor="start">Koppelrelais</text>
 <text x="448" y="530" font-size="11" fill="#222" text-anchor="start">Sonnenschutz in</text>
 <text x="448" y="545" font-size="11" fill="#222" text-anchor="start">Parkposition (B1)</text>
 <rect x="625" y="494" width="165" height="66" rx="5" fill="#f1f8f1" stroke="#2e7d32" stroke-width="1.6"/>
 <rect x="625" y="494" width="28" height="20" rx="5" fill="#2e7d32"/>
-<text x="631" y="509" font-size="12" font-weight="700" fill="#fff" text-anchor="start">K4</text>
+<text x="631" y="509" font-size="12" font-weight="700" fill="#fff" text-anchor="start">K5</text>
 <text x="661" y="509" font-size="12" font-weight="700" fill="#222" text-anchor="start">Koppelrelais</text>
 <text x="633" y="530" font-size="11" fill="#222" text-anchor="start">Verdunkelung in</text>
 <text x="633" y="545" font-size="11" fill="#222" text-anchor="start">Parkposition (B2)</text>
-<rect x="440" y="580" width="555" height="176" rx="5" fill="#fff" stroke="#2e7d32" stroke-width="1.5"/>
-<text x="452" y="602" font-size="12" font-weight="700" fill="#2e7d32" text-anchor="start">Freigabe „Behänge in Parkposition“ = K3 ∧ K4 (Schließer in Reihe, hart verdrahtet)</text>
-<text x="452" y="624" font-size="11" fill="#222" text-anchor="start">① Lüftung: in Reihe in die Leitung W11 „Lüften AUF“ der GLT zum Eingang LT → Fenster öffnet nur bei</text>
-<text x="452" y="641" font-size="11" fill="#222" text-anchor="start">    geschlossener Kette; fällt K3 oder K4 ab → Befehl ZU (Eingang Z).</text>
-<text x="452" y="658" font-size="11" fill="#222" text-anchor="start">② Fahrsperre: Fenster nicht ZU → Meldung an GLT, GLT sperrt Fahrbefehle an beide Behänge.</text>
-<text x="452" y="675" font-size="11" fill="#222" text-anchor="start">③ Meldung „Parkposition erreicht“ je Anlage an GLT; K5 meldet Laufzeitüberschreitung 60 s.</text>
-<text x="452" y="692" font-size="11" fill="#222" text-anchor="start">④ Brandfall: Standard D+H ist die reine Zeitverzögerung über AT 41. Eine zusätzliche Freigabe des</text>
-<text x="452" y="709" font-size="11" fill="#222" text-anchor="start">    Antriebsausgangs über K3 ∧ K4 ist in den RZN-Unterlagen nicht beschrieben → mit D+H festlegen</text>
-<text x="452" y="726" font-size="11" fill="#222" text-anchor="start">    (gestrichelt). Auslegung so, dass das Fenster nach Zeitablauf auch ohne Rückmeldung öffnet.</text>
+<rect x="440" y="580" width="555" height="188" rx="5" fill="#fff" stroke="#2e7d32" stroke-width="1.5"/>
+<text x="452" y="602" font-size="12" font-weight="700" fill="#2e7d32" text-anchor="start">Ablauf und Sicherheitskette</text>
+<text x="452" y="623.0" font-size="11" fill="#222" text-anchor="start">① Alarm (RT 45 / BMA) oder Lüften AUF: AT 41 öffnet den Kontakt P2 – P3 → K1 fällt ab → In3 an beiden</text>
+<text x="452" y="640.5" font-size="11" fill="#222" text-anchor="start">    MSE Notstrom-Kits offen → Sonnenschutz und Verdunkelung fahren hoch.</text>
+<text x="452" y="658.0" font-size="11" fill="#222" text-anchor="start">② Nach der am AT 41 eingestellten Zeit (60 s) laufen die Fensterantriebe an.</text>
+<text x="452" y="675.5" font-size="11" fill="#222" text-anchor="start">③ Solange das Fenster offen ist, bleibt P2 – P3 offen: beide Behänge sind oben gesperrt (Fahrsperre).</text>
+<text x="452" y="693.0" font-size="11" fill="#222" text-anchor="start">④ Lüften AUF der GLT ist über K4 ∧ K5 geführt (Kl. 4 „auf“): Freigabe nur, wenn beide Behänge oben sind.</text>
+<text x="452" y="710.5" font-size="11" fill="#222" text-anchor="start">⑤ K4, K5, K6 melden Parkposition und Laufzeitüberschreitung 60 s an die GLT.</text>
+<text x="452" y="728.0" font-size="11" fill="#222" text-anchor="start">⑥ Im Alarmfall wertet die Zentrale die Rückmeldung nicht aus – das Fenster öffnet nach Zeitablauf.</text>
+<text x="452" y="745.5" font-size="11" fill="#222" text-anchor="start">    Drahtbruch W7 oder Ausfall K1 = Behänge fahren hoch (Ruhestromprinzip).</text>
 <polyline points="605,560 605,580" fill="none" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#eg)"/>
 <polyline points="790,527 815,527 815,580" fill="none" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#eg)"/>
-<polyline points="1003,580 1003,225 996,225" fill="none" stroke="#2e7d32" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#eg)"/>
-<polyline points="780,290 800,290" fill="none" stroke="#c62828" stroke-width="1.5" marker-end="url(#er)"/>
-<polyline points="780,360 800,360" fill="none" stroke="#222" stroke-width="1.5" marker-end="url(#ek)"/>
-<polyline points="780,180 800,180" fill="none" stroke="#c62828" stroke-width="1.5" marker-end="url(#er)"/>
-<polyline points="310,158 440,158" fill="none" stroke="#c62828" stroke-width="2" marker-end="url(#er)"/>
-<rect x="363.0" y="149" width="24" height="18" rx="9" fill="#fff" stroke="#c62828" stroke-width="1.3"/>
-<text x="375" y="162" font-size="11" font-weight="700" fill="#c62828" text-anchor="middle">W1</text>
-<polyline points="310,282 440,282" fill="none" stroke="#c62828" stroke-width="2" marker-end="url(#er)"/>
-<rect x="363.0" y="273" width="24" height="18" rx="9" fill="#fff" stroke="#c62828" stroke-width="1.3"/>
-<text x="375" y="286" font-size="11" font-weight="700" fill="#c62828" text-anchor="middle">W2</text>
-<polyline points="310,400 440,400" fill="none" stroke="#e08600" stroke-width="2" marker-end="url(#eo)"/>
-<rect x="363.0" y="391" width="24" height="18" rx="9" fill="#fff" stroke="#e08600" stroke-width="1.3"/>
-<text x="375" y="404" font-size="11" font-weight="700" fill="#e08600" text-anchor="middle">W3</text>
-<rect x="1180" y="90" width="690" height="236" rx="5" fill="#f3f8ff" stroke="#1565c0" stroke-width="2"/>
-<text x="1192" y="109" font-size="13" font-weight="700" fill="#222" text-anchor="start">Sonnenschutz außen – WAREMA Raffstore</text>
-<rect x="1195" y="134" width="205" height="112" rx="5" fill="#fff7e6" stroke="#e08600" stroke-width="1.6"/>
+<polyline points="780,182 800,182" fill="none" stroke="#c62828" stroke-width="1.5" marker-end="url(#er)"/>
+<polyline points="897,280 897,292" fill="none" stroke="#c62828" stroke-width="1.5" marker-end="url(#er)"/>
+<polyline points="780,380 800,380" fill="none" stroke="#222" stroke-width="1.5" marker-end="url(#ek)"/>
+<polyline points="310,160 440,160" fill="none" stroke="#c62828" stroke-width="2" marker-end="url(#er)"/>
+<text x="375" y="182" font-size="10" font-weight="700" fill="#c62828" text-anchor="middle">≤ 200 m*</text>
+<rect x="363.0" y="151" width="24" height="18" rx="9" fill="#fff" stroke="#c62828" stroke-width="1.3"/>
+<text x="375" y="164" font-size="11" font-weight="700" fill="#c62828" text-anchor="middle">W1</text>
+<polyline points="310,286 440,286" fill="none" stroke="#c62828" stroke-width="2" marker-end="url(#er)"/>
+<text x="375" y="308" font-size="10" font-weight="700" fill="#c62828" text-anchor="middle">≤ 200 m*</text>
+<rect x="363.0" y="277" width="24" height="18" rx="9" fill="#fff" stroke="#c62828" stroke-width="1.3"/>
+<text x="375" y="290" font-size="11" font-weight="700" fill="#c62828" text-anchor="middle">W2</text>
+<polyline points="310,404 440,404" fill="none" stroke="#e08600" stroke-width="2" marker-end="url(#eo)"/>
+<text x="375" y="426" font-size="10" font-weight="700" fill="#e08600" text-anchor="middle">≤ 75 m*</text>
+<rect x="363.0" y="395" width="24" height="18" rx="9" fill="#fff" stroke="#e08600" stroke-width="1.3"/>
+<text x="375" y="408" font-size="11" font-weight="700" fill="#e08600" text-anchor="middle">W3</text>
+<rect x="1180" y="90" width="690" height="250" rx="5" fill="#f3f8ff" stroke="#1565c0" stroke-width="2"/>
+<text x="1192" y="109" font-size="13" font-weight="700" fill="#222" text-anchor="start">Sonnenschutz außen – WAREMA Raffstore, Antrieb 230 V AC</text>
+<rect x="1195" y="134" width="175" height="130" rx="5" fill="#fff7e6" stroke="#e08600" stroke-width="1.6"/>
 <rect x="1195" y="134" width="28" height="20" rx="5" fill="#e08600"/>
 <text x="1201" y="149" font-size="12" font-weight="700" fill="#fff" text-anchor="start">A4</text>
 <text x="1231" y="149" font-size="12" font-weight="700" fill="#222" text-anchor="start">WAREMA USV</text>
-<text x="1203" y="170" font-size="11" fill="#222" text-anchor="start">für MSE Notstrom-Kit</text>
-<text x="1203" y="185" font-size="11" fill="#222" text-anchor="start">Art.-Nr. 2013984</text>
-<text x="1203" y="200" font-size="11" fill="#222" text-anchor="start">500 W / 750 VA, Akku intern</text>
-<text x="1203" y="215" font-size="11" fill="#222" text-anchor="start">max. 4 MSE je USV</text>
-<rect x="1425" y="134" width="225" height="112" rx="5" fill="#fff" stroke="#1565c0" stroke-width="1.6"/>
+<text x="1203" y="170" font-size="11" fill="#222" text-anchor="start">Art.-Nr. 2013 984</text>
+<text x="1203" y="185" font-size="11" fill="#222" text-anchor="start">Netzleitung 1,8 m an Schuko</text>
+<text x="1203" y="200" font-size="11" fill="#222" text-anchor="start">6 Ausgänge 230 V AC</text>
+<text x="1203" y="215" font-size="11" fill="#222" text-anchor="start">Einsteckkarte, Leitung 3 m</text>
+<text x="1203" y="230" font-size="11" fill="#222" text-anchor="start">Akkupack RBC48 (2014 827)</text>
+<rect x="1425" y="134" width="295" height="130" rx="5" fill="#fff" stroke="#1565c0" stroke-width="1.6"/>
 <rect x="1425" y="134" width="28" height="20" rx="5" fill="#1565c0"/>
 <text x="1431" y="149" font-size="12" font-weight="700" fill="#fff" text-anchor="start">A3</text>
-<text x="1461" y="149" font-size="12" font-weight="700" fill="#222" text-anchor="start">WAREMA MSE Notstrom-Kit</text>
-<text x="1433" y="170" font-size="11" fill="#222" text-anchor="start">REG Art.-Nr. 2013983</text>
-<text x="1433" y="185" font-size="11" fill="#222" text-anchor="start">(AP: Art.-Nr. 2014062)</text>
-<text x="1433" y="200" font-size="11" fill="#222" text-anchor="start">X1 Netz von USV · X5: In+ / In1 /</text>
-<text x="1433" y="215" font-size="11" fill="#222" text-anchor="start">0 Auslösung, R Reset · 1 Antrieb</text>
-<polyline points="1400,190 1425,190" fill="none" stroke="#e08600" stroke-width="2" marker-end="url(#eo)"/>
-<rect x="1396.5" y="161" width="31" height="18" rx="9" fill="#fff" stroke="#e08600" stroke-width="1.3"/>
-<text x="1412" y="174" font-size="11" font-weight="700" fill="#e08600" text-anchor="middle">W15</text>
-<circle cx="1770" cy="190" r="34" fill="#fff" stroke="#222" stroke-width="1.6"/>
-<text x="1770" y="186" font-size="14" font-weight="700" fill="#222" text-anchor="middle">M2</text>
-<text x="1770" y="202" font-size="10" fill="#222" text-anchor="middle">230 V~</text>
-<text x="1770" y="240" font-size="10.5" fill="#555" text-anchor="middle">Raffstore-Antrieb</text>
-<polyline points="1650,190 1736,190" fill="none" stroke="#222" stroke-width="2" marker-end="url(#ek)"/>
-<rect x="1678.5" y="161" width="31" height="18" rx="9" fill="#fff" stroke="#222" stroke-width="1.3"/>
-<text x="1694" y="174" font-size="11" font-weight="700" fill="#222" text-anchor="middle">W13</text>
-<rect x="1425" y="260" width="425" height="56" rx="5" fill="#f1f8f1" stroke="#2e7d32" stroke-width="1.6"/>
-<rect x="1425" y="260" width="28" height="20" rx="5" fill="#2e7d32"/>
-<text x="1431" y="275" font-size="12" font-weight="700" fill="#fff" text-anchor="start">B1</text>
-<text x="1461" y="275" font-size="12" font-weight="700" fill="#222" text-anchor="start">Positionsschalter „Behang oben“</text>
-<text x="1433" y="296" font-size="11" fill="#222" text-anchor="start">potentialfrei, Schließer in oberer Endlage · bauseits, Typ mit WAREMA klären</text>
-<rect x="1180" y="338" width="690" height="236" rx="5" fill="#f6f3fb" stroke="#5e35b1" stroke-width="2"/>
-<text x="1192" y="357" font-size="13" font-weight="700" fill="#222" text-anchor="start">Verdunkelung innen – WAREMA Verdunkelungsanlage</text>
-<rect x="1195" y="382" width="205" height="112" rx="5" fill="#fff7e6" stroke="#e08600" stroke-width="1.6"/>
-<rect x="1195" y="382" width="28" height="20" rx="5" fill="#e08600"/>
-<text x="1201" y="397" font-size="12" font-weight="700" fill="#fff" text-anchor="start">A6</text>
-<text x="1231" y="397" font-size="12" font-weight="700" fill="#222" text-anchor="start">WAREMA USV</text>
-<text x="1203" y="418" font-size="11" fill="#222" text-anchor="start">für MSE Notstrom-Kit</text>
-<text x="1203" y="433" font-size="11" fill="#222" text-anchor="start">Art.-Nr. 2013984</text>
-<text x="1203" y="448" font-size="11" fill="#222" text-anchor="start">500 W / 750 VA, Akku intern</text>
-<text x="1203" y="463" font-size="11" fill="#222" text-anchor="start">max. 4 MSE je USV</text>
-<rect x="1425" y="382" width="225" height="112" rx="5" fill="#fff" stroke="#5e35b1" stroke-width="1.6"/>
-<rect x="1425" y="382" width="28" height="20" rx="5" fill="#5e35b1"/>
-<text x="1431" y="397" font-size="12" font-weight="700" fill="#fff" text-anchor="start">A5</text>
-<text x="1461" y="397" font-size="12" font-weight="700" fill="#222" text-anchor="start">WAREMA MSE Notstrom-Kit</text>
-<text x="1433" y="418" font-size="11" fill="#222" text-anchor="start">REG Art.-Nr. 2013983</text>
-<text x="1433" y="433" font-size="11" fill="#222" text-anchor="start">(AP: Art.-Nr. 2014062)</text>
-<text x="1433" y="448" font-size="11" fill="#222" text-anchor="start">X1 Netz von USV · X5: In+ / In1 /</text>
-<text x="1433" y="463" font-size="11" fill="#222" text-anchor="start">0 Auslösung, R Reset · 1 Antrieb</text>
-<polyline points="1400,438 1425,438" fill="none" stroke="#e08600" stroke-width="2" marker-end="url(#eo)"/>
-<rect x="1396.5" y="409" width="31" height="18" rx="9" fill="#fff" stroke="#e08600" stroke-width="1.3"/>
-<text x="1412" y="422" font-size="11" font-weight="700" fill="#e08600" text-anchor="middle">W16</text>
-<circle cx="1770" cy="438" r="34" fill="#fff" stroke="#222" stroke-width="1.6"/>
-<text x="1770" y="434" font-size="14" font-weight="700" fill="#222" text-anchor="middle">M3</text>
-<text x="1770" y="450" font-size="10" fill="#222" text-anchor="middle">230 V~</text>
-<text x="1770" y="488" font-size="10.5" fill="#555" text-anchor="middle">Verdunkelungs-Antrieb</text>
-<polyline points="1650,438 1736,438" fill="none" stroke="#222" stroke-width="2" marker-end="url(#ek)"/>
-<rect x="1678.5" y="409" width="31" height="18" rx="9" fill="#fff" stroke="#222" stroke-width="1.3"/>
-<text x="1694" y="422" font-size="11" font-weight="700" fill="#222" text-anchor="middle">W14</text>
-<rect x="1425" y="508" width="425" height="56" rx="5" fill="#f1f8f1" stroke="#2e7d32" stroke-width="1.6"/>
-<rect x="1425" y="508" width="28" height="20" rx="5" fill="#2e7d32"/>
-<text x="1431" y="523" font-size="12" font-weight="700" fill="#fff" text-anchor="start">B2</text>
-<text x="1461" y="523" font-size="12" font-weight="700" fill="#222" text-anchor="start">Positionsschalter „Behang oben“</text>
-<text x="1433" y="544" font-size="11" fill="#222" text-anchor="start">potentialfrei, Schließer in oberer Endlage · bauseits, Typ mit WAREMA klären</text>
-<rect x="1180" y="582" width="690" height="188" rx="5" fill="#fdf3f2" stroke="#c62828" stroke-width="2"/>
-<text x="1192" y="602" font-size="14" font-weight="700" fill="#222" text-anchor="start">RWA-Fenster (NRWG)</text>
-<rect x="1195" y="616" width="250" height="140" rx="5" fill="#fff" stroke="#222" stroke-width="1.6"/>
-<rect x="1195" y="616" width="28" height="20" rx="5" fill="#222"/>
-<text x="1201" y="631" font-size="12" font-weight="700" fill="#fff" text-anchor="start">X1</text>
-<text x="1231" y="631" font-size="12" font-weight="700" fill="#222" text-anchor="start">Abzweigdose</text>
-<text x="1203" y="652" font-size="11" fill="#222" text-anchor="start">E30 nach Konzept</text>
-<text x="1203" y="667" font-size="11" fill="#222" text-anchor="start">Übergang auf Antriebsleitung</text>
-<text x="1203" y="682" font-size="11" fill="#222" text-anchor="start">Endmodul am letzten / einzigen</text>
-<text x="1203" y="697" font-size="11" fill="#222" text-anchor="start">Antrieb: Adern 5 orange,</text>
-<text x="1203" y="712" font-size="11" fill="#222" text-anchor="start">6 schwarz, 7 schwarz</text>
-<rect x="1480" y="616" width="370" height="140" rx="5" fill="#fff" stroke="#c62828" stroke-width="1.6"/>
-<rect x="1480" y="616" width="28" height="20" rx="5" fill="#c62828"/>
-<text x="1486" y="631" font-size="12" font-weight="700" fill="#fff" text-anchor="start">M1</text>
-<text x="1516" y="631" font-size="12" font-weight="700" fill="#222" text-anchor="start">D+H Fensterantrieb 24 V DC</text>
-<text x="1488" y="652" font-size="11" fill="#222" text-anchor="start">mit BRV-Signal (Voraussetzung für AT 41)</text>
-<text x="1488" y="667" font-size="11" fill="#222" text-anchor="start">Typ nach Flügelgewicht und Hub, z. B. Kettenantrieb</text>
-<text x="1488" y="682" font-size="11" fill="#222" text-anchor="start">Summenstrom der Gruppe ≤ 4 A</text>
-<text x="1488" y="697" font-size="11" fill="#222" text-anchor="start">Antriebsleitung min. 3-adrig: 2 Adern Versorgung,</text>
-<text x="1488" y="712" font-size="11" fill="#222" text-anchor="start">1 Ader Leitungsüberwachung</text>
-<polyline points="1445,686 1480,686" fill="none" stroke="#c62828" stroke-width="2" marker-end="url(#er)"/>
-<polyline points="995,270 1040,270 1040,150 1180,150" fill="none" stroke="#c62828" stroke-width="2" marker-end="url(#er)"/>
-<polyline points="1180,150 1188,150 1188,122 1540,122 1540,134" fill="none" stroke="#c62828" stroke-width="2" marker-end="url(#er)"/>
+<text x="1461" y="149" font-size="12" font-weight="700" fill="#222" text-anchor="start">WAREMA MSE Notstrom-Kit REG</text>
+<text x="1433" y="170" font-size="11" fill="#222" text-anchor="start">Art.-Nr. 2013 983 · Ausgang 500 VA</text>
+<text x="1433" y="185" font-size="11" fill="#222" text-anchor="start">X1: 7–9 L · 4–6 N · 1–3 PE  (von USV)</text>
+<text x="1433" y="200" font-size="11" fill="#222" text-anchor="start">X2: Motor 1 △ · 2 ▽ · 3 N · 4 PE</text>
+<text x="1433" y="215" font-size="11" fill="#222" text-anchor="start">      Aktor 6 △ · 7 ▽ · 8 N · 9 PE</text>
+<text x="1433" y="230" font-size="11" fill="#222" text-anchor="start">X5: 1 0V · 2 In+ · 3 In1 · 4 In2 · 5 R · 6 In3 · 7 In+</text>
+<text x="1433" y="245" font-size="11" fill="#222" text-anchor="start">X6: 3 In4 · Störmeldung 7 NC · 8 C · 9 NO</text>
+<polyline points="1370,190 1425,190" fill="none" stroke="#e08600" stroke-width="2" marker-end="url(#eo)"/>
+<rect x="1385.0" y="159" width="24" height="18" rx="9" fill="#fff" stroke="#e08600" stroke-width="1.3"/>
+<text x="1397" y="172" font-size="11" font-weight="700" fill="#e08600" text-anchor="middle">W5</text>
+<text x="1397" y="246" font-size="10" font-weight="700" fill="#e08600" text-anchor="middle">3 m</text>
+<rect x="1385.0" y="215" width="24" height="18" rx="9" fill="#fff" stroke="#e08600" stroke-width="1.3"/>
+<text x="1397" y="228" font-size="11" font-weight="700" fill="#e08600" text-anchor="middle">W6</text>
+<circle cx="1800" cy="190" r="32" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="1800" y="186" font-size="14" font-weight="700" fill="#222" text-anchor="middle">M2</text>
+<text x="1800" y="202" font-size="10" fill="#222" text-anchor="middle">230 V~</text>
+<text x="1800" y="238" font-size="10" fill="#555" text-anchor="middle">Raffstore</text>
+<polyline points="1720,190 1768,190" fill="none" stroke="#222" stroke-width="2" marker-end="url(#ek)"/>
+<rect x="1732.0" y="159" width="24" height="18" rx="9" fill="#fff" stroke="#222" stroke-width="1.3"/>
+<text x="1744" y="172" font-size="11" font-weight="700" fill="#222" text-anchor="middle">W9</text>
+<text x="1756" y="150" font-size="10" font-weight="700" fill="#222" text-anchor="middle">≤ 100 m*</text>
+<rect x="1195" y="276" width="235" height="54" rx="5" fill="#f1f8f1" stroke="#2e7d32" stroke-width="1.6"/>
+<rect x="1195" y="276" width="28" height="20" rx="5" fill="#2e7d32"/>
+<text x="1201" y="291" font-size="12" font-weight="700" fill="#fff" text-anchor="start">B1</text>
+<text x="1231" y="291" font-size="12" font-weight="700" fill="#222" text-anchor="start">Positionsschalter „oben“</text>
+<text x="1203" y="312" font-size="11" fill="#222" text-anchor="start">Schließer, Typ mit WAREMA klären</text>
+<rect x="1650" y="276" width="205" height="54" rx="5" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<rect x="1650" y="276" width="28" height="20" rx="5" fill="#222"/>
+<text x="1656" y="291" font-size="12" font-weight="700" fill="#fff" text-anchor="start">S2</text>
+<text x="1686" y="291" font-size="12" font-weight="700" fill="#222" text-anchor="start">Reset  X5: 5 R – 7 In+</text>
+<text x="1658" y="312" font-size="11" fill="#222" text-anchor="start">Schlüsseltaster 2017 192 · W8</text>
+<rect x="1440" y="276" width="200" height="54" rx="5" fill="#fff" stroke="#555" stroke-width="1.6"/>
+<rect x="1440" y="276" width="36" height="20" rx="5" fill="#555"/>
+<text x="1446" y="291" font-size="12" font-weight="700" fill="#fff" text-anchor="start">W10</text>
+<text x="1484" y="291" font-size="12" font-weight="700" fill="#222" text-anchor="start">vom Sonnenschutzaktor</text>
+<text x="1448" y="312" font-size="11" fill="#222" text-anchor="start">auf X2: 6 – 9 · ≤ 100 m*</text>
+<rect x="1180" y="348" width="690" height="250" rx="5" fill="#f6f3fb" stroke="#5e35b1" stroke-width="2"/>
+<text x="1192" y="367" font-size="13" font-weight="700" fill="#222" text-anchor="start">Verdunkelung innen – WAREMA, Antrieb 230 V AC</text>
+<rect x="1195" y="392" width="175" height="130" rx="5" fill="#fff7e6" stroke="#e08600" stroke-width="1.6"/>
+<rect x="1195" y="392" width="28" height="20" rx="5" fill="#e08600"/>
+<text x="1201" y="407" font-size="12" font-weight="700" fill="#fff" text-anchor="start">A6</text>
+<text x="1231" y="407" font-size="12" font-weight="700" fill="#222" text-anchor="start">WAREMA USV</text>
+<text x="1203" y="428" font-size="11" fill="#222" text-anchor="start">Art.-Nr. 2013 984</text>
+<text x="1203" y="443" font-size="11" fill="#222" text-anchor="start">Netzleitung 1,8 m an Schuko</text>
+<text x="1203" y="458" font-size="11" fill="#222" text-anchor="start">6 Ausgänge 230 V AC</text>
+<text x="1203" y="473" font-size="11" fill="#222" text-anchor="start">Einsteckkarte, Leitung 3 m</text>
+<text x="1203" y="488" font-size="11" fill="#222" text-anchor="start">Akkupack RBC48 (2014 827)</text>
+<rect x="1425" y="392" width="295" height="130" rx="5" fill="#fff" stroke="#5e35b1" stroke-width="1.6"/>
+<rect x="1425" y="392" width="28" height="20" rx="5" fill="#5e35b1"/>
+<text x="1431" y="407" font-size="12" font-weight="700" fill="#fff" text-anchor="start">A5</text>
+<text x="1461" y="407" font-size="12" font-weight="700" fill="#222" text-anchor="start">WAREMA MSE Notstrom-Kit REG</text>
+<text x="1433" y="428" font-size="11" fill="#222" text-anchor="start">Art.-Nr. 2013 983 · Ausgang 500 VA</text>
+<text x="1433" y="443" font-size="11" fill="#222" text-anchor="start">X1: 7–9 L · 4–6 N · 1–3 PE  (von USV)</text>
+<text x="1433" y="458" font-size="11" fill="#222" text-anchor="start">X2: Motor 1 △ · 2 ▽ · 3 N · 4 PE</text>
+<text x="1433" y="473" font-size="11" fill="#222" text-anchor="start">      Aktor 6 △ · 7 ▽ · 8 N · 9 PE</text>
+<text x="1433" y="488" font-size="11" fill="#222" text-anchor="start">X5: 1 0V · 2 In+ · 3 In1 · 4 In2 · 5 R · 6 In3 · 7 In+</text>
+<text x="1433" y="503" font-size="11" fill="#222" text-anchor="start">X6: 3 In4 · Störmeldung 7 NC · 8 C · 9 NO</text>
+<polyline points="1370,448 1425,448" fill="none" stroke="#e08600" stroke-width="2" marker-end="url(#eo)"/>
+<rect x="1385.0" y="417" width="24" height="18" rx="9" fill="#fff" stroke="#e08600" stroke-width="1.3"/>
+<text x="1397" y="430" font-size="11" font-weight="700" fill="#e08600" text-anchor="middle">W5</text>
+<text x="1397" y="504" font-size="10" font-weight="700" fill="#e08600" text-anchor="middle">3 m</text>
+<rect x="1385.0" y="473" width="24" height="18" rx="9" fill="#fff" stroke="#e08600" stroke-width="1.3"/>
+<text x="1397" y="486" font-size="11" font-weight="700" fill="#e08600" text-anchor="middle">W6</text>
+<circle cx="1800" cy="448" r="32" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="1800" y="444" font-size="14" font-weight="700" fill="#222" text-anchor="middle">M3</text>
+<text x="1800" y="460" font-size="10" fill="#222" text-anchor="middle">230 V~</text>
+<text x="1800" y="496" font-size="10" fill="#555" text-anchor="middle">Verdunkelung</text>
+<polyline points="1720,448 1768,448" fill="none" stroke="#222" stroke-width="2" marker-end="url(#ek)"/>
+<rect x="1732.0" y="417" width="24" height="18" rx="9" fill="#fff" stroke="#222" stroke-width="1.3"/>
+<text x="1744" y="430" font-size="11" font-weight="700" fill="#222" text-anchor="middle">W9</text>
+<text x="1756" y="408" font-size="10" font-weight="700" fill="#222" text-anchor="middle">≤ 100 m*</text>
+<rect x="1195" y="534" width="235" height="54" rx="5" fill="#f1f8f1" stroke="#2e7d32" stroke-width="1.6"/>
+<rect x="1195" y="534" width="28" height="20" rx="5" fill="#2e7d32"/>
+<text x="1201" y="549" font-size="12" font-weight="700" fill="#fff" text-anchor="start">B2</text>
+<text x="1231" y="549" font-size="12" font-weight="700" fill="#222" text-anchor="start">Positionsschalter „oben“</text>
+<text x="1203" y="570" font-size="11" fill="#222" text-anchor="start">Schließer, Typ mit WAREMA klären</text>
+<rect x="1650" y="534" width="205" height="54" rx="5" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<rect x="1650" y="534" width="28" height="20" rx="5" fill="#222"/>
+<text x="1656" y="549" font-size="12" font-weight="700" fill="#fff" text-anchor="start">S3</text>
+<text x="1686" y="549" font-size="12" font-weight="700" fill="#222" text-anchor="start">Reset  X5: 5 R – 7 In+</text>
+<text x="1658" y="570" font-size="11" fill="#222" text-anchor="start">Schlüsseltaster 2017 192 · W8</text>
+<rect x="1440" y="534" width="200" height="54" rx="5" fill="#fff" stroke="#555" stroke-width="1.6"/>
+<rect x="1440" y="534" width="36" height="20" rx="5" fill="#555"/>
+<text x="1446" y="549" font-size="12" font-weight="700" fill="#fff" text-anchor="start">W10</text>
+<text x="1484" y="549" font-size="12" font-weight="700" fill="#222" text-anchor="start">vom Sonnenschutzaktor</text>
+<text x="1448" y="570" font-size="11" fill="#222" text-anchor="start">auf X2: 6 – 9 · ≤ 100 m*</text>
+<rect x="1180" y="606" width="690" height="174" rx="5" fill="#fdf3f2" stroke="#c62828" stroke-width="2"/>
+<text x="1192" y="626" font-size="13" font-weight="700" fill="#222" text-anchor="start">RWA-Fenster (NRWG)</text>
+<rect x="1195" y="640" width="250" height="128" rx="5" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<rect x="1195" y="640" width="36" height="20" rx="5" fill="#222"/>
+<text x="1201" y="655" font-size="12" font-weight="700" fill="#fff" text-anchor="start">XD1</text>
+<text x="1239" y="655" font-size="12" font-weight="700" fill="#222" text-anchor="start">Abzweigdose am Fenster</text>
+<text x="1203" y="676" font-size="11" fill="#222" text-anchor="start">Endmodul EM 47 K (2 × 47 kΩ) am</text>
+<text x="1203" y="691" font-size="11" fill="#222" text-anchor="start">letzten Antrieb: orange → Überw.,</text>
+<text x="1203" y="706" font-size="11" fill="#222" text-anchor="start">schwarz → Mot.a, schwarz → Mot.b</text>
+<text x="1203" y="721" font-size="11" fill="#222" text-anchor="start">E30 nach Brandschutzkonzept</text>
+<rect x="1480" y="640" width="375" height="128" rx="5" fill="#fff" stroke="#c62828" stroke-width="1.6"/>
+<rect x="1480" y="640" width="28" height="20" rx="5" fill="#c62828"/>
+<text x="1486" y="655" font-size="12" font-weight="700" fill="#fff" text-anchor="start">M1</text>
+<text x="1516" y="655" font-size="12" font-weight="700" fill="#222" text-anchor="start">D+H Fensterantrieb KA / ZA …-BRV</text>
+<text x="1488" y="676" font-size="11" fill="#222" text-anchor="start">24 V DC mit BRV-Meldung (für AT 41 erforderlich)</text>
+<text x="1488" y="691" font-size="11" fill="#222" text-anchor="start">Adern: weiß → Mot.a · braun → Mot.b · gelb → Meldung (P4)</text>
+<text x="1488" y="706" font-size="11" fill="#222" text-anchor="start">Summenstrom der Gruppe ≤ 4 A</text>
+<text x="1488" y="721" font-size="11" fill="#222" text-anchor="start">RWA-Schnelllauf (HS): Öffnungsposition in max. 60 s</text>
+<text x="1488" y="736" font-size="11" fill="#222" text-anchor="start">Typ nach Flügelgewicht und Hub</text>
+<polyline points="1445,704 1480,704" fill="none" stroke="#c62828" stroke-width="2" marker-end="url(#er)"/>
+<polyline points="995,320 1040,320 1040,150 1188,150 1188,122 1560,122 1560,134" fill="none" stroke="#c62828" stroke-width="2" marker-end="url(#er)"/>
+<text x="1110" y="172" font-size="10" font-weight="700" fill="#c62828" text-anchor="middle">≤ 200 m*</text>
 <rect x="1098.0" y="141" width="24" height="18" rx="9" fill="#fff" stroke="#c62828" stroke-width="1.3"/>
-<text x="1110" y="154" font-size="11" font-weight="700" fill="#c62828" text-anchor="middle">W5</text>
-<text x="1110" y="136" font-size="10.5" fill="#c62828" text-anchor="middle">Alarm-Hochfahrt</text>
-<polyline points="1040,270 1040,396 1180,396 1188,396 1188,370 1540,370 1540,382" fill="none" stroke="#c62828" stroke-width="2" marker-end="url(#er)"/>
-<rect x="1098.0" y="387" width="24" height="18" rx="9" fill="#fff" stroke="#c62828" stroke-width="1.3"/>
-<text x="1110" y="400" font-size="11" font-weight="700" fill="#c62828" text-anchor="middle">W6</text>
-<text x="1110" y="382" font-size="10.5" fill="#c62828" text-anchor="middle">Alarm-Hochfahrt</text>
-<polyline points="1425,288 1150,288 1150,484 522,484 522,494" fill="none" stroke="#2e7d32" stroke-width="2" marker-end="url(#eg)"/>
-<rect x="1278.0" y="279" width="24" height="18" rx="9" fill="#fff" stroke="#2e7d32" stroke-width="1.3"/>
-<text x="1290" y="292" font-size="11" font-weight="700" fill="#2e7d32" text-anchor="middle">W7</text>
-<polyline points="1425,536 1060,536 1060,478 707,478 707,494" fill="none" stroke="#2e7d32" stroke-width="2" marker-end="url(#eg)"/>
-<rect x="1278.0" y="527" width="24" height="18" rx="9" fill="#fff" stroke="#2e7d32" stroke-width="1.3"/>
-<text x="1290" y="540" font-size="11" font-weight="700" fill="#2e7d32" text-anchor="middle">W8</text>
-<polyline points="995,200 1020,200 1020,686 1195,686" fill="none" stroke="#c62828" stroke-width="2.5" marker-end="url(#er)"/>
-<rect x="1088.0" y="677" width="24" height="18" rx="9" fill="#fff" stroke="#c62828" stroke-width="1.3"/>
-<text x="1100" y="690" font-size="11" font-weight="700" fill="#c62828" text-anchor="middle">W9</text>
-<text x="1100" y="672" font-size="10.5" fill="#c62828" text-anchor="middle">24 V DC über AT 41</text>
-<polyline points="175,444 175,790 1166,790 1166,180 1195,180" fill="none" stroke="#e08600" stroke-width="2" marker-end="url(#eo)"/>
-<polyline points="1166,430 1195,430" fill="none" stroke="#e08600" stroke-width="2" marker-end="url(#eo)"/>
-<rect x="288.0" y="781" width="24" height="18" rx="9" fill="#fff" stroke="#e08600" stroke-width="1.3"/>
-<text x="300" y="794" font-size="11" font-weight="700" fill="#e08600" text-anchor="middle">W4</text>
-<text x="330" y="782" font-size="10.5" fill="#e08600" text-anchor="start">230 V AC, je Stromkreis F2 / F3</text>
-<rect x="40" y="830" width="1810" height="112" rx="5" fill="#eef4fc" stroke="#1565c0" stroke-width="3"/>
-<text x="56" y="856" font-size="15" font-weight="700" fill="#1565c0" text-anchor="start">GLT  DDC-Unterstation (potentialfreie DI / DO)</text>
-<text x="56" y="878" font-size="11.5" fill="#222" text-anchor="start">DI: RWA Sammelalarm (K1) · RWA Sammelstörung (K2) · Sonnenschutz Parkposition (K3) · Verdunkelung Parkposition (K4) · Laufzeitüberschreitung 60 s (K5) · Störung USV A4 · Störung USV A6 · Fenster ZU</text>
-<text x="56" y="896" font-size="11.5" fill="#222" text-anchor="start">DO: Lüften AUF / Lüften ZU an A1 (über K3 ∧ K4) · Fahrbefehl „Parkposition“ und Fahrsperre an die Sonnenschutz- und Verdunkelungssteuerung (vorgelagertes Schaltglied vor dem MSE Notstrom-Kit)</text>
-<text x="56" y="914" font-size="11.5" fill="#222" text-anchor="start">Betriebsmeldung je Anlage = Netz vorhanden und keine Störung. Meldungen im Ruhestromprinzip, Drahtbruch = Störung.</text>
-<polyline points="540,770 540,830" fill="none" stroke="#1565c0" stroke-width="2" marker-end="url(#eb)"/>
-<rect x="524.5" y="797" width="31" height="18" rx="9" fill="#fff" stroke="#1565c0" stroke-width="1.3"/>
-<text x="540" y="810" font-size="11" font-weight="700" fill="#1565c0" text-anchor="middle">W10</text>
-<polyline points="700,830 700,770" fill="none" stroke="#1565c0" stroke-width="2" marker-end="url(#eb)"/>
-<rect x="684.5" y="797" width="31" height="18" rx="9" fill="#fff" stroke="#1565c0" stroke-width="1.3"/>
-<text x="700" y="810" font-size="11" font-weight="700" fill="#1565c0" text-anchor="middle">W11</text>
-<polyline points="1870,204 1895,204 1895,886 1850,886" fill="none" stroke="#1565c0" stroke-width="2" marker-end="url(#eb)" marker-start="url(#sb)"/>
-<polyline points="1870,456 1895,456" fill="none" stroke="#1565c0" stroke-width="2" marker-start="url(#sb)"/>
-<rect x="1879.5" y="631" width="31" height="18" rx="9" fill="#fff" stroke="#1565c0" stroke-width="1.3"/>
-<text x="1895" y="644" font-size="11" font-weight="700" fill="#1565c0" text-anchor="middle">W12</text>
-<text x="40" y="982" font-size="13" font-weight="700" fill="#222" text-anchor="start">Kabelliste</text>
-<rect x="40" y="990" width="860" height="260" rx="0" fill="#fff" stroke="#888" stroke-width="1"/>
-<rect x="40" y="990" width="860" height="20" fill="#e9e9e9"/>
+<text x="1110" y="154" font-size="11" font-weight="700" fill="#c62828" text-anchor="middle">W7</text>
+<text x="1110" y="136" font-size="10.5" fill="#c62828" text-anchor="middle">In3 / In+ (Öffnerkreis)</text>
+<polyline points="1040,320 1040,408 1188,408 1188,380 1560,380 1560,392" fill="none" stroke="#c62828" stroke-width="2" marker-end="url(#er)"/>
+<text x="1110" y="430" font-size="10" font-weight="700" fill="#c62828" text-anchor="middle">≤ 200 m*</text>
+<rect x="1098.0" y="399" width="24" height="18" rx="9" fill="#fff" stroke="#c62828" stroke-width="1.3"/>
+<text x="1110" y="412" font-size="11" font-weight="700" fill="#c62828" text-anchor="middle">W7</text>
+<text x="1110" y="394" font-size="10.5" fill="#c62828" text-anchor="middle">In3 / In+ (Öffnerkreis)</text>
+<polyline points="1195,303 1150,303 1150,484 522,484 522,494" fill="none" stroke="#2e7d32" stroke-width="2" marker-end="url(#eg)"/>
+<rect x="1134.5" y="343" width="31" height="18" rx="9" fill="#fff" stroke="#2e7d32" stroke-width="1.3"/>
+<text x="1150" y="356" font-size="11" font-weight="700" fill="#2e7d32" text-anchor="middle">W11</text>
+<polyline points="1195,561 1060,561 1060,478 707,478 707,494" fill="none" stroke="#2e7d32" stroke-width="2" marker-end="url(#eg)"/>
+<text x="1110" y="583" font-size="10" font-weight="700" fill="#2e7d32" text-anchor="middle">≤ 200 m*</text>
+<rect x="1094.5" y="552" width="31" height="18" rx="9" fill="#fff" stroke="#2e7d32" stroke-width="1.3"/>
+<text x="1110" y="565" font-size="11" font-weight="700" fill="#2e7d32" text-anchor="middle">W11</text>
+<text x="1128" y="356" font-size="10" font-weight="700" fill="#2e7d32" text-anchor="end">≤ 200 m*</text>
+<polyline points="995,200 1020,200 1020,704 1195,704" fill="none" stroke="#c62828" stroke-width="2.5" marker-end="url(#er)"/>
+<text x="1100" y="726" font-size="10" font-weight="700" fill="#c62828" text-anchor="middle">≤ 50 m bei 4 A</text>
+<rect x="1084.5" y="695" width="31" height="18" rx="9" fill="#fff" stroke="#c62828" stroke-width="1.3"/>
+<text x="1100" y="708" font-size="11" font-weight="700" fill="#c62828" text-anchor="middle">W12</text>
+<text x="1100" y="690" font-size="10.5" fill="#c62828" text-anchor="middle">Mot.a · Mot.b · Überw. · Meldung</text>
+<polyline points="175,448 175,800 1166,800 1166,190 1195,190" fill="none" stroke="#e08600" stroke-width="2" marker-end="url(#eo)"/>
+<polyline points="1166,448 1195,448" fill="none" stroke="#e08600" stroke-width="2" marker-end="url(#eo)"/>
+<rect x="288.0" y="791" width="24" height="18" rx="9" fill="#fff" stroke="#e08600" stroke-width="1.3"/>
+<text x="300" y="804" font-size="11" font-weight="700" fill="#e08600" text-anchor="middle">W4</text>
+<text x="330" y="792" font-size="10.5" fill="#e08600" text-anchor="start">230 V AC je Stromkreis F2 / F3 · ≤ 75 m*</text>
+<rect x="40" y="846" width="1810" height="104" rx="5" fill="#eef4fc" stroke="#1565c0" stroke-width="3"/>
+<text x="56" y="872" font-size="15" font-weight="700" fill="#1565c0" text-anchor="start">GLT  DDC-Unterstation (potentialfreie DI / DO)</text>
+<text x="56" y="893" font-size="11.5" fill="#222" text-anchor="start">DI: RWA Alarm (K2) · RWA Störung (K3) · Sonnenschutz Parkposition (K4) · Verdunkelung Parkposition (K5) · Laufzeitüberschreitung 60 s (K6) · Störmeldung MSE A3 · Störmeldung MSE A5 (X6: 8 C – 7 NC, im Normalbetrieb geschlossen)</text>
+<text x="56" y="911" font-size="11.5" fill="#222" text-anchor="start">DO: Lüften AUF (AT 41 Kl. 2 N– → 4 auf, über K4 ∧ K5) · Lüften ZU (AT 41 Kl. 2 N– → 3 zu) · Fahrbefehle an den Sonnenschutzaktor (vorgeschaltetes Schaltelement an X2: 6 – 9)</text>
+<text x="56" y="929" font-size="11.5" fill="#222" text-anchor="start">Die GLT ist im Brandfall nicht beteiligt. Betriebsmeldung je Anlage = Störmeldekontakt geschlossen.</text>
+<polyline points="540,780 540,846" fill="none" stroke="#1565c0" stroke-width="2" marker-end="url(#eb)"/>
+<rect x="524.5" y="805" width="31" height="18" rx="9" fill="#fff" stroke="#1565c0" stroke-width="1.3"/>
+<text x="540" y="818" font-size="11" font-weight="700" fill="#1565c0" text-anchor="middle">W14</text>
+<text x="580" y="818" font-size="10" font-weight="700" fill="#1565c0" text-anchor="start">≤ 200 m*</text>
+<polyline points="700,846 700,780" fill="none" stroke="#1565c0" stroke-width="2" marker-end="url(#eb)"/>
+<rect x="684.5" y="805" width="31" height="18" rx="9" fill="#fff" stroke="#1565c0" stroke-width="1.3"/>
+<text x="700" y="818" font-size="11" font-weight="700" fill="#1565c0" text-anchor="middle">W13</text>
+<text x="740" y="818" font-size="10" font-weight="700" fill="#1565c0" text-anchor="start">≤ 200 m*</text>
+<polyline points="1870,215 1888,215 1888,898 1850,898" fill="none" stroke="#1565c0" stroke-width="2" marker-end="url(#eb)"/>
+<polyline points="1870,473 1888,473" fill="none" stroke="#1565c0" stroke-width="2"/>
+<rect x="1872.5" y="791" width="31" height="18" rx="9" fill="#fff" stroke="#1565c0" stroke-width="1.3"/>
+<text x="1888" y="804" font-size="11" font-weight="700" fill="#1565c0" text-anchor="middle">W15</text>
+<text x="1914" y="824" font-size="10" font-weight="700" fill="#1565c0" text-anchor="end">≤ 200 m*</text>
+<text x="40" y="982" font-size="13" font-weight="700" fill="#222" text-anchor="start">Kabelliste mit Klemmen und maximaler Leitungslänge</text>
+<rect x="40" y="990" width="1840" height="340" rx="0" fill="#fff" stroke="#888" stroke-width="1"/>
+<rect x="40" y="990" width="1840" height="20" fill="#e9e9e9"/>
 <text x="45" y="1004" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">Kabel</text>
-<text x="115" y="1004" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">von → nach</text>
-<line x1="110" y1="990" x2="110" y2="1250" stroke="#bbb"/>
-<text x="360" y="1004" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">Typ</text>
-<line x1="355" y1="990" x2="355" y2="1250" stroke="#bbb"/>
-<text x="615" y="1004" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">Bemerkung</text>
-<line x1="610" y1="990" x2="610" y2="1250" stroke="#bbb"/>
-<line x1="40" y1="1010" x2="900" y2="1010" stroke="#ccc"/>
+<text x="97" y="1004" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">von (Gerät: Klemme)</text>
+<line x1="92" y1="990" x2="92" y2="1330" stroke="#bbb"/>
+<text x="427" y="1004" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">nach (Gerät: Klemme)</text>
+<line x1="422" y1="990" x2="422" y2="1330" stroke="#bbb"/>
+<text x="767" y="1004" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">Typ</text>
+<line x1="762" y1="990" x2="762" y2="1330" stroke="#bbb"/>
+<text x="1117" y="1004" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">max. Länge</text>
+<line x1="1112" y1="990" x2="1112" y2="1330" stroke="#bbb"/>
+<text x="1235" y="1004" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">Grundlage</text>
+<line x1="1230" y1="990" x2="1230" y2="1330" stroke="#bbb"/>
+<line x1="40" y1="1010" x2="1880" y2="1010" stroke="#ccc"/>
 <text x="45" y="1024" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W1</text>
-<text x="115" y="1024" font-size="10.5" fill="#222" text-anchor="start">S1 RT 45 → A1 Linie RWA-Taster</text>
-<text x="360" y="1024" font-size="10.5" fill="#222" text-anchor="start">J-Y(St)Y 4×2×0,8 mm</text>
-<text x="615" y="1024" font-size="10.5" fill="#222" text-anchor="start">6 Adern belegt (D+H: 6 × 0,8 Ø)</text>
-<line x1="40" y1="1030" x2="900" y2="1030" stroke="#ccc"/>
+<text x="97" y="1024" font-size="10.5" fill="#222" text-anchor="start">S1 RT 45: 2 · 1 · 6 · 4 · 7 · 5</text>
+<text x="427" y="1024" font-size="10.5" fill="#222" text-anchor="start">A1 RT: 3 T · 4 – · 5 K · 6 A · 7 Z · 8 S</text>
+<text x="767" y="1024" font-size="10.5" fill="#222" text-anchor="start">J-Y(St)Y 4×2×0,8 mm (D+H: 6 × 0,8 Ø)</text>
+<text x="1117" y="1024" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">200 m*</text>
+<text x="1235" y="1024" font-size="10.5" fill="#222" text-anchor="start">Richtwert; D+H nennt keine Grenzlänge</text>
+<line x1="40" y1="1030" x2="1880" y2="1030" stroke="#ccc"/>
 <text x="45" y="1044" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W2</text>
-<text x="115" y="1044" font-size="10.5" fill="#222" text-anchor="start">BMA-Koppler → A1 Kl. RM</text>
-<text x="360" y="1044" font-size="10.5" fill="#222" text-anchor="start">J-Y(St)Y 2×2×0,8 mm, rot</text>
-<text x="615" y="1044" font-size="10.5" fill="#222" text-anchor="start">Linie mit 1 kΩ / 10 kΩ überwacht</text>
-<line x1="40" y1="1050" x2="900" y2="1050" stroke="#ccc"/>
+<text x="97" y="1044" font-size="10.5" fill="#222" text-anchor="start">BMA: Arbeitskontakt mit 1 kΩ, 10 kΩ parallel</text>
+<text x="427" y="1044" font-size="10.5" fill="#222" text-anchor="start">A1 RM: 1 R · 2 –</text>
+<text x="767" y="1044" font-size="10.5" fill="#222" text-anchor="start">J-Y(St)Y 2×2×0,8 mm, rot (D+H: 2 × 0,8 Ø)</text>
+<text x="1117" y="1044" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">200 m*</text>
+<text x="1235" y="1044" font-size="10.5" fill="#222" text-anchor="start">Richtwert; Schleife 15 Ω ≪ 1 kΩ</text>
+<line x1="40" y1="1050" x2="1880" y2="1050" stroke="#ccc"/>
 <text x="45" y="1064" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W3</text>
-<text x="115" y="1064" font-size="10.5" fill="#222" text-anchor="start">UV F1 → A1 Netz</text>
-<text x="360" y="1064" font-size="10.5" fill="#222" text-anchor="start">NYM-J 3×1,5 mm²</text>
-<text x="615" y="1064" font-size="10.5" fill="#222" text-anchor="start">eigener Stromkreis</text>
-<line x1="40" y1="1070" x2="900" y2="1070" stroke="#ccc"/>
+<text x="97" y="1064" font-size="10.5" fill="#222" text-anchor="start">UV F1: L · N · PE</text>
+<text x="427" y="1064" font-size="10.5" fill="#222" text-anchor="start">A1 Netzklemme: L · N</text>
+<text x="767" y="1064" font-size="10.5" fill="#222" text-anchor="start">NYM-J 3×1,5 mm²</text>
+<text x="1117" y="1064" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">75 m*</text>
+<text x="1235" y="1064" font-size="10.5" fill="#222" text-anchor="start">rechnerisch, Abschaltbedingung B 16 A</text>
+<line x1="40" y1="1070" x2="1880" y2="1070" stroke="#ccc"/>
 <text x="45" y="1084" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W4</text>
-<text x="115" y="1084" font-size="10.5" fill="#222" text-anchor="start">UV F2 / F3 → USV A4 / A6</text>
-<text x="360" y="1084" font-size="10.5" fill="#222" text-anchor="start">NYM-J 3×1,5 mm²</text>
-<text x="615" y="1084" font-size="10.5" fill="#222" text-anchor="start">Absicherung nach WAREMA-Anleitung</text>
-<line x1="40" y1="1090" x2="900" y2="1090" stroke="#ccc"/>
-<text x="45" y="1104" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W5, W6</text>
-<text x="115" y="1104" font-size="10.5" fill="#222" text-anchor="start">K1 → MSE A3 / A5 (X5: In+ / In1)</text>
-<text x="360" y="1104" font-size="10.5" fill="#222" text-anchor="start">JE-H(St)H…Bd FE180/E30 2×2×0,8</text>
-<text x="615" y="1104" font-size="10.5" fill="#222" text-anchor="start">Kontaktart (Öffner/Schließer) lt. WAREMA</text>
-<line x1="40" y1="1110" x2="900" y2="1110" stroke="#ccc"/>
-<text x="45" y="1124" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W7, W8</text>
-<text x="115" y="1124" font-size="10.5" fill="#222" text-anchor="start">B1 / B2 → K3 / K4</text>
-<text x="360" y="1124" font-size="10.5" fill="#222" text-anchor="start">JE-H(St)H…Bd FE180/E30 2×2×0,8</text>
-<text x="615" y="1124" font-size="10.5" fill="#222" text-anchor="start">Rückmeldung Parkposition</text>
-<line x1="40" y1="1130" x2="900" y2="1130" stroke="#ccc"/>
-<text x="45" y="1144" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W9</text>
-<text x="115" y="1144" font-size="10.5" fill="#222" text-anchor="start">A1 Gruppe → X1 → M1</text>
-<text x="360" y="1144" font-size="10.5" fill="#222" text-anchor="start">NHXH-O FE180/E30 3×2,5 mm²</text>
-<text x="615" y="1144" font-size="10.5" fill="#222" text-anchor="start">ohne gn/ge-Ader; Querschnitt nach D+H-Formel</text>
-<line x1="40" y1="1150" x2="900" y2="1150" stroke="#ccc"/>
-<text x="45" y="1164" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W10</text>
-<text x="115" y="1164" font-size="10.5" fill="#222" text-anchor="start">A1 / K1…K5 → GLT (DI)</text>
-<text x="360" y="1164" font-size="10.5" fill="#222" text-anchor="start">J-Y(St)Y 8×2×0,8 mm</text>
-<text x="615" y="1164" font-size="10.5" fill="#222" text-anchor="start">potentialfreie Meldungen</text>
-<line x1="40" y1="1170" x2="900" y2="1170" stroke="#ccc"/>
-<text x="45" y="1184" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W11</text>
-<text x="115" y="1184" font-size="10.5" fill="#222" text-anchor="start">GLT (DO) → A1 LT / Z</text>
-<text x="360" y="1184" font-size="10.5" fill="#222" text-anchor="start">J-Y(St)Y 2×2×0,8 mm</text>
-<text x="615" y="1184" font-size="10.5" fill="#222" text-anchor="start">über K3 ∧ K4 geführt</text>
-<line x1="40" y1="1190" x2="900" y2="1190" stroke="#ccc"/>
-<text x="45" y="1204" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W12</text>
-<text x="115" y="1204" font-size="10.5" fill="#222" text-anchor="start">USV A4 / A6 → GLT (DI)</text>
-<text x="360" y="1204" font-size="10.5" fill="#222" text-anchor="start">J-Y(St)Y 2×2×0,8 mm</text>
-<text x="615" y="1204" font-size="10.5" fill="#222" text-anchor="start">Meldekontakt der USV prüfen</text>
-<line x1="40" y1="1210" x2="900" y2="1210" stroke="#ccc"/>
-<text x="45" y="1224" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W13, W14</text>
-<text x="115" y="1224" font-size="10.5" fill="#222" text-anchor="start">MSE A3 / A5 → M2 / M3</text>
-<text x="360" y="1224" font-size="10.5" fill="#222" text-anchor="start">NHXH-J FE180/E30 4×1,5 mm²</text>
-<text x="615" y="1224" font-size="10.5" fill="#222" text-anchor="start">AUF / AB / N / PE; 1 Antrieb je MSE</text>
-<line x1="40" y1="1230" x2="900" y2="1230" stroke="#ccc"/>
-<text x="45" y="1244" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W15, W16</text>
-<text x="115" y="1244" font-size="10.5" fill="#222" text-anchor="start">USV → MSE (X1)</text>
-<text x="360" y="1244" font-size="10.5" fill="#222" text-anchor="start">Kaltgeräteleitung, Lieferumfang</text>
-<text x="615" y="1244" font-size="10.5" fill="#222" text-anchor="start">USV und MSE im selben Raum</text>
-<text x="940" y="982" font-size="13" font-weight="700" fill="#222" text-anchor="start">Geräteliste</text>
-<rect x="940" y="990" width="740" height="260" rx="0" fill="#fff" stroke="#888" stroke-width="1"/>
-<rect x="940" y="990" width="740" height="20" fill="#e9e9e9"/>
-<text x="945" y="1004" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">BMK</text>
-<text x="1007" y="1004" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">Gerät / Typ</text>
-<line x1="1002" y1="990" x2="1002" y2="1250" stroke="#bbb"/>
-<text x="1337" y="1004" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">Funktion</text>
-<line x1="1332" y1="990" x2="1332" y2="1250" stroke="#bbb"/>
-<text x="1607" y="1004" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">Stück</text>
-<line x1="1602" y1="990" x2="1602" y2="1250" stroke="#bbb"/>
-<line x1="940" y1="1010" x2="1680" y2="1010" stroke="#ccc"/>
-<text x="945" y="1024" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">A1</text>
-<text x="1007" y="1024" font-size="10.5" fill="#222" text-anchor="start">D+H RZN 4404-K V2</text>
-<text x="1337" y="1024" font-size="10.5" fill="#222" text-anchor="start">RWA-Zentrale 230 V AC / 24 V DC 4 A</text>
-<text x="1607" y="1024" font-size="10.5" fill="#222" text-anchor="start">1</text>
-<line x1="940" y1="1030" x2="1680" y2="1030" stroke="#ccc"/>
-<text x="945" y="1044" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">G1</text>
-<text x="1007" y="1044" font-size="10.5" fill="#222" text-anchor="start">Akku 12 V / 2,2 Ah, D+H Typ 2</text>
-<text x="1337" y="1044" font-size="10.5" fill="#222" text-anchor="start">Notstrom RWA-Zentrale</text>
-<text x="1607" y="1044" font-size="10.5" fill="#222" text-anchor="start">2</text>
-<line x1="940" y1="1050" x2="1680" y2="1050" stroke="#ccc"/>
-<text x="945" y="1064" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">A2</text>
-<text x="1007" y="1064" font-size="10.5" fill="#222" text-anchor="start">D+H AT 41</text>
-<text x="1337" y="1064" font-size="10.5" fill="#222" text-anchor="start">Anlaufverzögerung Fensterantrieb</text>
-<text x="1607" y="1064" font-size="10.5" fill="#222" text-anchor="start">1</text>
-<line x1="940" y1="1070" x2="1680" y2="1070" stroke="#ccc"/>
-<text x="945" y="1084" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">S1</text>
-<text x="1007" y="1084" font-size="10.5" fill="#222" text-anchor="start">D+H RT 45</text>
-<text x="1337" y="1084" font-size="10.5" fill="#222" text-anchor="start">RWA-Taster</text>
-<text x="1607" y="1084" font-size="10.5" fill="#222" text-anchor="start">n. Bedarf</text>
-<line x1="940" y1="1090" x2="1680" y2="1090" stroke="#ccc"/>
-<text x="945" y="1104" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">M1</text>
-<text x="1007" y="1104" font-size="10.5" fill="#222" text-anchor="start">D+H Antrieb 24 V DC mit BRV + Endmodul</text>
-<text x="1337" y="1104" font-size="10.5" fill="#222" text-anchor="start">Fensterantrieb, Typ nach Flügel</text>
-<text x="1607" y="1104" font-size="10.5" fill="#222" text-anchor="start">je Fenster</text>
-<line x1="940" y1="1110" x2="1680" y2="1110" stroke="#ccc"/>
-<text x="945" y="1124" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">A3, A5</text>
-<text x="1007" y="1124" font-size="10.5" fill="#222" text-anchor="start">WAREMA MSE Notstrom-Kit REG, 2013983</text>
-<text x="1337" y="1124" font-size="10.5" fill="#222" text-anchor="start">Notfahrt AUF je Behang</text>
-<text x="1607" y="1124" font-size="10.5" fill="#222" text-anchor="start">2</text>
-<line x1="940" y1="1130" x2="1680" y2="1130" stroke="#ccc"/>
-<text x="945" y="1144" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">A4, A6</text>
-<text x="1007" y="1144" font-size="10.5" fill="#222" text-anchor="start">WAREMA USV für MSE Notstrom-Kit, 2013984</text>
-<text x="1337" y="1144" font-size="10.5" fill="#222" text-anchor="start">Akkuversorgung je Anlage</text>
-<text x="1607" y="1144" font-size="10.5" fill="#222" text-anchor="start">2</text>
-<line x1="940" y1="1150" x2="1680" y2="1150" stroke="#ccc"/>
-<text x="945" y="1164" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">M2, M3</text>
-<text x="1007" y="1164" font-size="10.5" fill="#222" text-anchor="start">WAREMA Antrieb 230 V AC</text>
-<text x="1337" y="1164" font-size="10.5" fill="#222" text-anchor="start">Raffstore / Verdunkelung</text>
-<text x="1607" y="1164" font-size="10.5" fill="#222" text-anchor="start">2</text>
-<line x1="940" y1="1170" x2="1680" y2="1170" stroke="#ccc"/>
-<text x="945" y="1184" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">B1, B2</text>
-<text x="1007" y="1184" font-size="10.5" fill="#222" text-anchor="start">Positionsschalter „oben“, potentialfrei</text>
-<text x="1337" y="1184" font-size="10.5" fill="#222" text-anchor="start">Rückmeldung Parkposition</text>
-<text x="1607" y="1184" font-size="10.5" fill="#222" text-anchor="start">2</text>
-<line x1="940" y1="1190" x2="1680" y2="1190" stroke="#ccc"/>
-<text x="945" y="1204" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">K1…K4</text>
-<text x="1007" y="1204" font-size="10.5" fill="#222" text-anchor="start">Koppelrelais 24 V DC, Wechsler</text>
-<text x="1337" y="1204" font-size="10.5" fill="#222" text-anchor="start">Alarm, Störung, Rückmeldungen</text>
-<text x="1607" y="1204" font-size="10.5" fill="#222" text-anchor="start">4</text>
-<line x1="940" y1="1210" x2="1680" y2="1210" stroke="#ccc"/>
-<text x="945" y="1224" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">K5</text>
-<text x="1007" y="1224" font-size="10.5" fill="#222" text-anchor="start">Zeitrelais anzugverzögert, 60 s</text>
-<text x="1337" y="1224" font-size="10.5" fill="#222" text-anchor="start">Laufzeitüberwachung</text>
-<text x="1607" y="1224" font-size="10.5" fill="#222" text-anchor="start">1</text>
-<line x1="940" y1="1230" x2="1680" y2="1230" stroke="#ccc"/>
-<text x="945" y="1244" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">GLT</text>
-<text x="1007" y="1244" font-size="10.5" fill="#222" text-anchor="start">DDC-Unterstation, DI / DO</text>
-<text x="1337" y="1244" font-size="10.5" fill="#222" text-anchor="start">Meldungen, Lüftung</text>
-<text x="1607" y="1244" font-size="10.5" fill="#222" text-anchor="start">1</text>
-<text x="1700" y="982" font-size="10.5" fill="#555" text-anchor="start">je RWA-Fenstergruppe</text>
-<rect x="40" y="1272" width="1840" height="378" rx="5" fill="#fffdf5" stroke="#e08600" stroke-width="1.5"/>
-<text x="56" y="1296" font-size="14" font-weight="700" fill="#8a5200" text-anchor="start">Vor Ausführung zu klären</text>
-<text x="56" y="1322" font-size="11.5" fill="#222" text-anchor="start">1.  Hersteller der Zentrale: DEHN fertigt Überspannungs- und Blitzschutz, keine RWA-Zentralen. Das Schema ist deshalb mit D+H Mechatronic gezeichnet. Falls ein anderer Hersteller gemeint war, ändern sich A1, A2, S1 und M1.</text>
-<text x="56" y="1346" font-size="11.5" fill="#222" text-anchor="start">2.  Rückmeldung im Brandfall: D+H löst die Aufgabe „erst Behang, dann Fenster“ serienmäßig rein zeitgesteuert über das Modul AT 41. Ein Eingang, der den Antriebsausgang erst nach einer externen Rückmeldung freigibt, ist für die</text>
-<text x="56" y="1370" font-size="11.5" fill="#222" text-anchor="start">     RZN 4404-K V2 in den gefundenen Unterlagen nicht beschrieben. Die Rückmeldungen B1 / B2 wirken hier sicher auf Lüftung, Fahrsperre und GLT; ihre Einbindung in den Alarmpfad muss D+H freigeben (ggf. modulare Zentrale).</text>
-<text x="56" y="1394" font-size="11.5" fill="#222" text-anchor="start">3.  Zeitkonflikt 60 s: Das AT 41 ist auf das 1,5-Fache der Einfahrzeit einzustellen. WAREMA nennt für Raffstoren mit Standardantrieb etwa 55 s Notfahrt je 2 m Höhe – das ergäbe rund 80 s Verzögerung. 60 s sind nur mit kurzen Behängen</text>
-<text x="56" y="1418" font-size="11.5" fill="#222" text-anchor="start">     oder schnelleren Antrieben erreichbar; Einfahrzeiten beider Behänge bei WAREMA abfragen.</text>
-<text x="56" y="1442" font-size="11.5" fill="#222" text-anchor="start">4.  Rückmeldekontakt: Für das MSE Notstrom-Kit ist kein Ausgang „obere Endlage erreicht“ dokumentiert. B1 / B2 sind deshalb als separate Positionsschalter vorgesehen; Bauart und Montageort mit WAREMA abstimmen.</text>
-<text x="56" y="1466" font-size="11.5" fill="#222" text-anchor="start">5.  Notstrom-Kit: nur für 230-V-AC-Antriebe, ein Antrieb je MSE, maximal 4 MSE je USV (abhängig von der Antriebsleistung). Ist die Verdunkelung mit 24-V-Antrieb geplant, passt das Kit nicht. Eine gemeinsame USV für beide Kits wäre</text>
-<text x="56" y="1490" font-size="11.5" fill="#222" text-anchor="start">     möglich; gezeichnet ist je Anlage eine eigene USV („Akku in allen Anlagen“). Normalbetrieb ist 5 min nach Störungsende oder nach Reset wieder möglich. Im Winter kann ein angefrorener Behang nicht hochfahren.</text>
-<text x="56" y="1514" font-size="11.5" fill="#222" text-anchor="start">6.  Klemmenbezeichnungen (RM, Z, A, S, K; X1, X5, In+, In1, R) stammen aus öffentlich auffindbaren Auszügen der Anleitungen (D+H 99.823.80, WAREMA Notstrom-Kit) und weichen je Geräteversion ab – vor der Verdrahtung mit der</text>
-<text x="56" y="1538" font-size="11.5" fill="#222" text-anchor="start">     aktuellen Anleitung abgleichen. Belastbarkeit der Ausgänge A und S sowie der Meldekontakt der USV sind nicht bestätigt, deshalb Koppelrelais K1 / K2 und Prüfhinweis an W12.</text>
-<text x="56" y="1562" font-size="11.5" fill="#222" text-anchor="start">7.  Leitungen mit Funktionserhalt (E30) und rote BMA-Leitung nach Brandschutzkonzept und Leitungsanlagen-Richtlinie; Antriebsquerschnitt W9 nach D+H-Formel aus Leitungslänge und Summenstrom berechnen.</text>
-<text x="56" y="1586" font-size="11.5" fill="#222" text-anchor="start">8.  Die GLT ist für den Brandfall nicht führend: Alarm-Hochfahrt und Fensteröffnung laufen ohne GLT. Rückstellung nur an RWA-Zentrale / RWA-Taster.</text>
-<text x="56" y="1610" font-size="11.5" fill="#222" text-anchor="start">9.  Abnahme: Gesamtablauf (Auslösung → Behänge oben → Fenster auf) bei Netzbetrieb und bei Netzausfall mit Zeitmessung prüfen und dokumentieren.</text>
+<text x="97" y="1084" font-size="10.5" fill="#222" text-anchor="start">UV F2 / F3: L · N · PE</text>
+<text x="427" y="1084" font-size="10.5" fill="#222" text-anchor="start">Schuko-Steckdose der USV A4 / A6</text>
+<text x="767" y="1084" font-size="10.5" fill="#222" text-anchor="start">NYM-J 3×1,5 mm²</text>
+<text x="1117" y="1084" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">75 m*</text>
+<text x="1235" y="1084" font-size="10.5" fill="#222" text-anchor="start">rechnerisch; USV-Netzleitung 1,8 m fest</text>
+<line x1="40" y1="1090" x2="1880" y2="1090" stroke="#ccc"/>
+<text x="45" y="1104" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W5</text>
+<text x="97" y="1104" font-size="10.5" fill="#222" text-anchor="start">USV A4 / A6: Ausgang (Kaltgerätestecker)</text>
+<text x="427" y="1104" font-size="10.5" fill="#222" text-anchor="start">MSE A3 / A5 X1: 7–9 L · 4–6 N · 1–3 PE</text>
+<text x="767" y="1104" font-size="10.5" fill="#222" text-anchor="start">H05RR-F 3G1,5 mm²</text>
+<text x="1117" y="1104" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">kurz</text>
+<text x="1235" y="1104" font-size="10.5" fill="#222" text-anchor="start">WAREMA ohne Angabe; gleicher Verteiler</text>
+<line x1="40" y1="1110" x2="1880" y2="1110" stroke="#ccc"/>
+<text x="45" y="1124" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W6</text>
+<text x="97" y="1124" font-size="10.5" fill="#222" text-anchor="start">USV A4 / A6: Einsteckkarte</text>
+<text x="427" y="1124" font-size="10.5" fill="#222" text-anchor="start">MSE A3 / A5 X5: 2 In+ · 3 In1 · 4 In2</text>
+<text x="767" y="1124" font-size="10.5" fill="#222" text-anchor="start">vorkonfektioniert; Verlängerung 2×2×0,8 geschirmt</text>
+<text x="1117" y="1124" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">3 m</text>
+<text x="1235" y="1124" font-size="10.5" fill="#222" text-anchor="start">WAREMA: werksseitige Leitungslänge</text>
+<line x1="40" y1="1130" x2="1880" y2="1130" stroke="#ccc"/>
+<text x="45" y="1144" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W7</text>
+<text x="97" y="1144" font-size="10.5" fill="#222" text-anchor="start">K1: Schließer 13–14 / 23–24</text>
+<text x="427" y="1144" font-size="10.5" fill="#222" text-anchor="start">MSE A3 / A5 X5: 6 In3 · 7 In+ (Brücke entfernen)</text>
+<text x="767" y="1144" font-size="10.5" fill="#222" text-anchor="start">JE-H(St)H…Bd FE180/E30 2×2×0,8 mm, geschirmt</text>
+<text x="1117" y="1144" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">200 m*</text>
+<text x="1235" y="1144" font-size="10.5" fill="#222" text-anchor="start">Richtwert; Eingang 24 V DC, 1–2 mA</text>
+<line x1="40" y1="1150" x2="1880" y2="1150" stroke="#ccc"/>
+<text x="45" y="1164" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W8</text>
+<text x="97" y="1164" font-size="10.5" fill="#222" text-anchor="start">S2 / S3 Schlüsseltaster</text>
+<text x="427" y="1164" font-size="10.5" fill="#222" text-anchor="start">MSE A3 / A5 X5: 5 R · 7 In+</text>
+<text x="767" y="1164" font-size="10.5" fill="#222" text-anchor="start">J-Y(St)Y 2×2×0,8 mm</text>
+<text x="1117" y="1164" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">200 m*</text>
+<text x="1235" y="1164" font-size="10.5" fill="#222" text-anchor="start">Richtwert; WAREMA: 2×2×0,8 Ø geschirmt</text>
+<line x1="40" y1="1170" x2="1880" y2="1170" stroke="#ccc"/>
+<text x="45" y="1184" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W9</text>
+<text x="97" y="1184" font-size="10.5" fill="#222" text-anchor="start">MSE A3 / A5 X2: 1 △ · 2 ▽ · 3 N · 4 PE</text>
+<text x="427" y="1184" font-size="10.5" fill="#222" text-anchor="start">Verteilerdose → M2 / M3 (Motorleitung H05RR-F 4G0,75)</text>
+<text x="767" y="1184" font-size="10.5" fill="#222" text-anchor="start">NHXH-J FE180/E30 4×1,5 mm² (WAREMA: 4 × 1,5 mm²)</text>
+<text x="1117" y="1184" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">100 m*</text>
+<text x="1235" y="1184" font-size="10.5" fill="#222" text-anchor="start">rechnerisch, Spannungsfall &lt; 1,5 % bei 1,4 A</text>
+<line x1="40" y1="1190" x2="1880" y2="1190" stroke="#ccc"/>
+<text x="45" y="1204" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W10</text>
+<text x="97" y="1204" font-size="10.5" fill="#222" text-anchor="start">Sonnenschutzaktor: △ · ▽ · N · PE</text>
+<text x="427" y="1204" font-size="10.5" fill="#222" text-anchor="start">MSE A3 / A5 X2: 6 △ · 7 ▽ · 8 N · 9 PE</text>
+<text x="767" y="1204" font-size="10.5" fill="#222" text-anchor="start">NYM-J 4×1,5 mm²</text>
+<text x="1117" y="1204" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">100 m*</text>
+<text x="1235" y="1204" font-size="10.5" fill="#222" text-anchor="start">rechnerisch; Bemessungsstrom 2 A</text>
+<line x1="40" y1="1210" x2="1880" y2="1210" stroke="#ccc"/>
+<text x="45" y="1224" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W11</text>
+<text x="97" y="1224" font-size="10.5" fill="#222" text-anchor="start">B1 / B2: Schließer</text>
+<text x="427" y="1224" font-size="10.5" fill="#222" text-anchor="start">K4 / K5: Spule A1 – A2 (über + / –)</text>
+<text x="767" y="1224" font-size="10.5" fill="#222" text-anchor="start">JE-H(St)H…Bd FE180/E30 2×2×0,8 mm</text>
+<text x="1117" y="1224" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">200 m*</text>
+<text x="1235" y="1224" font-size="10.5" fill="#222" text-anchor="start">Richtwert</text>
+<line x1="40" y1="1230" x2="1880" y2="1230" stroke="#ccc"/>
+<text x="45" y="1244" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W12</text>
+<text x="97" y="1244" font-size="10.5" fill="#222" text-anchor="start">A2 AT 41: 6 Mot.a · 7 Mot.b · 5 Überw. · P4 Meldung</text>
+<text x="427" y="1244" font-size="10.5" fill="#222" text-anchor="start">XD1 → M1 weiß · braun · gelb; EM 47 K</text>
+<text x="767" y="1244" font-size="10.5" fill="#222" text-anchor="start">NHXH FE180/E30 5×2,5 mm², gn/ge nicht belegen</text>
+<text x="1117" y="1244" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">50 / 100 / 200 m</text>
+<text x="1235" y="1244" font-size="10.5" fill="#222" text-anchor="start">D+H-Tabelle 2,5 mm² bei 4 / 2 / 1 A  (1,5 mm²: 30 / 60 / 120 m)</text>
+<line x1="40" y1="1250" x2="1880" y2="1250" stroke="#ccc"/>
+<text x="45" y="1264" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W13</text>
+<text x="97" y="1264" font-size="10.5" fill="#222" text-anchor="start">GLT DO: Lüften AUF / ZU</text>
+<text x="427" y="1264" font-size="10.5" fill="#222" text-anchor="start">A2 AT 41: 2 N– · 3 zu · 4 auf</text>
+<text x="767" y="1264" font-size="10.5" fill="#222" text-anchor="start">J-Y(St)Y 2×2×0,8 mm (D+H: 4 × 0,8 Ø)</text>
+<text x="1117" y="1264" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">200 m*</text>
+<text x="1235" y="1264" font-size="10.5" fill="#222" text-anchor="start">Richtwert</text>
+<line x1="40" y1="1270" x2="1880" y2="1270" stroke="#ccc"/>
+<text x="45" y="1284" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W14</text>
+<text x="97" y="1284" font-size="10.5" fill="#222" text-anchor="start">K2 · K3 · K4 · K5 · K6: Wechsler</text>
+<text x="427" y="1284" font-size="10.5" fill="#222" text-anchor="start">GLT DI</text>
+<text x="767" y="1284" font-size="10.5" fill="#222" text-anchor="start">J-Y(St)Y 10×2×0,8 mm</text>
+<text x="1117" y="1284" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">200 m*</text>
+<text x="1235" y="1284" font-size="10.5" fill="#222" text-anchor="start">Richtwert</text>
+<line x1="40" y1="1290" x2="1880" y2="1290" stroke="#ccc"/>
+<text x="45" y="1304" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W15</text>
+<text x="97" y="1304" font-size="10.5" fill="#222" text-anchor="start">MSE A3 / A5 X6: 7 NC · 8 C · 9 NO</text>
+<text x="427" y="1304" font-size="10.5" fill="#222" text-anchor="start">GLT DI</text>
+<text x="767" y="1304" font-size="10.5" fill="#222" text-anchor="start">J-Y(St)Y 2×2×0,8 mm</text>
+<text x="1117" y="1304" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">200 m*</text>
+<text x="1235" y="1304" font-size="10.5" fill="#222" text-anchor="start">Richtwert; Kontakt max. 3 A, nicht an BMZ</text>
+<line x1="40" y1="1310" x2="1880" y2="1310" stroke="#ccc"/>
+<text x="45" y="1324" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">W16</text>
+<text x="97" y="1324" font-size="10.5" fill="#222" text-anchor="start">A1 Ext. 4 „+“ → A2 P2 – P3 → K1 → A1 „–“</text>
+<text x="427" y="1324" font-size="10.5" fill="#222" text-anchor="start">Schaltschrankverdrahtung K1 … K6</text>
+<text x="767" y="1324" font-size="10.5" fill="#222" text-anchor="start">H05V-K 0,75 mm²</text>
+<text x="1117" y="1324" font-size="10.5" font-weight="700" fill="#222" text-anchor="start">intern</text>
+<text x="1235" y="1324" font-size="10.5" fill="#222" text-anchor="start">nach D+H-Plan AT 41, Blatt 4/4</text>
+<text x="40" y="1352" font-size="10.5" fill="#555" text-anchor="start">* Kein Herstellergrenzwert vorhanden – eigene Berechnung: Signalleitung 0,8 mm Ø = 73 Ω/km Schleife, 200 m ≈ 15 Ω. 230-V-Leitungen 1,5 mm² hinter LS B 16 A, Vorimpedanz 0,6 Ω angenommen; Nachweis durch den Elektroplaner.</text>
+<text x="40" y="1368" font-size="10.5" fill="#555" text-anchor="start">   W12 nach D+H-Formel: Querschnitt (mm²) = Leitungslänge (m) × Gesamtstrom (A) / 80.</text>
+<rect x="40" y="1386" width="1840" height="326" rx="5" fill="#fffdf5" stroke="#e08600" stroke-width="1.5"/>
+<text x="56" y="1410" font-size="14" font-weight="700" fill="#8a5200" text-anchor="start">Vor Ausführung zu klären</text>
+<text x="56" y="1436" font-size="11.5" fill="#222" text-anchor="start">1.  Hersteller der Zentrale: DEHN fertigt Überspannungs- und Blitzschutz, keine RWA-Zentralen. Gezeichnet ist deshalb D+H Mechatronic.</text>
+<text x="56" y="1464" font-size="11.5" fill="#222" text-anchor="start">2.  Rückmeldung: Die RZN 4404-K V2 hat keinen Eingang für „Behang oben“. D+H löst die Reihenfolge über das AT 41 rein zeitlich; die Rückmeldungen B1 / B2 wirken auf Lüftungsfreigabe und GLT, nicht auf die Alarmöffnung.</text>
+<text x="56" y="1492" font-size="11.5" fill="#222" text-anchor="start">3.  60 Sekunden: Das AT 41 ist auf das 1,5-Fache der Rücklaufzeit einzustellen (Bereich 40 … 110 s). Bei 60 s darf der Behang höchstens 40 s fahren. WAREMA nennt für Raffstoren ca. 70 s je 2,5 m – das entspricht etwa 1,4 m Behanghöhe.</text>
+<text x="56" y="1520" font-size="11.5" fill="#222" text-anchor="start">4.  Gesamtzeit: Nach den 60 s brauchen die D+H-Antriebe im RWA-Schnelllauf bis zu weitere 60 s bis zur Öffnungsposition.</text>
+<text x="56" y="1548" font-size="11.5" fill="#222" text-anchor="start">5.  K1 ersetzt das D+H-Schaltrelais TRL 8 aus dem AT-41-Plan, weil das WAREMA-Kit die Umschaltung selbst übernimmt. Speiseklemme „+“ (Ext. Kl. 4), Abgriff A / S / – an der Stiftleiste und deren Belastbarkeit mit D+H bestätigen.</text>
+<text x="56" y="1576" font-size="11.5" fill="#222" text-anchor="start">6.  WAREMA: Eingang In3 mit Kodierschalter S1 = ON auf niedrige Priorität stellen, sonst ist nach jeder Lüftung ein Reset nötig. In1 (USV-Störung) bleibt hohe Priorität, deshalb der Schlüsseltaster. Bei Netzausfall fahren die Behänge nach 25 s selbst hoch.</text>
+<text x="56" y="1604" font-size="11.5" fill="#222" text-anchor="start">7.  WAREMA bezeichnet das Notstrom-Kit als Komfortsteuerung; der Einsatz muss über das Brandschutzkonzept vom Verantwortlichen nach § 66 MBO freigegeben werden. Nur 230-V-Antriebe, ein Antrieb je MSE, je USV 4 × 100 W, 3 × 140 W oder 2 × 200 W.</text>
+<text x="56" y="1632" font-size="11.5" fill="#222" text-anchor="start">8.  Positionsschalter B1 / B2 sind kein WAREMA-Serienteil; das Kit meldet nur Störung (X6), nicht die Endlage. Bei Frost kann ein angefrorener Behang nicht hochfahren.</text>
+<text x="56" y="1660" font-size="11.5" fill="#222" text-anchor="start">9.  Koppelrelais K1 … K5 mit Kontakten für Kleinsignale (24 V DC, 1–2 mA) wählen. Leitungen mit Funktionserhalt nach Brandschutzkonzept und Leitungsanlagen-Richtlinie.</text>
+<text x="56" y="1688" font-size="11.5" fill="#222" text-anchor="start">10. Abnahme: Gesamtablauf bei Netzbetrieb und bei Netzausfall mit Zeitmessung prüfen; Rückstellung an RWA-Zentrale / RT 45 und an den Schlüsseltastern.</text>
 </svg>

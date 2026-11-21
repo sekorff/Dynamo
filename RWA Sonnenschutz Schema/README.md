@@ -27,11 +27,17 @@ Prinzipschema, keine Ausführungsplanung.
 
 ## Ausführungsschema D+H / WAREMA
 
-`RWA_Ausfuehrungsschema_DH_WAREMA.svg` (Vorschau als `.png`) zeigt dieselbe Funktion mit konkreten Geräten, Kabelliste und Geräteliste:
+`RWA_Ausfuehrungsschema_DH_WAREMA.pdf` (A3 quer, 2 Seiten) zeigt dieselbe Funktion mit konkreten Geräten:
 
-- RWA-Zentrale D+H RZN 4404-K V2 mit Anlaufverzögerungsmodul AT 41, RWA-Taster RT 45 und D+H-Fensterantrieb 24 V DC.
-- Je Behang ein WAREMA MSE Notstrom-Kit (Art.-Nr. 2013983 REG / 2014062 AP) mit USV (Art.-Nr. 2013984).
+- Seite 1: Schema mit den Klemmenbezeichnungen der Hersteller und Kabelliste mit Typ und maximaler Leitungslänge (auch einzeln als `.svg` / `.png`).
+- Seite 2: Bauteilliste und Schnittstellenliste mit Zuständigkeiten nach Kostengruppen DIN 276 (Quelle: `RWA_Ausfuehrung_Seite2_Bauteile_Schnittstellen.html`).
 
-Entwurf zur Abstimmung mit den Herstellern. Die offenen Punkte stehen im Schema unter „Vor Ausführung zu klären“; Klemmenbezeichnungen und Typen sind vor der Verdrahtung mit den aktuellen Anleitungen abzugleichen.
+Geräte: RWA-Zentrale D+H RZN 4404-K V2 mit Jalousiemodul AT 41, RWA-Taster RT 45, D+H-Fensterantrieb mit BRV-Meldung; je Behang ein WAREMA MSE Notstrom-Kit (Art.-Nr. 2013 983) mit USV (Art.-Nr. 2013 984).
 
-`RWA_Ausfuehrungsschema_DH_WAREMA.pdf` fasst beides zusammen (A3 quer): Seite 1 das Ausführungsschema, Seite 2 die Bauteilliste und die Schnittstellenliste mit Zuständigkeiten nach Kostengruppen DIN 276 (Quelle der Seite 2: `RWA_Ausfuehrung_Seite2_Bauteile_Schnittstellen.html`).
+Quellen der Klemmen und Leitungsangaben:
+
+- D+H RZN 4402-K V2 / 4404-K V2, Gebrauchsanleitung 99.823.80, Stand 3.7/06/19
+- D+H Jalousiemodul AT 41, Gebrauchsanleitung Rev. 2.2 (Anschluss mit 230-V-AC-Beschattungsantrieb)
+- WAREMA Notstrom-Kit, Bedienungs- und Installationsanleitung 2014458, gültig ab 1. April 2022
+
+Maximale Leitungslängen: Herstellerwerte gibt es nur für die Antriebsleitung (D+H-Tabelle) und die konfektionierten WAREMA-Leitungen. Alle mit * markierten Längen sind eigene Richtwerte und vom Elektroplaner nachzuweisen. Die offenen Punkte stehen im Schema unter „Vor Ausführung zu klären“.
