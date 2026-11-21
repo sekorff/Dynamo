@@ -33,3 +33,5 @@ Prinzipschema, keine Ausführungsplanung.
 - Je Behang ein WAREMA MSE Notstrom-Kit (Art.-Nr. 2013983 REG / 2014062 AP) mit USV (Art.-Nr. 2013984).
 
 Entwurf zur Abstimmung mit den Herstellern. Die offenen Punkte stehen im Schema unter „Vor Ausführung zu klären“; Klemmenbezeichnungen und Typen sind vor der Verdrahtung mit den aktuellen Anleitungen abzugleichen.
+
+`RWA_Ausfuehrungsschema_DH_WAREMA.pdf` fasst beides zusammen (A3 quer): Seite 1 das Ausführungsschema, Seite 2 die Bauteilliste und die Schnittstellenliste mit Zuständigkeiten nach Kostengruppen DIN 276 (Quelle der Seite 2: `RWA_Ausfuehrung_Seite2_Bauteile_Schnittstellen.html`).
