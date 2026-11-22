@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="de"><head><meta charset="utf-8">
-<title>RWA Ausführung – Seite 2: Bauteile und Schnittstellen</title>
+<title>RWA Ausführung – Seiten 2 und 3: Listen und Leistungsbilanz</title>
 <style>
 @page{size:A3 landscape;margin:9mm}
 body{font-family:Arial,Helvetica,sans-serif;font-size:7.4pt;color:#222;margin:0;background:#fff}
@@ -84,4 +84,45 @@ Die Zuordnung ist ein Vorschlag; verbindlich wird sie erst mit den Leistungsverz
 Die RWA-Anlage ist hier der KG 456 zugeordnet, der Fensterantrieb als Teil des Fensters der KG 334. Manche Projekte führen die komplette RWA einschließlich Antrieben in der KG 334 – dann wandern A1, A2, S1, X1, K1–K5 und die Schnittstellen S01, S07 dorthin.
 Die Verdunkelung ist als fest eingebauter Lichtschutz in der KG 338 geführt, nicht als Ausstattung (KG 600). Liegen die RWA-Fenster im Dach, gelten KG 362 statt 334 und KG 366 statt 338.
 Klemmen nach D+H 99.823.80 (06/19), D+H AT 41 Rev. 2.2 und WAREMA 2014458 (04/2022). Klemmen der Koppelrelais sind übliche Bezeichnungen und hängen vom gewählten Fabrikat ab. Kabeltypen und maximale Längen zu W1–W16 siehe Kabelliste auf Seite 1.</div>
+
+<div style="page-break-before:always"></div>
+<h1>Seite 3 – Leistungsbilanz der Motorabgänge</h1>
+<div class="sub">Grenzwerte aus den Herstelleranleitungen (D+H 99.823.80, WAREMA 2014458) · Antriebsleistungen sind Annahmen, weil die Antriebstypen noch nicht festliegen – nach Typenschild ersetzen</div>
+
+<h2>3.1 Bilanz je Motorabgang</h2>
+<table>
+<tr><th>Abgang</th><th>von (Gerät: Klemme)</th><th>Verbraucher</th><th>Spannung</th><th>Zulässig laut Hersteller</th><th>Angesetzt (Annahme)</th><th>Strom</th><th>Auslastung</th><th>Reserve</th><th>Leitung, max. Länge bei diesem Strom</th><th>Bemerkung</th></tr>
+<tr><td class="b">M1</td><td>A2 AT 41: 6 Mot.a · 7 Mot.b</td><td>Fensterantriebe D+H KA / ZA …-BRV</td><td>24 V DC</td><td>4,0 A = 96 W je Gruppe; Kurzzeitbetrieb 30 % ED</td><td>2 Antriebe × 1,0 A = 48 W</td><td class="b">2,0 A</td><td class="b">50 %</td><td>2,0 A</td><td>W12: 5×2,5 mm² 100 m (1,5 mm²: 60 m)</td><td>Summenstrom aller Antriebe der Gruppe; Anlaufstrom laut Antriebsdatenblatt prüfen</td></tr>
+<tr><td class="b">M2</td><td>MSE A3 X2: 1 △ · 2 ▽ · 3 N</td><td>Raffstore-Antrieb außen</td><td>230 V AC</td><td>500 VA Schaltleistung je Ausgang; 1 Antrieb je MSE</td><td>1 Antrieb × 140 W</td><td class="b">ca. 0,6 A</td><td class="b">28 %</td><td>360 VA</td><td>W9: 4×1,5 mm² 100 m*</td><td>Motorabsicherung im vorgeschalteten Aktor (WAREMA-Plan: 3,15 AT)</td></tr>
+<tr><td class="b">M3</td><td>MSE A5 X2: 1 △ · 2 ▽ · 3 N</td><td>Verdunkelungs-Antrieb innen</td><td>230 V AC</td><td>500 VA Schaltleistung je Ausgang; 1 Antrieb je MSE</td><td>1 Antrieb × 100 W</td><td class="b">ca. 0,45 A</td><td class="b">20 %</td><td>400 VA</td><td>W9: 4×1,5 mm² 100 m*</td><td>Eignung des Antriebs für das Notstrom-Kit bei WAREMA bestätigen</td></tr>
+</table>
+
+<h2>3.2 Notstromquellen</h2>
+<table>
+<tr><th>Quelle</th><th>versorgt</th><th>Grenze laut Hersteller</th><th>Angesetzt (Annahme)</th><th>Auslastung</th><th>Notbetrieb</th><th>Bemerkung</th></tr>
+<tr><td class="b">G1 in A1</td><td>M1 über A1 / A2</td><td>2 × 12 V / 2,2 Ah (Typ 2) für 72 h bis 4 A; bis 2 A genügen 2 × 12 V / 1,2 Ah (Typ 1)</td><td>2,0 A Antriebsstrom</td><td class="b">50 % des Ausgangsstroms</td><td>72 h Bereitschaft, danach Öffnen</td><td>Mit D+H-Alarmmitteln nächstgrößerer Akku (3,4 Ah bzw. 2,2 Ah). Dauerlasten der Koppelrelais sind in der D+H-Auslegung nicht enthalten – siehe Hinweis</td></tr>
+<tr><td class="b">USV A4</td><td>MSE A3 → M2</td><td>je USV 4 × 100 W, 3 × 140 W oder 2 × 200 W; 1 × 320 W (Becker) bzw. 300 W (Somfy)</td><td>1 × 140 W + MSE ca. 4 VA</td><td class="b">1 von 3 möglichen Antrieben</td><td>eine Hochfahrt: ca. 70 s je 2,5 m ≈ 2,7 Wh</td><td>Frei: 2 weitere Antriebe à 140 W, jeweils mit eigenem MSE Notstrom-Kit</td></tr>
+<tr><td class="b">USV A6</td><td>MSE A5 → M3</td><td>wie A4</td><td>1 × 100 W + MSE ca. 4 VA</td><td class="b">1 von 4 möglichen Antrieben</td><td>eine Hochfahrt, Laufzeit bei WAREMA abfragen</td><td>Frei: 3 weitere Antriebe à 100 W. Eine gemeinsame USV für M2 und M3 wäre zulässig (2 × 140 W)</td></tr>
+</table>
+
+<h2>3.3 Netzabgänge in der Unterverteilung</h2>
+<table>
+<tr><th>Abgang</th><th>versorgt</th><th>Leistung im Betrieb</th><th>Strom</th><th>Bereitschaft</th><th>Absicherung</th><th>Auslastung</th><th>Leitung</th></tr>
+<tr><td class="b">F1</td><td>A1 RWA-Zentrale</td><td>120 VA (Fenster fährt)</td><td>0,52 A</td><td>5,8 W</td><td>B 16 A, eigener Stromkreis</td><td>3 %</td><td>W3: NYM-J 3×1,5 mm², 75 m*</td></tr>
+<tr><td class="b">F2</td><td>USV A4, MSE A3, Sonnenschutzaktor, M2</td><td>ca. 145 VA (Behang fährt) zuzüglich Akkuladung der USV</td><td>ca. 0,65 A</td><td>MSE 12–21 mA, USV laut Typenschild</td><td>B 16 A, gemeinsam mit dem Aktor</td><td>4 %</td><td>W4: NYM-J 3×1,5 mm², 75 m*</td></tr>
+<tr><td class="b">F3</td><td>USV A6, MSE A5, Verdunkelungsaktor, M3</td><td>ca. 105 VA (Behang fährt) zuzüglich Akkuladung der USV</td><td>ca. 0,45 A</td><td>wie F2</td><td>B 16 A, gemeinsam mit dem Aktor</td><td>3 %</td><td>W4: NYM-J 3×1,5 mm², 75 m*</td></tr>
+<tr><td class="b">Summe</td><td>alle drei Anlagen</td><td>ca. 370 VA, nicht gleichzeitig: erst fahren die Behänge, danach das Fenster</td><td>ca. 1,6 A</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
+</table>
+
+<h2>3.4 Ausbaugrenzen</h2>
+<table>
+<tr><th>Abgang</th><th>Grenze</th><th>Zulässige Bestückung</th></tr>
+<tr><td class="b">M1 (D+H)</td><td>Summenstrom 4 A je Gruppe; die Zentrale hat eine Gruppe</td><td>4 Antriebe à 1,0 A · 2 Antriebe à 2,0 A · 1 Antrieb bis 4,0 A. Mehr Fenster oder stärkere Antriebe erfordern eine zweite Zentrale oder eine größere Bauart.</td></tr>
+<tr><td class="b">M2, M3 (WAREMA)</td><td>1 Antrieb je MSE; Antriebe je USV nach Aufnahmeleistung</td><td>4 × 100 W · 3 × 140 W · 2 × 200 W · 1 × 320 W (Becker) / 300 W (Somfy). Andere Antriebe nur nach Rücksprache mit dem WAREMA-Service.</td></tr>
+</table>
+
+<div class="note"><b>Hinweise.</b>
+Die angesetzten Werte (Fensterantrieb 1,0 A, Raffstore 140 W, Verdunkelung 100 W, je ein Behang und zwei Fensterantriebe) sind Platzhalter; verbindlich sind die Typenschilder der ausgewählten Antriebe. Die WAREMA-Leistungsklassen stammen aus der Tabelle „Maximale Anzahl von Antrieben pro USV“.
+<b>Koppelrelais und 72-h-Akku:</b> Ein dauernd angezogenes Relais mit etwa 20 mA entnimmt in 72 h rund 1,4 Ah. K1 und die Rückmelderelais K4 / K5 würden den 2,2-Ah-Akku der Zentrale bei Netzausfall vorzeitig entladen, wenn sie aus dem notversorgten Potential „+ / –“ gespeist werden. Speisung aus dem nicht notversorgten Potential „N+ / N–“ (Ext. Klemmen 1 und 2) oder eine größere Akkukapazität mit D+H festlegen. Fällt K1 bei Netzausfall ab, fahren die Behänge hoch – das WAREMA-Kit fährt bei Netzausfall nach 25 s ohnehin selbst hoch.
+* Eigener Richtwert, siehe Kabelliste Seite 1.</div>
 </body></html>

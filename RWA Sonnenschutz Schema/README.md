@@ -27,10 +27,11 @@ Prinzipschema, keine Ausführungsplanung.
 
 ## Ausführungsschema D+H / WAREMA
 
-`RWA_Ausfuehrungsschema_DH_WAREMA.pdf` (A3 quer, 2 Seiten) zeigt dieselbe Funktion mit konkreten Geräten:
+`RWA_Ausfuehrungsschema_DH_WAREMA.pdf` (A3 quer, 3 Seiten) zeigt dieselbe Funktion mit konkreten Geräten:
 
 - Seite 1: Schema mit den Klemmenbezeichnungen der Hersteller und Kabelliste mit Typ und maximaler Leitungslänge (auch einzeln als `.svg` / `.png`).
-- Seite 2: Bauteilliste und Schnittstellenliste mit Zuständigkeiten nach Kostengruppen DIN 276 (Quelle: `RWA_Ausfuehrung_Seite2_Bauteile_Schnittstellen.html`).
+- Seite 2: Bauteilliste und Schnittstellenliste mit Zuständigkeiten nach Kostengruppen DIN 276 (Quelle: `RWA_Ausfuehrung_Seite2-3_Listen_Leistungsbilanz.html`).
+- Seite 3: Leistungsbilanz der Motorabgänge mit Herstellergrenzen, angesetzten Antriebsleistungen (Annahmen), Notstromquellen und Netzabgängen.
 
 Geräte: RWA-Zentrale D+H RZN 4404-K V2 mit Jalousiemodul AT 41, RWA-Taster RT 45, D+H-Fensterantrieb mit BRV-Meldung; je Behang ein WAREMA MSE Notstrom-Kit (Art.-Nr. 2013 983) mit USV (Art.-Nr. 2013 984).
 
