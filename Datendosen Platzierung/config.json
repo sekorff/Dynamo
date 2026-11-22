@@ -1,0 +1,117 @@
+{
+  "funktion_parameter": [
+    "Funktion",
+    "Raumfunktion",
+    "Nutzungsart",
+    "Nutzung"
+  ],
+  "ausschluss_funktionen": [
+    "Fläche"
+  ],
+  "ausschluss_modus": "exakt",
+  "dosen_standard": {
+    "je_m2": 10.0,
+    "min": 1,
+    "max": null
+  },
+  "dosen_regeln": [],
+  "mindestabstand": 1.35,
+  "dosen_hoehe": 0.3,
+  "eckabstand": 0.3,
+  "oeffnung_randabstand": 0.15,
+  "oeffnung_suchabstand": 0.6,
+  "raster": 0.05,
+  "fassade_zuerst": true,
+  "vorhangfassade_bestueckbar": false,
+  "fassade_wandtyp_enthaelt": [],
+  "bodennah_bis_hoehe": 1.5,
+  "smartboard": {
+    "erkennung": [
+      "Smartboard",
+      "Smart Board",
+      "Smart-Board"
+    ],
+    "breite_parameter": [
+      "Breite",
+      "Width"
+    ],
+    "mitte_achsabstand": 0.071,
+    "seitlicher_abstand": 0.15,
+    "zaehlt_zur_raumanzahl": false
+  },
+  "decken_regeln": [],
+  "decken_wandabstand": 0.5,
+  "wlan": {
+    "aktiv": true,
+    "hoehe_soll": 2.5,
+    "hoehe_min": 2.3,
+    "abstand_unter_decke": 0.15,
+    "oeffentlich": [
+      "Flur",
+      "Foyer",
+      "Aula",
+      "Mensa",
+      "Eingang",
+      "Halle",
+      "Treppe",
+      "Warte",
+      "Lobby",
+      "Empfang",
+      "Cafeteria",
+      "Bibliothek",
+      "Pausen"
+    ],
+    "immer": [
+      "Klasse",
+      "Unterricht",
+      "Fachraum",
+      "Besprechung",
+      "Konferenz",
+      "Seminar"
+    ],
+    "nie": [
+      "WC",
+      "Lager",
+      "Technik",
+      "Putz",
+      "Schacht",
+      "Abstell",
+      "Aufzug",
+      "Dusche"
+    ],
+    "flaeche_je_ap_oeffentlich": 200.0,
+    "flaeche_je_ap": 150.0,
+    "reichweite": 8.0,
+    "ports": 2,
+    "eigenes_patchfeld": false
+  },
+  "geschoss_reihenfolge": "hoehe",
+  "ports_je_patchfeld": 24,
+  "ports_je_dose": 2,
+  "patchfeld_start": 1,
+  "format_dosennummer": "{raum}-{lfd:02d}",
+  "format_wlannummer": "{raum}-AP{lfd:02d}",
+  "format_patch": "PF{pf:02d}/{port_a:02d}-{port_b:02d}",
+  "revit": {
+    "familie_datendose": {
+      "familie": "Daten-Doppeldose",
+      "typ": ""
+    },
+    "familie_wlan": {
+      "familie": "Daten-Doppeldose",
+      "typ": ""
+    },
+    "familien_drehung_grad": 0.0,
+    "vorherige_loeschen": true,
+    "markierung": "DATENDOSE-AUTO",
+    "parameter": {
+      "nummer": "",
+      "patchfeld": "Patchfeld",
+      "port": "Port",
+      "raumnummer": "Raumnummer",
+      "dosentyp": "Dosentyp"
+    },
+    "verknuepfte_modelle": true,
+    "csv_pfad": ""
+  }
+}

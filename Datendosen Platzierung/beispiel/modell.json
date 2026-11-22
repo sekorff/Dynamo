@@ -1,0 +1,395 @@
+{
+ "raeume": [
+  {
+   "id": "0.03",
+   "nummer": "0.03",
+   "name": "Büro",
+   "funktion": "Büro",
+   "geschoss": "EG",
+   "geschoss_hoehe": 0.0,
+   "raumhoehe": 3.0,
+   "flaeche": 20,
+   "kontur": [
+    {
+     "p0": [
+      8,
+      2
+     ],
+     "p1": [
+      12,
+      2
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "0.03-S"
+    },
+    {
+     "p0": [
+      12,
+      2
+     ],
+     "p1": [
+      12,
+      7
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "0.03-O"
+    },
+    {
+     "p0": [
+      12,
+      7
+     ],
+     "p1": [
+      8,
+      7
+     ],
+     "fassade": true,
+     "bestueckbar": true,
+     "wand": "0.03-N"
+    },
+    {
+     "p0": [
+      8,
+      7
+     ],
+     "p1": [
+      8,
+      2
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "0.03-W"
+    }
+   ],
+   "oeffnungen": [
+    {
+     "p": [
+      10,
+      2
+     ],
+     "breite": 1.0,
+     "uk": 0.0,
+     "ok": 2.1,
+     "typ": "tuer"
+    }
+   ]
+  },
+  {
+   "id": "0.01",
+   "nummer": "0.01",
+   "name": "Flur",
+   "funktion": "Fläche",
+   "geschoss": "EG",
+   "geschoss_hoehe": 0.0,
+   "raumhoehe": 3.0,
+   "flaeche": 32,
+   "kontur": [
+    {
+     "p0": [
+      0,
+      0
+     ],
+     "p1": [
+      16,
+      0
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "0.01-S"
+    },
+    {
+     "p0": [
+      16,
+      0
+     ],
+     "p1": [
+      16,
+      2
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "0.01-O"
+    },
+    {
+     "p0": [
+      16,
+      2
+     ],
+     "p1": [
+      0,
+      2
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "0.01-N"
+    },
+    {
+     "p0": [
+      0,
+      2
+     ],
+     "p1": [
+      0,
+      0
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "0.01-W"
+    }
+   ],
+   "oeffnungen": [
+    {
+     "p": [
+      0,
+      1
+     ],
+     "breite": 1.0,
+     "uk": 0.0,
+     "ok": 2.1,
+     "typ": "tuer"
+    }
+   ]
+  },
+  {
+   "id": "0.02",
+   "nummer": "0.02",
+   "name": "Klassenraum",
+   "funktion": "Klassenraum",
+   "geschoss": "EG",
+   "geschoss_hoehe": 0.0,
+   "raumhoehe": 3.0,
+   "flaeche": 56,
+   "kontur": [
+    {
+     "p0": [
+      0,
+      2
+     ],
+     "p1": [
+      8,
+      2
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "0.02-S"
+    },
+    {
+     "p0": [
+      8,
+      2
+     ],
+     "p1": [
+      8,
+      9
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "0.02-O"
+    },
+    {
+     "p0": [
+      8,
+      9
+     ],
+     "p1": [
+      0,
+      9
+     ],
+     "fassade": true,
+     "bestueckbar": true,
+     "wand": "0.02-N"
+    },
+    {
+     "p0": [
+      0,
+      9
+     ],
+     "p1": [
+      0,
+      2
+     ],
+     "fassade": true,
+     "bestueckbar": true,
+     "wand": "0.02-W"
+    }
+   ],
+   "oeffnungen": [
+    {
+     "p": [
+      7,
+      2
+     ],
+     "breite": 1.0,
+     "uk": 0.0,
+     "ok": 2.1,
+     "typ": "tuer"
+    }
+   ]
+  },
+  {
+   "id": "0.04",
+   "nummer": "0.04",
+   "name": "WC",
+   "funktion": "WC",
+   "geschoss": "EG",
+   "geschoss_hoehe": 0.0,
+   "raumhoehe": 3.0,
+   "flaeche": 20,
+   "kontur": [
+    {
+     "p0": [
+      12,
+      2
+     ],
+     "p1": [
+      16,
+      2
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "0.04-S"
+    },
+    {
+     "p0": [
+      16,
+      2
+     ],
+     "p1": [
+      16,
+      7
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "0.04-O"
+    },
+    {
+     "p0": [
+      16,
+      7
+     ],
+     "p1": [
+      12,
+      7
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "0.04-N"
+    },
+    {
+     "p0": [
+      12,
+      7
+     ],
+     "p1": [
+      12,
+      2
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "0.04-W"
+    }
+   ],
+   "oeffnungen": [
+    {
+     "p": [
+      14,
+      2
+     ],
+     "breite": 1.0,
+     "uk": 0.0,
+     "ok": 2.1,
+     "typ": "tuer"
+    }
+   ]
+  },
+  {
+   "id": "1.01",
+   "nummer": "1.01",
+   "name": "Büro",
+   "funktion": "Büro",
+   "geschoss": "1.OG",
+   "geschoss_hoehe": 3.5,
+   "raumhoehe": 2.5,
+   "flaeche": 56,
+   "kontur": [
+    {
+     "p0": [
+      0,
+      2
+     ],
+     "p1": [
+      8,
+      2
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "1.01-S"
+    },
+    {
+     "p0": [
+      8,
+      2
+     ],
+     "p1": [
+      8,
+      9
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "1.01-O"
+    },
+    {
+     "p0": [
+      8,
+      9
+     ],
+     "p1": [
+      0,
+      9
+     ],
+     "fassade": true,
+     "bestueckbar": true,
+     "wand": "1.01-N"
+    },
+    {
+     "p0": [
+      0,
+      9
+     ],
+     "p1": [
+      0,
+      2
+     ],
+     "fassade": false,
+     "bestueckbar": true,
+     "wand": "1.01-W"
+    }
+   ],
+   "oeffnungen": [
+    {
+     "p": [
+      7,
+      2
+     ],
+     "breite": 1.0,
+     "uk": 0.0,
+     "ok": 2.1,
+     "typ": "tuer"
+    }
+   ]
+  }
+ ],
+ "smartboards": [
+  {
+   "p": [
+    7.95,
+    5.5
+   ],
+   "breite": 2.0,
+   "uk_abs": 0.9,
+   "ok_abs": 2.1
+  }
+ ]
+}

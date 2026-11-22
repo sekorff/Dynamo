@@ -1,0 +1,255 @@
+{
+  "Uuid": "18af8fec-c366-418d-afd0-a0074a20ddb0",
+  "IsCustomNode": false,
+  "Description": "Platziert Daten-Doppeldosen und WLAN-Anschlusspunkte je Raum.",
+  "Name": "Datendosen Platzierung",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "CoreNodeModels.Input.Directory, CoreNodeModels",
+      "HintPath": "",
+      "InputValue": "",
+      "NodeType": "ExtensionNode",
+      "Id": "918dc7371f3647168a2d455713d8dcfa",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "a6f49f39a11c41efb9291cbded50fb25",
+          "Name": "",
+          "Description": "Directory",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Ordner mit den Skripten"
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.StringInput, CoreNodeModels",
+      "NodeType": "StringInputNode",
+      "InputValue": "",
+      "Id": "038c36449d394e9d97c090c761ff475d",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "b2b0bfed8b294bbcbf9d79176e394e87",
+          "Name": "",
+          "Description": "String",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Pfad zur config.json (leer = Standard)"
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": false,
+      "Id": "964d02435c434bfd85d25ebf3e884583",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "4d1007c25aa84eab8714627a8795878c",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "True = platzieren"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "# Datendosen-Platzierung: laedt die Skripte aus dem Ordner (IN[0]).\n# IN[0] Ordner mit datendosen_core.py / datendosen_revit.py\n# IN[1] Pfad zur config.json (leer = config.json im Ordner)\n# IN[2] True = Familien platzieren, False = nur berechnen (Probelauf)\nimport sys\nordner = str(IN[0])\nif ordner not in sys.path:\n    sys.path.insert(0, ordner)\nimport datendosen_core\nimport datendosen_revit\ntry:\n    from importlib import reload\nexcept ImportError:\n    pass\nreload(datendosen_core)\nreload(datendosen_revit)\nOUT = datendosen_revit.ausfuehren(ordner, IN[1] if len(IN) > 1 else None, bool(IN[2]) if len(IN) > 2 else False)\n",
+      "Engine": "CPython3",
+      "VariableInputPorts": true,
+      "Id": "9605c5935513453abe75650f72fffbe2",
+      "Inputs": [
+        {
+          "Id": "78ebbed0ffe74c2f96eb15853a851e5d",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "3dcbc9fd3dec4596a19dd3545deb1640",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "ef1f8a91252a4fb09de9f561c240cdbf",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "85adc2eb8aaf49b3b5152efedb7a0798",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Watch, CoreNodeModels",
+      "NodeType": "ExtensionNode",
+      "Id": "dd825dbcd6574c809081b01c7753b51d",
+      "Inputs": [
+        {
+          "Id": "de326882e3a241fab593865690c5cbf1",
+          "Name": "",
+          "Description": "Node to evaluate.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "2c04cbd6072045d38942130f0c5c08e7",
+          "Name": "",
+          "Description": "Watch contents.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Visualize the output of node."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "a6f49f39a11c41efb9291cbded50fb25",
+      "End": "78ebbed0ffe74c2f96eb15853a851e5d",
+      "Id": "2204894c3bd54e44bc39ce03bd19710b"
+    },
+    {
+      "Start": "b2b0bfed8b294bbcbf9d79176e394e87",
+      "End": "3dcbc9fd3dec4596a19dd3545deb1640",
+      "Id": "c1650bf2e48b4a37a3bb3be629f7722d"
+    },
+    {
+      "Start": "4d1007c25aa84eab8714627a8795878c",
+      "End": "ef1f8a91252a4fb09de9f561c240cdbf",
+      "Id": "cba638052bdf4081bb515a875c1e4f72"
+    },
+    {
+      "Start": "85adc2eb8aaf49b3b5152efedb7a0798",
+      "End": "de326882e3a241fab593865690c5cbf1",
+      "Id": "cf9780ee43784aeaa47b446fed073a13"
+    }
+  ],
+  "Dependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": false,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.6.1.8786",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Background Preview",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Skript-Ordner",
+        "Id": "918dc7371f3647168a2d455713d8dcfa",
+        "IsSetAsInput": true,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 0.0,
+        "Y": 0.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Config-Pfad",
+        "Id": "038c36449d394e9d97c090c761ff475d",
+        "IsSetAsInput": true,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 0.0,
+        "Y": 150.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Platzieren?",
+        "Id": "964d02435c434bfd85d25ebf3e884583",
+        "IsSetAsInput": true,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 0.0,
+        "Y": 300.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Datendosen platzieren",
+        "Id": "9605c5935513453abe75650f72fffbe2",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 400.0,
+        "Y": 120.0
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Ergebnis",
+        "Id": "dd825dbcd6574c809081b01c7753b51d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 750.0,
+        "Y": 120.0
+      }
+    ],
+    "Annotations": [],
+    "X": 50.0,
+    "Y": 100.0,
+    "Zoom": 1.0
+  }
+}
