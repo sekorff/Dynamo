@@ -125,6 +125,43 @@ Montagehöhe 1,4 m über Fußboden (`--dkm-hoehe`). Ausgabe in
 `*_druckknopfmelder.csv`, im Plan (grüne Raute) und in der IFC als `IfcAlarm`
 (`MANUALPULLBOX`).
 
+## Brandabschnitte und virtuelle Brandabschnitte
+
+**Brandabschnitte** werden aus dem Modell gelesen, wenn sie als Raumpolygone
+vorliegen: `IfcSpace` oder `IfcSpatialZone`, deren Name, Langname oder Typ auf
+`--muster-brandabschnitt` passt (Standard: „Brandabschnitt“, „BA 1“, „BRA“,
+„fire compartment“) bzw. `IfcSpatialZone` vom Typ `FIRESAFETY`. Auch eine
+passend benannte `IfcZone` (Raumgruppe) wird ausgewertet. Diese Polygone gelten
+nicht als Räume und erhalten selbst keine Melder.
+
+Jeder Raum wird dem Brandabschnitt zugeordnet, in dem der größte Teil seiner
+Fläche liegt (im selben Höhenbereich). Räume in mehreren oder in keinem
+Brandabschnitt werden mit Hinweis gemeldet.
+
+**Virtuelle Brandabschnitte** unterteilen einen Brandabschnitt je Geschoss, wenn
+seine Raumfläche `--vba-max-flaeche` (Standard 1600 m²) überschreitet:
+
+- Die Zahl der Teile ergibt sich aus Fläche / Grenzwert; die Teile sollen etwa
+  gleich groß werden.
+- Jeder Teil besteht aus zusammenhängenden, benachbarten Räumen und wächst
+  entlang der Längsachse des Brandabschnitts.
+- Kleine Restgruppen werden an einen benachbarten Teil angeschlossen, wenn der
+  Grenzwert eingehalten bleibt.
+- Ein Raum wird nie geteilt; ein einzelner Raum über dem Grenzwert bildet einen
+  eigenen virtuellen Brandabschnitt.
+
+Bezeichnung: `<Brandabschnitt> <Geschoss>` bzw. bei Teilung
+`<Brandabschnitt> <Geschoss>.<Nr>`, z. B. `BA 1 EG.2`. Im Plan sind die
+Brandabschnitte violett gestrichelt umrandet und die Räume je virtuellem
+Brandabschnitt eingefärbt (das Beispielbild oben ist mit
+`--vba-max-flaeche 300` erzeugt).
+
+Meldegruppen werden nur innerhalb eines virtuellen Brandabschnitts gebildet.
+In der Meldegruppentabelle stehen `Brandabschnitt` (aus dem Modell, nur zur
+Information) und `Virt_Brandabschnitt`. Letzterer lässt sich dort je Raum
+ändern; der Wert aus der Tabelle hat beim nächsten Lauf Vorrang – auch gegenüber
+einem später geänderten `--vba-max-flaeche` (dann `--meldegruppen-neu`).
+
 ## Meldegruppen
 
 Alle Melder werden Meldegruppen zugeordnet. Die Zuordnung steht in der Tabelle
@@ -135,7 +172,8 @@ eine Zeile je Raum und Melderart (`RM` Raummelder, `ZD` Zwischendeckenmelder,
 **Automatische Strategie**
 
 - getrennte Gruppen für Raummelder, Zwischendeckenmelder und Druckknopfmelder
-- eigene Gruppen je Geschoss; Treppenhäuser geschossübergreifend als eine Gruppe
+- eigene Gruppen je Geschoss und je (virtuellem) Brandabschnitt; Treppenhäuser
+  geschossübergreifend als eine Gruppe
 - Verkehrswege getrennt von den übrigen Räumen
 - benachbarte Räume gemeinsam, solange höchstens 5 Räume, 400 m² und 32 Melder
   zusammenkommen; größere Räume bilden eine eigene Gruppe
@@ -159,7 +197,7 @@ Dabei gilt:
 - Zeilen zu Räumen, die im Modell keine Melder mehr haben, entfallen.
 - Die Spalte `Pruefung` meldet je Gruppe Verstöße gegen die Grenzwerte (mehr als
   32 automatische bzw. 10 Druckknopfmelder, gemischte Melderarten, mehrere
-  Geschosse, zu viele Räume oder zu viel Fläche). Das sind Hinweise – die
+  Geschosse, mehrere (virtuelle) Brandabschnitte, zu viele Räume oder zu viel Fläche). Das sind Hinweise – die
   Zuordnung aus der Tabelle bleibt bestehen.
 - Der Text einer Gruppe kommt aus ihrer ersten Zeile mit Text; automatisch
   erzeugte Texte werden nach dem Verschieben von Räumen nicht nachgeführt.
@@ -174,9 +212,11 @@ je Gruppe fortlaufend vergeben und ändern sich, wenn Räume umgruppiert werden.
 ## Grenzen
 
 - Meldegruppen: Die Grenzwerte (32 Melder, 10 Druckknopfmelder, 5 Räume, 400 m²,
-  1600 m²) sind Voreinstellungen; Brandabschnitte werden nicht ausgewertet,
-  weil sie im Modell nicht zuverlässig vorliegen – Gruppen über
-  Brandabschnittsgrenzen sind in der Tabelle zu trennen.
+  1600 m²) sind Voreinstellungen.
+- Brandabschnitte: Sind im Modell keine als Raumpolygon erkennbar, läuft das
+  Programm ohne sie weiter und meldet das. Virtuelle Brandabschnitte sind eine
+  rein organisatorische Unterteilung nach Fläche und Nachbarschaft der Räume;
+  Nutzung, Wände und Türen dazwischen werden nicht bewertet.
 - Druckknopfmelder: Ohne `IfcDoor` im Modell gibt es keine Melder an Ausgängen.
   Als „Ausgang ins Freie“ zählt jede EG-Tür mit nur einem angrenzenden Raum –
   also auch Terrassentüren und Türen zu nicht modellierten Bereichen. Die

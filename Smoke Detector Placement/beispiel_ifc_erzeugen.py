@@ -46,6 +46,13 @@ TUEREN = [
     ("T Halle ins Freie", (25.0, 26.0, 27.0, 26.2), True),
 ]
 
+# Brandabschnitte: (Name, Rechteck x0, y0, x1, y1 [m]) - in jedem Geschoss
+BRANDABSCHNITTE = [
+    ("BA 1", (-0.1, -0.1, 20.1, 26.1)),
+    ("BA 2", (20.1, -0.1, 32.1, 26.1)),
+    ("BA 3", (32.1, 9.9, 36.1, 16.3)),   # Treppenhaus
+]
+
 UNTERZUEGE_EG = [
     ("UZ Lager", (26.0, 5.85, 32.0, 6.15), 3.0, 3.5),           # sichtbar: teilt den Raum
     ("UZ Halle", (20.2, 20.0, 32.0, 20.4), 6.8, 7.5),           # sichtbar: teilt die Halle
@@ -123,6 +130,11 @@ def erzeugen(pfad: str) -> None:
                 rohdecke = hoehe + DECKENSTAERKE + hohlraum
             bauteil("IfcSlab", f"Decke ueber {nummer}", geschoss, hoehe_ok, polygon,
                     rohdecke, 0.25, typ="FLOOR")
+        # Brandabschnitte als Raumpolygone
+        for name, (x0, y0, x1, y1) in BRANDABSCHNITTE:
+            abschnitt = bauteil("IfcSpace", name, geschoss, hoehe_ok,
+                                [(x0, y0), (x1, y0), (x1, y1), (x0, y1)], 0.0, 7.5)
+            abschnitt.LongName = "Brandabschnitt"
         for name, (x0, y0, x1, y1), nur_eg in TUEREN:
             if nur_eg and geschossname != "EG":
                 continue

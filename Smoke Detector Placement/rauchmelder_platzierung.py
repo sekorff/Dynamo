@@ -26,6 +26,9 @@ Zusaetzlich wird jeder Raum untersucht auf
   * Meldegruppen: alle Melder werden nach einer Strategie Meldegruppen
     zugeordnet. Die Zuordnung steht in einer Tabelle (CSV), die nachtraeglich
     bearbeitet werden kann; beim naechsten Lauf wird sie uebernommen.
+  * Brandabschnitte: als Raumpolygone vorhandene Brandabschnitte werden
+    eingelesen; Meldegruppen ueberschreiten sie nicht. Grosse Brandabschnitte
+    werden in virtuelle Brandabschnitte aus benachbarten Raeumen geteilt.
   * Unterzuege (IfcBeam): trennt ein Unterzug die Decke, wird jedes Deckenfeld
     wie ein eigener Raum projektiert (gilt fuer Raum und Zwischendecke).
 
@@ -105,6 +108,9 @@ class Regeln:
     muster_treppenhaus: str = r"trepp|\btrh\b|stair"
     muster_verkehrsweg: str = r"flur|gang|korridor|corridor|verkehr|foyer|lobby|windfang|diele|hallway"
     erdgeschoss: str = ""         # Name des Erdgeschosses ("" = automatisch)
+    # Brandabschnitte
+    muster_brandabschnitt: str = r"brandabschnitt|\bBA[\s_.-]*\d|\bBRA\b|fire\s*compartment"
+    vba_max_flaeche: float = 1600.0  # m2 je virtuellem Brandabschnitt
     # Meldegruppen
     mg_max_melder: int = 32        # automatische Melder je Meldegruppe
     mg_max_dkm: int = 10           # Druckknopfmelder je Meldegruppe
@@ -176,6 +182,14 @@ class Bereich:
 
 
 @dataclass
+class Brandabschnitt:
+    name: str
+    polygon: Polygon
+    z_unten: float
+    z_oben: float
+
+
+@dataclass
 class Tuer:
     name: str
     polygon: Polygon
@@ -210,6 +224,8 @@ class Raum:
     verkehrsweg: bool = False
     tueren: list[Polygon] = field(default_factory=list)
     druckknopf: list[Druckknopf] = field(default_factory=list)
+    ba: str = ""    # Brandabschnitt
+    vba: str = ""   # virtueller Brandabschnitt
     mg: dict[str, str] = field(default_factory=dict)       # Art (RM/ZD/DKM) -> Meldegruppe
     adresse: dict[str, tuple[str, int]] = field(default_factory=dict)  # Melder -> (MG, Nr.)
 
@@ -247,12 +263,25 @@ def _grundriss(verts: np.ndarray, faces: np.ndarray) -> Polygon | None:
     return geom.simplify(1e-3)
 
 
-def lade_raeume(modell: ifcopenshell.file) -> list[Raum]:
-    """Liest alle IfcSpace mit Geometrie; Koordinaten in Metern (Weltkoordinaten)."""
+def _ist_brandabschnitt(element, muster: str | None) -> bool:
+    if not muster:
+        return False
+    if element.is_a("IfcSpatialZone") and getattr(element, "PredefinedType", None) == "FIRESAFETY":
+        return True
+    text = " ".join(t for t in (element.Name, getattr(element, "LongName", None),
+                                getattr(element, "ObjectType", None)) if t)
+    return bool(re.search(muster, text, re.IGNORECASE))
+
+
+def lade_raeume(modell: ifcopenshell.file, muster_brandabschnitt: str | None = None) -> list[Raum]:
+    """Liest alle IfcSpace mit Geometrie; Koordinaten in Metern (Weltkoordinaten).
+    Raumpolygone, die Brandabschnitte darstellen, sind keine Raeume."""
     einstellungen = ifcopenshell.geom.settings()
     einstellungen.set("use-world-coords", True)
     raeume: list[Raum] = []
     for space in modell.by_type("IfcSpace"):
+        if _ist_brandabschnitt(space, muster_brandabschnitt):
+            continue
         bez = space.Name or space.GlobalId
         if space.Representation is None:
             print(f"  ! Raum {bez}: keine Geometrie, uebersprungen", file=sys.stderr)
@@ -1151,11 +1180,137 @@ def bericht_dkm(raeume: list[Raum]) -> None:
 
 
 # --------------------------------------------------------------------------- #
+# Brandabschnitte
+# --------------------------------------------------------------------------- #
+def lade_brandabschnitte(modell: ifcopenshell.file, regeln: Regeln) -> list[Brandabschnitt]:
+    """Brandabschnitte als Raumpolygone: IfcSpace bzw. IfcSpatialZone, deren
+    Name/Typ auf `muster_brandabschnitt` passt (oder Typ FIRESAFETY)."""
+    einstellungen = ifcopenshell.geom.settings()
+    einstellungen.set("use-world-coords", True)
+    elemente = list(modell.by_type("IfcSpace"))
+    try:
+        elemente += modell.by_type("IfcSpatialZone")
+    except RuntimeError:
+        pass  # IFC2X3 kennt IfcSpatialZone nicht
+    abschnitte = []
+    for element in elemente:
+        if not _ist_brandabschnitt(element, regeln.muster_brandabschnitt):
+            continue
+        if element.Representation is None:
+            continue
+        try:
+            shape = ifcopenshell.geom.create_shape(einstellungen, element)
+        except Exception:
+            continue
+        verts = np.asarray(shape.geometry.verts, dtype=float).reshape(-1, 3)
+        faces = np.asarray(shape.geometry.faces, dtype=int).reshape(-1, 3)
+        polygon = _grundriss(verts, faces)
+        if polygon is not None:
+            name = element.Name or getattr(element, "LongName", None) or element.GlobalId
+            abschnitte.append(Brandabschnitt(name, polygon, float(verts[:, 2].min()),
+                                             float(verts[:, 2].max())))
+    return abschnitte
+
+
+def ordne_brandabschnitte(modell: ifcopenshell.file, raeume: list[Raum],
+                          abschnitte: list[Brandabschnitt], regeln: Regeln) -> None:
+    """Ordnet jeden Raum seinem Brandabschnitt zu und teilt Brandabschnitte ueber
+    `vba_max_flaeche` in virtuelle Brandabschnitte aus benachbarten Raeumen."""
+    # Zuordnung ueber IfcZone (Raumgruppe ohne eigene Geometrie)
+    aus_zone: dict[str, str] = {}
+    for zone in modell.by_type("IfcZone"):
+        if not _ist_brandabschnitt(zone, regeln.muster_brandabschnitt):
+            continue
+        for beziehung in zone.IsGroupedBy or []:
+            for objekt in beziehung.RelatedObjects:
+                aus_zone[objekt.GlobalId] = zone.Name or zone.GlobalId
+
+    vorhanden = bool(abschnitte or aus_zone)
+    for raum in raeume:
+        raum.ba = aus_zone.get(raum.guid, "")
+        if not raum.ba and abschnitte:
+            anteile = sorted(((a.polygon.intersection(raum.polygon).area, a.name) for a in abschnitte
+                              if a.z_unten < raum.z_oben - 0.1 and a.z_oben > raum.z_unten + 0.1
+                              and a.polygon.intersects(raum.polygon)), reverse=True)
+            if anteile and anteile[0][0] > 0.01:
+                raum.ba = anteile[0][1]
+                if len(anteile) > 1 and anteile[1][1] != raum.ba and anteile[1][0] > 0.1 * raum.flaeche:
+                    raum.hinweise.append(f"Raum liegt in mehreren Brandabschnitten "
+                                         f"({raum.ba}, {anteile[1][1]}) - groesserem Anteil zugeordnet")
+        if not raum.ba and vorhanden:
+            raum.ba = "ohne BA"
+            raum.hinweise.append("Raum liegt in keinem Brandabschnitt")
+
+    # Virtuelle Brandabschnitte je Brandabschnitt und Geschoss
+    gruppen: dict[tuple[str, str], list[Raum]] = defaultdict(list)
+    for raum in raeume:
+        gruppen[(raum.ba, raum.geschoss)].append(raum)
+    for (ba, geschoss), mitglieder in gruppen.items():
+        basis = f"{ba} {geschoss}" if ba else geschoss
+        gesamt = sum(r.flaeche for r in mitglieder)
+        teile = max(1, math.ceil(gesamt / regeln.vba_max_flaeche - 1e-9))
+        if teile == 1:
+            for raum in mitglieder:
+                raum.vba = basis
+            continue
+        # Zusammenhaengende Raumgruppen entlang der Laengsachse des Brandabschnitts bilden
+        umriss = unary_union([r.polygon for r in mitglieder])
+        winkel = hauptwinkel(umriss.convex_hull if umriss.geom_type != "Polygon" else umriss)
+        u0, v0, u1, v1 = affinity.rotate(umriss, -winkel, origin=(0, 0)).bounds
+        achse = 0 if (u1 - u0) >= (v1 - v0) else 1
+        lage = {r.guid: float(_drehen(np.array([[r.polygon.centroid.x, r.polygon.centroid.y]]),
+                                      winkel)[0, achse]) for r in mitglieder}
+
+        def nachbarn(raum: Raum, gruppe: list[Raum]) -> bool:
+            return any(raum.polygon.distance(g.polygon) <= 0.6 for g in gruppe)
+
+        ziel = gesamt / teile
+        rest = sorted(mitglieder, key=lambda r: lage[r.guid])
+        gruppen_vba: list[list[Raum]] = []
+        while rest:
+            gruppe = [rest.pop(0)]
+            flaeche = gruppe[0].flaeche
+            while True:
+                kandidaten = [r for r in rest if nachbarn(r, gruppe)]
+                if not kandidaten:
+                    break
+                naechster = min(kandidaten, key=lambda r: lage[r.guid])
+                if flaeche + naechster.flaeche / 2 > ziel or \
+                        flaeche + naechster.flaeche > regeln.vba_max_flaeche:
+                    break
+                gruppe.append(naechster)
+                rest.remove(naechster)
+                flaeche += naechster.flaeche
+            gruppen_vba.append(gruppe)
+        # Kleine Restgruppen an eine benachbarte Gruppe anschliessen, wenn die Flaeche es zulaesst
+        geaendert = True
+        while geaendert:
+            geaendert = False
+            for klein in sorted(gruppen_vba, key=lambda g: sum(r.flaeche for r in g)):
+                flaeche = sum(r.flaeche for r in klein)
+                if flaeche >= 0.5 * ziel:
+                    break
+                ziele = [g for g in gruppen_vba if g is not klein
+                         and any(nachbarn(r, g) for r in klein)
+                         and flaeche + sum(r.flaeche for r in g) <= regeln.vba_max_flaeche]
+                if ziele:
+                    min(ziele, key=lambda g: sum(r.flaeche for r in g)).extend(klein)
+                    gruppen_vba = [g for g in gruppen_vba if g is not klein]
+                    geaendert = True
+                    break
+        gruppen_vba.sort(key=lambda g: min(lage[r.guid] for r in g))
+        for k, gruppe in enumerate(gruppen_vba, 1):
+            for raum in gruppe:
+                raum.vba = f"{basis}.{k}" if len(gruppen_vba) > 1 else basis
+
+
+# --------------------------------------------------------------------------- #
 # Meldegruppen
 # --------------------------------------------------------------------------- #
 MG_ARTEN = {"RM": "Rauchmelder Raum", "ZD": "Rauchmelder Zwischendecke", "DKM": "Druckknopfmelder"}
-MG_SPALTEN = ["Meldegruppe", "Meldegruppen_Text", "Art", "Geschoss", "Raumnummer", "Raumname",
-              "Melderanzahl", "Flaeche_m2", "Status", "Pruefung", "Bemerkung", "Raum_GUID"]
+MG_SPALTEN = ["Meldegruppe", "Meldegruppen_Text", "Art", "Geschoss", "Brandabschnitt",
+              "Virt_Brandabschnitt", "Raumnummer", "Raumname", "Melderanzahl", "Flaeche_m2",
+              "Status", "Pruefung", "Bemerkung", "Raum_GUID"]
 
 
 def _melder_der_art(raum: Raum, art: str) -> list[str]:
@@ -1215,6 +1370,12 @@ def bilde_meldegruppen(raeume: list[Raum], regeln: Regeln,
     bemerkung: dict[tuple[str, str], str] = {}
     for raum in raeume:
         raum.mg, raum.adresse = {}, {}
+        # in der Tabelle geaenderter virtueller Brandabschnitt hat Vorrang
+        for art in MG_ARTEN:
+            wert = vorgabe.get((raum.guid, art), {}).get("Virt_Brandabschnitt")
+            if wert:
+                raum.vba = wert
+                break
     offen = []
     for raum, art in einheiten:
         zeile = vorgabe.get((raum.guid, art))
@@ -1279,24 +1440,28 @@ def bilde_meldegruppen(raeume: list[Raum], regeln: Regeln,
         neue_gruppe(kern, "RM", "Treppenhaus")
 
     for geschoss in sorted(hoehe, key=lambda g: (hoehe[g], g)):
-        hier = [(r, a) for r, a in offen if r.geschoss == geschoss and a not in r.mg]
-        for art, name in (("RM", "RM"), ("ZD", "Zwischendecke")):
-            wege = [r for r, a in hier if a == art and r.verkehrsweg]
-            sonst = [r for r, a in hier if a == art and not r.verkehrsweg]
-            for liste, zusatz in ((wege, " Verkehrsweg"), (sonst, "")):
-                for gruppe in benachbart(liste, art, regeln.mg_max_melder):
-                    neue_gruppe(gruppe, art, f"{geschoss} {name}{zusatz}")
-        # Druckknopfmelder: je Geschoss, hoechstens `mg_max_dkm` je Gruppe
-        gruppe, anzahl = [], 0
-        for raum in [r for r, a in hier if a == "DKM"]:
-            n = len(raum.druckknopf)
-            if gruppe and anzahl + n > regeln.mg_max_dkm:
-                neue_gruppe(gruppe, "DKM", f"{geschoss} Druckknopfmelder")
-                gruppe, anzahl = [], 0
-            gruppe.append(raum)
-            anzahl += n
-        if gruppe:
-            neue_gruppe(gruppe, "DKM", f"{geschoss} Druckknopfmelder")
+        im_geschoss = [(r, a) for r, a in offen if r.geschoss == geschoss and a not in r.mg]
+        # Meldegruppen bleiben innerhalb eines (virtuellen) Brandabschnitts
+        for vba in sorted({r.vba for r, _ in im_geschoss}):
+            hier = [(r, a) for r, a in im_geschoss if r.vba == vba]
+            ort = vba or geschoss
+            for art, name in (("RM", "RM"), ("ZD", "Zwischendecke")):
+                wege = [r for r, a in hier if a == art and r.verkehrsweg]
+                sonst = [r for r, a in hier if a == art and not r.verkehrsweg]
+                for liste, zusatz in ((wege, " Verkehrsweg"), (sonst, "")):
+                    for gruppe in benachbart(liste, art, regeln.mg_max_melder):
+                        neue_gruppe(gruppe, art, f"{ort} {name}{zusatz}")
+            # Druckknopfmelder: hoechstens `mg_max_dkm` je Gruppe
+            gruppe, anzahl = [], 0
+            for raum in [r for r, a in hier if a == "DKM"]:
+                n = len(raum.druckknopf)
+                if gruppe and anzahl + n > regeln.mg_max_dkm:
+                    neue_gruppe(gruppe, "DKM", f"{ort} Druckknopfmelder")
+                    gruppe, anzahl = [], 0
+                gruppe.append(raum)
+                anzahl += n
+            if gruppe:
+                neue_gruppe(gruppe, "DKM", f"{ort} Druckknopfmelder")
 
     # Meldernummern innerhalb der Gruppe fortlaufend
     zaehler: dict[str, int] = defaultdict(int)
@@ -1311,7 +1476,8 @@ def bilde_meldegruppen(raeume: list[Raum], regeln: Regeln,
         mg = raum.mg[art]
         zeilen.append({
             "Meldegruppe": mg, "Meldegruppen_Text": texte.get(mg, ""), "Art": art,
-            "Geschoss": raum.geschoss, "Raumnummer": raum.nummer, "Raumname": raum.name,
+            "Geschoss": raum.geschoss, "Brandabschnitt": raum.ba,
+            "Virt_Brandabschnitt": raum.vba, "Raumnummer": raum.nummer, "Raumname": raum.name,
             "Melderanzahl": len(_melder_der_art(raum, art)), "Flaeche_m2": f"{raum.flaeche:.1f}",
             "Status": status[(raum.guid, art)], "Pruefung": " | ".join(pruefung.get(mg, [])),
             "Bemerkung": bemerkung.get((raum.guid, art), ""), "Raum_GUID": raum.guid})
@@ -1339,6 +1505,11 @@ def pruefe_meldegruppen(einheiten: list[tuple[Raum, str]], regeln: Regeln) -> di
             hinweise.append(f"{automatisch} automatische Melder > {regeln.mg_max_melder}")
         if dkm > regeln.mg_max_dkm:
             hinweise.append(f"{dkm} Druckknopfmelder > {regeln.mg_max_dkm}")
+        if not all(r.treppenhaus for r in raeume):
+            if len({r.ba for r in raeume}) > 1:
+                hinweise.append("mehrere Brandabschnitte in einer Meldegruppe")
+            elif len({r.vba for r in raeume}) > 1:
+                hinweise.append("mehrere virtuelle Brandabschnitte in einer Meldegruppe")
         if len({r.geschoss for r in raeume}) > 1 and not all(r.treppenhaus for r in raeume):
             hinweise.append("mehrere Geschosse in einer Meldegruppe")
         if arten != {"DKM"}:
@@ -1407,7 +1578,8 @@ def schreibe_csv(raeume: list[Raum], pfad: Path) -> None:
                                        f"{x:.3f}", f"{y:.3f}", f"{b.z_oben:.3f}"] + fuss)
 
 
-def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str) -> list[Path]:
+def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str,
+                    abschnitte: list[Brandabschnitt] | None = None) -> list[Path]:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -1444,9 +1616,20 @@ def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str
                 ende = _drehen(ende, -winkel)
                 ax.plot(ende[:, 0], ende[:, 1], color="#c0392b", lw=0.6, ls="-.", zorder=2)
 
+        # Raeume je virtuellem Brandabschnitt einfaerben, Brandabschnitte umranden
+        palette = ["#f4f6f8", "#fdf2e3", "#eaf5ea", "#f3eaf7", "#fdeeee", "#e8f4f6"]
+        farbe_vba = {v: palette[i % len(palette)]
+                     for i, v in enumerate(sorted({r.vba for r in liste}))}
+        z0, z1 = min(r.z_unten for r in liste), max(r.z_oben for r in liste)
+        for abschnitt in abschnitte or []:
+            if abschnitt.z_unten < z1 - 0.1 and abschnitt.z_oben > z0 + 0.1:
+                ax.plot(*abschnitt.polygon.exterior.xy, color="#8e44ad", lw=2.2, ls="--", zorder=6.5)
+                bx0, _, _, by1 = abschnitt.polygon.bounds
+                ax.annotate(abschnitt.name, (bx0, by1), xytext=(4, 4), textcoords="offset points",
+                            fontsize=7.5, color="#8e44ad", weight="bold", zorder=7)
         for raum in liste:
             x, y = raum.polygon.exterior.xy
-            ax.fill(x, y, facecolor="#f4f6f8", edgecolor="#2c3e50", lw=1.2, zorder=1)
+            ax.fill(x, y, facecolor=farbe_vba[raum.vba], edgecolor="#2c3e50", lw=1.2, zorder=1)
             for ring in raum.polygon.interiors:
                 ax.fill(*ring.xy, facecolor="white", edgecolor="#2c3e50", lw=1.0, zorder=1)
             for raster, decke in raum.raster:  # Plattenraster der Rasterdecke
@@ -1492,6 +1675,20 @@ def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str
                         + ("\nMG " + " · ".join(f"{a} {m}" for a, m in raum.mg.items()) if raum.mg else ""),
                         (p.x, p.y), ha="center", va="center", fontsize=6.5, color="#2c3e50",
                         zorder=6, xytext=(0, -14), textcoords="offset points")
+        griffe = [
+            Line2D([], [], marker="o", ls="", color="#c0392b", markersize=6, label="Raummelder"),
+            Line2D([], [], marker="s", ls="", markerfacecolor="none", markeredgecolor="#1f618d",
+                   markersize=9, label="Zwischendeckenmelder"),
+            Line2D([], [], marker="D", ls="", color="#1e8449", markersize=7, label="Druckknopfmelder"),
+            Patch(facecolor="#e67e22", edgecolor="#a04000", label="Tür"),
+            Patch(facecolor="#95a5a6", edgecolor="#566573", hatch="////", label="Unterzug"),
+            Line2D([], [], color="#aab7c4", lw=0.6, label="Rasterdecke"),
+            Line2D([], [], color="#c0392b", lw=0.8, ls="-.", label="Melderachse"),
+                    Line2D([], [], color="#8e44ad", lw=2, ls="--", label="Brandabschnitt"),
+        ]
+        if len(farbe_vba) > 1:
+            griffe += [Patch(facecolor=f, edgecolor="#2c3e50", label=f"VBA {v}")
+                       for v, f in farbe_vba.items()]
         ax.set_xlim(grenzen[0] - 1, grenzen[2] + 1)
         ax.set_ylim(grenzen[1] - 1, grenzen[3] + 1)
         ax.set_aspect("equal")
@@ -1502,16 +1699,7 @@ def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str
                      f"{sum(len(r.druckknopf) for r in liste)} Druckknopfmelder)", fontsize=10)
         ax.set_xlabel("X [m]")
         ax.set_ylabel("Y [m]")
-        ax.legend(handles=[
-            Line2D([], [], marker="o", ls="", color="#c0392b", markersize=6, label="Raummelder"),
-            Line2D([], [], marker="s", ls="", markerfacecolor="none", markeredgecolor="#1f618d",
-                   markersize=9, label="Zwischendeckenmelder"),
-            Line2D([], [], marker="D", ls="", color="#1e8449", markersize=7, label="Druckknopfmelder"),
-            Patch(facecolor="#e67e22", edgecolor="#a04000", label="Tür"),
-            Patch(facecolor="#95a5a6", edgecolor="#566573", hatch="////", label="Unterzug"),
-            Line2D([], [], color="#aab7c4", lw=0.6, label="Rasterdecke"),
-            Line2D([], [], color="#c0392b", lw=0.8, ls="-.", label="Melderachse"),
-        ], loc="upper left", bbox_to_anchor=(1.01, 1.0), fontsize=7, frameon=False)
+        ax.legend(handles=griffe, loc="upper left", bbox_to_anchor=(1.01, 1.0), fontsize=7, frameon=False)
         sicher = "".join(c if c.isalnum() or c in "-_" else "_" for c in geschoss)
         pfad = ordner / f"{stamm}_{sicher}.png"
         fig.savefig(pfad, dpi=160, bbox_inches="tight")
@@ -1680,6 +1868,11 @@ def main(argv=None) -> int:
                    help="Regulaerer Ausdruck fuer Verkehrswege (%(default)s)")
     k.add_argument("--erdgeschoss", default=d.erdgeschoss,
                    help="Name des Erdgeschosses (Standard: automatisch)")
+    b = p.add_argument_group("Brandabschnitte")
+    b.add_argument("--muster-brandabschnitt", default=d.muster_brandabschnitt,
+                   help="Regulaerer Ausdruck fuer Raumpolygone, die Brandabschnitte sind (%(default)s)")
+    b.add_argument("--vba-max-flaeche", type=float, default=d.vba_max_flaeche,
+                   help="max. Flaeche eines virtuellen Brandabschnitts [m2] (%(default)s)")
     m = p.add_argument_group("Meldegruppen")
     m.add_argument("--meldegruppen", type=Path,
                    help="Meldegruppentabelle (CSV); Standard: <IFC-Name>_meldegruppen.csv im Ausgabeordner. "
@@ -1708,7 +1901,8 @@ def main(argv=None) -> int:
 
     print(f"Lese {args.ifc} ...")
     modell = ifcopenshell.open(str(args.ifc))
-    raeume = lade_raeume(modell)
+    raeume = lade_raeume(modell, regeln.muster_brandabschnitt)
+    abschnitte = lade_brandabschnitte(modell, regeln)
     if not raeume:
         print("Keine Raeume (IfcSpace) mit Geometrie gefunden.", file=sys.stderr)
         return 1
@@ -1724,6 +1918,16 @@ def main(argv=None) -> int:
         bericht_dkm(raeume)
     else:
         klassifiziere_raeume(modell, raeume, regeln)
+
+    ordne_brandabschnitte(modell, raeume, abschnitte, regeln)
+    if any(r.ba for r in raeume):
+        print(f"\nBrandabschnitte: {', '.join(sorted({r.ba for r in raeume}))}"
+              f"   virtuelle Brandabschnitte: {len({r.vba for r in raeume})}")
+        for vba in sorted({r.vba for r in raeume}):
+            mitglieder = [r for r in raeume if r.vba == vba]
+            print(f"  {vba:<28}{len(mitglieder):>3} Raeume {sum(r.flaeche for r in mitglieder):>8.1f} m2")
+    else:
+        print("\nKeine Brandabschnitte im Modell gefunden (--muster-brandabschnitt pruefen)")
 
     mg_pfad = args.meldegruppen or ordner / f"{args.ifc.stem}_meldegruppen.csv"
     vorgabe = {}
@@ -1748,7 +1952,7 @@ def main(argv=None) -> int:
         print(f"CSV : {dkm_pfad}")
     print(f"MG  : {mg_pfad}  (bearbeitbar; wird beim naechsten Lauf uebernommen)")
     if not args.kein_plan:
-        for pfad in schreibe_plaene(raeume, achsen, ordner, stamm):
+        for pfad in schreibe_plaene(raeume, achsen, ordner, stamm, abschnitte):
             print(f"Plan: {pfad}")
     if args.ifc_ausgabe:
         ifc_pfad = ordner / f"{stamm}.ifc"
