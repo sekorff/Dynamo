@@ -3,7 +3,7 @@
     "titel": "Platzierungsanweisung Türsteuerung mit Fluchttürsicherung",
     "bezug": "Ausführungsschema: dormakaba ED 100/250, GEZE TZ 320 BSN, GEZE MA 500",
     "einheit": "mm",
-    "koordinaten": "u = Abstand von der Bandkante entlang der Türbreite, z = Höhe über Unterkante Tür. W = Türbreite, H = Türhöhe. b/h/t = Breite/Höhe/Tiefe des Bauteils. Andere Bauteile über ihr BMK ohne Minus: A1.u0, A1.u1, A1.um, A1.z0, A1.z1, A1.zm.",
+    "koordinaten": "s = Abstand von der Bandkante entlang der Wand in Richtung Schlossseite (bei Ausweichen auf die Querwand um die Raumecke abgewickelt), z = Höhe über Unterkante Tür. W = Türbreite, H = Türhöhe, OK = Oberkante Bedienelemente, BE = Bezugspunkt der Bedienelemente auf der Bandgegenseite, BEB = dasselbe auf der Bandseite. b/h/t = Breite/Höhe/Tiefe des Bauteils. Andere Bauteile über ihr BMK ohne Minus: A1.u0, A1.u1, A1.um, A1.z0, A1.z1, A1.zm.",
     "seiten": "BG = Bandgegenseite (Fluchtseite, Tür öffnet von hier weg), B = Bandseite"
   },
   "ausloeser": {
@@ -13,111 +13,429 @@
   },
   "wand": {
     "dicke_fallback": 240,
-    "min_dicke_up": 115
+    "min_dicke_up": 135,
+    "min_dicke_up_querwand": 100
   },
   "leerrohr": {
-    "AP": {"typname": "Leerrohr starr, Aufputz", "wandstaerke": 1.5},
-    "UP": {"typname": "Leerrohr flexibel, Unterputz", "wandstaerke": 1.5, "tiefe_achse": 35},
-    "aussendurchmesser": {"M16": 16, "M20": 20, "M25": 25}
+    "AP": {
+      "typname": "Leerrohr starr, Aufputz",
+      "wandstaerke": 1.5
+    },
+    "UP": {
+      "typname": "Leerrohr flexibel, Unterputz",
+      "wandstaerke": 1.5,
+      "tiefe_achse": 35
+    },
+    "aussendurchmesser": {
+      "M16": 16,
+      "M20": 20,
+      "M25": 25
+    },
+    "bogen": {
+      "innenradius": 100,
+      "typname": "Leerrohrbogen 90°"
+    }
   },
   "bauteile": [
     {
-      "bmk": "-A2", "name": "Drehtürantrieb dormakaba ED 100/250",
-      "ifc_klasse": "IfcActuator", "predefined_type": "ELECTRICACTUATOR",
-      "seite": "BG", "wand_hinter_geraet": true,
-      "masse": {"b": 685, "h": 70, "t": 130},
-      "position": {"u": "0", "z": "H + 10"},
+      "bmk": "-A2",
+      "name": "Drehtürantrieb dormakaba ED 100/250",
+      "ifc_klasse": "IfcActuator",
+      "predefined_type": "ELECTRICACTUATOR",
+      "seite": "BG",
+      "wand_hinter_geraet": true,
+      "masse": {
+        "b": 685,
+        "h": 70,
+        "t": 130
+      },
+      "position": {
+        "u": "0",
+        "z": "H + 10"
+      },
       "quelle_masse": "dormakaba Montageanleitung 059798-45532, Kap. 3.7"
     },
     {
-      "bmk": "-Y1", "name": "Haftmagnet GEZE MA 500",
-      "ifc_klasse": "IfcActuator", "predefined_type": "USERDEFINED", "object_type": "HAFTMAGNET",
-      "seite": "BG", "wand_hinter_geraet": false,
-      "masse": {"b": 265, "h": 66, "t": 41},
-      "position": {"u": "W - 300", "z": "H - h"},
+      "bmk": "-Y1",
+      "name": "Haftmagnet GEZE MA 500",
+      "ifc_klasse": "IfcActuator",
+      "predefined_type": "USERDEFINED",
+      "object_type": "HAFTMAGNET",
+      "seite": "BG",
+      "wand_hinter_geraet": false,
+      "masse": {
+        "b": 265,
+        "h": 66,
+        "t": 41
+      },
+      "position": {
+        "u": "W - 300",
+        "z": "H - h"
+      },
       "quelle_masse": "GEZE Produktdatenblatt MA 500"
     },
     {
-      "bmk": "-S5", "name": "Türkontakt (Reedkontakt)",
-      "ifc_klasse": "IfcSensor", "predefined_type": "CONTACTSENSOR",
-      "seite": "BG", "wand_hinter_geraet": false,
-      "masse": {"b": 60, "h": 13, "t": 13},
-      "position": {"u": "Y1.u0 - 20 - b", "z": "H - h"},
-      "quelle_masse": "Annahme, Fabrikat offen"
-    },
-    {
-      "bmk": "-B1", "name": "Sicherheitssensor Bandseite",
-      "ifc_klasse": "IfcSensor", "predefined_type": "MOVEMENTSENSOR",
-      "seite": "B", "wand_hinter_geraet": false,
-      "masse": {"b": "W - 100", "h": 45, "t": 40},
-      "position": {"u": "50", "z": "H - 160"},
-      "quelle_masse": "Annahme, Fabrikat offen"
-    },
-    {
-      "bmk": "-B2", "name": "Sicherheitssensor Bandgegenseite",
-      "ifc_klasse": "IfcSensor", "predefined_type": "MOVEMENTSENSOR",
-      "seite": "BG", "wand_hinter_geraet": false,
-      "masse": {"b": "W - 100", "h": 45, "t": 40},
-      "position": {"u": "50", "z": "H - 160"},
-      "quelle_masse": "Annahme, Fabrikat offen"
-    },
-    {
-      "bmk": "-A1", "name": "Türzentrale GEZE TZ 320 BSN",
-      "ifc_klasse": "IfcUnitaryControlElement", "predefined_type": "CONTROLPANEL",
-      "seite": "BG", "wand_hinter_geraet": true,
-      "varianten": {
-        "AP": {"masse": {"b": 77, "h": 197, "t": 88}},
-        "UP": {"masse": {"b": 98, "h": 260, "t": 11.5}, "einbau": {"b": 71, "h": 213, "t": 62.5}}
+      "bmk": "-S5",
+      "name": "Türkontakt (Reedkontakt)",
+      "ifc_klasse": "IfcSensor",
+      "predefined_type": "CONTACTSENSOR",
+      "seite": "BG",
+      "wand_hinter_geraet": false,
+      "masse": {
+        "b": 60,
+        "h": 13,
+        "t": 13
       },
-      "position": {"u": "W + 200 - b/2", "z": "1050 - h/2"},
-      "quelle_masse": "GEZE Produktdatenblätter TZ 320 BSN AP und UP; Einbaukörper UP = 3 Gerätedosen, Tiefe 62,5 laut GEZE-Anleitung, Breite/Höhe Annahme"
-    },
-    {
-      "bmk": "-S1", "name": "Taster Tür öffnen, innen",
-      "ifc_klasse": "IfcSwitchingDevice", "predefined_type": "MOMENTARYSWITCH",
-      "seite": "BG", "wand_hinter_geraet": true,
-      "varianten": {
-        "AP": {"masse": {"b": 80, "h": 80, "t": 45}},
-        "UP": {"masse": {"b": 80, "h": 80, "t": 12}, "einbau": {"b": 60, "h": 60, "t": 45}}
+      "position": {
+        "u": "Y1.u0 - 20 - b",
+        "z": "H - h"
       },
-      "position": {"u": "W + 500 - b/2", "z": "850 - h/2"},
       "quelle_masse": "Annahme, Fabrikat offen"
     },
     {
-      "bmk": "-S2", "name": "Taster Tür öffnen, außen",
-      "ifc_klasse": "IfcSwitchingDevice", "predefined_type": "MOMENTARYSWITCH",
-      "seite": "B", "wand_hinter_geraet": true,
-      "varianten": {
-        "AP": {"masse": {"b": 80, "h": 80, "t": 45}},
-        "UP": {"masse": {"b": 80, "h": 80, "t": 12}, "einbau": {"b": 60, "h": 60, "t": 45}}
+      "bmk": "-B1",
+      "name": "Sicherheitssensor Bandseite",
+      "ifc_klasse": "IfcSensor",
+      "predefined_type": "MOVEMENTSENSOR",
+      "seite": "B",
+      "wand_hinter_geraet": false,
+      "masse": {
+        "b": "W - 100",
+        "h": 45,
+        "t": 40
       },
-      "position": {"u": "W + 560 - b/2", "z": "850 - h/2"},
+      "position": {
+        "u": "50",
+        "z": "H - 160"
+      },
       "quelle_masse": "Annahme, Fabrikat offen"
     },
     {
-      "bmk": "-X1", "name": "Übergabedose zur Trasse (USV, BMA, GLT)",
-      "ifc_klasse": "IfcJunctionBox", "predefined_type": "POWER",
-      "seite": "BG", "wand_hinter_geraet": true,
-      "varianten": {
-        "AP": {"masse": {"b": 150, "h": 100, "t": 60}},
-        "UP": {"masse": {"b": 160, "h": 110, "t": 3}, "einbau": {"b": 150, "h": 100, "t": 60}}
+      "bmk": "-B2",
+      "name": "Sicherheitssensor Bandgegenseite",
+      "ifc_klasse": "IfcSensor",
+      "predefined_type": "MOVEMENTSENSOR",
+      "seite": "BG",
+      "wand_hinter_geraet": false,
+      "masse": {
+        "b": "W - 100",
+        "h": 45,
+        "t": 40
       },
-      "position": {"u": "A1.um - b/2", "z": "H + 300 - h/2"},
+      "position": {
+        "u": "50",
+        "z": "H - 160"
+      },
+      "quelle_masse": "Annahme, Fabrikat offen"
+    },
+    {
+      "bmk": "-A1",
+      "name": "Türzentrale GEZE TZ 320 BSN",
+      "ifc_klasse": "IfcUnitaryControlElement",
+      "predefined_type": "CONTROLPANEL",
+      "seite": "BG",
+      "wand_hinter_geraet": true,
+      "varianten": {
+        "AP": {
+          "masse": {
+            "b": 77,
+            "h": 197,
+            "t": 88
+          }
+        },
+        "UP": {
+          "masse": {
+            "b": 98,
+            "h": 260,
+            "t": 11.5
+          },
+          "einbau": {
+            "b": 71,
+            "h": 213,
+            "t": 62.5
+          }
+        }
+      },
+      "position": {
+        "u": "BE - b/2",
+        "z": "OK - h"
+      },
+      "quelle_masse": "GEZE Produktdatenblätter TZ 320 BSN AP und UP; Einbaukörper UP = 3 Gerätedosen, Tiefe 62,5 laut GEZE-Anleitung, Breite/Höhe Annahme",
+      "bedienelement": true
+    },
+    {
+      "bmk": "-S1",
+      "name": "Taster Tür öffnen, innen",
+      "ifc_klasse": "IfcSwitchingDevice",
+      "predefined_type": "MOMENTARYSWITCH",
+      "seite": "BG",
+      "wand_hinter_geraet": true,
+      "varianten": {
+        "AP": {
+          "masse": {
+            "b": 80,
+            "h": 80,
+            "t": 45
+          }
+        },
+        "UP": {
+          "masse": {
+            "b": 80,
+            "h": 80,
+            "t": 12
+          },
+          "einbau": {
+            "b": 60,
+            "h": 60,
+            "t": 45
+          }
+        }
+      },
+      "position": {
+        "u": "BE + 300 - b/2",
+        "z": "OK - h"
+      },
+      "quelle_masse": "Annahme, Fabrikat offen",
+      "bedienelement": true
+    },
+    {
+      "bmk": "-S2",
+      "name": "Taster Tür öffnen, außen",
+      "ifc_klasse": "IfcSwitchingDevice",
+      "predefined_type": "MOMENTARYSWITCH",
+      "seite": "B",
+      "wand_hinter_geraet": true,
+      "varianten": {
+        "AP": {
+          "masse": {
+            "b": 80,
+            "h": 80,
+            "t": 45
+          }
+        },
+        "UP": {
+          "masse": {
+            "b": 80,
+            "h": 80,
+            "t": 12
+          },
+          "einbau": {
+            "b": 60,
+            "h": 60,
+            "t": 45
+          }
+        }
+      },
+      "position": {
+        "u": "BEB + 360 - b/2",
+        "z": "OK - h"
+      },
+      "quelle_masse": "Annahme, Fabrikat offen",
+      "bedienelement": true
+    },
+    {
+      "bmk": "-X1",
+      "name": "Übergabedose zur Trasse (USV, BMA, GLT)",
+      "ifc_klasse": "IfcJunctionBox",
+      "predefined_type": "POWER",
+      "seite": "BG",
+      "wand_hinter_geraet": true,
+      "varianten": {
+        "AP": {
+          "masse": {
+            "b": 150,
+            "h": 100,
+            "t": 60
+          }
+        },
+        "UP": {
+          "masse": {
+            "b": 160,
+            "h": 110,
+            "t": 3
+          },
+          "einbau": {
+            "b": 150,
+            "h": 100,
+            "t": 60
+          }
+        }
+      },
+      "position": {
+        "u": "A1.um - b/2",
+        "z": "H + 340 - h/2"
+      },
       "quelle_masse": "Annahme, Fabrikat offen"
     }
   ],
   "leerrohre": [
-    {"id": "R1", "kabel": ["-W1"], "groesse": "M20", "von": {"bmk": "-A2", "flaeche": "oben", "versatz": "-342.5 + 130"}, "nach": {"bmk": "-X1", "flaeche": "band", "versatz": "20"}},
-    {"id": "R2", "kabel": ["-W12"], "groesse": "M16", "von": {"bmk": "-A2", "flaeche": "oben", "versatz": "-342.5 + 160"}, "nach": {"bmk": "-X1", "flaeche": "band", "versatz": "-20"}},
-    {"id": "R3", "kabel": ["-W2"], "groesse": "M20", "von": {"bmk": "-A1", "flaeche": "oben", "versatz": "10"}, "nach": {"bmk": "-X1", "flaeche": "unten", "versatz": "10"}},
-    {"id": "R4", "kabel": ["-W3", "-W11"], "groesse": "M20", "von": {"bmk": "-A1", "flaeche": "oben", "versatz": "31"}, "nach": {"bmk": "-X1", "flaeche": "unten", "versatz": "31"}},
-    {"id": "R5", "kabel": ["-W6"], "groesse": "M16", "bahn_z": "H + 150", "von": {"bmk": "-A2", "flaeche": "oben", "versatz": "-342.5 + 220"}, "nach": {"bmk": "-A1", "flaeche": "oben", "versatz": "-10"}},
-    {"id": "R6", "kabel": ["-W4", "-W5"], "groesse": "M20", "bahn_z": "H + 120", "von": {"bmk": "-Y1", "flaeche": "oben", "versatz": "0"}, "nach": {"bmk": "-A1", "flaeche": "oben", "versatz": "-31"}, "auch_verbunden": ["-S5"]},
-    {"id": "R7", "kabel": ["-W7"], "groesse": "M16", "bahn_z": "X1.z1 + 30", "von": {"bmk": "-A2", "flaeche": "oben", "versatz": "-342.5 + 90"}, "nach": {"bmk": "-S1", "flaeche": "oben", "versatz": "0"}},
-    {"id": "R8", "kabel": ["-W8"], "groesse": "M16", "bahn_z": "X1.z1 + 60", "von": {"bmk": "-A2", "flaeche": "oben", "versatz": "-342.5 + 60"}, "nach": {"bmk": "-S2", "flaeche": "hinten", "versatz": "0"}}
+    {
+      "id": "R1",
+      "kabel": [
+        "-W1"
+      ],
+      "groesse": "M20",
+      "von": {
+        "bmk": "-A2",
+        "flaeche": "oben",
+        "versatz": "-342.5 + 130"
+      },
+      "nach": {
+        "bmk": "-X1",
+        "flaeche": "band",
+        "versatz": "20"
+      }
+    },
+    {
+      "id": "R2",
+      "kabel": [
+        "-W12"
+      ],
+      "groesse": "M16",
+      "von": {
+        "bmk": "-A2",
+        "flaeche": "oben",
+        "versatz": "-342.5 + 160"
+      },
+      "nach": {
+        "bmk": "-X1",
+        "flaeche": "band",
+        "versatz": "-20"
+      }
+    },
+    {
+      "id": "R3",
+      "kabel": [
+        "-W2"
+      ],
+      "groesse": "M20",
+      "von": {
+        "bmk": "-A1",
+        "flaeche": "oben",
+        "versatz": "10"
+      },
+      "nach": {
+        "bmk": "-X1",
+        "flaeche": "unten",
+        "versatz": "10"
+      }
+    },
+    {
+      "id": "R4",
+      "kabel": [
+        "-W3",
+        "-W11"
+      ],
+      "groesse": "M20",
+      "von": {
+        "bmk": "-A1",
+        "flaeche": "oben",
+        "versatz": "31"
+      },
+      "nach": {
+        "bmk": "-X1",
+        "flaeche": "unten",
+        "versatz": "31"
+      }
+    },
+    {
+      "id": "R5",
+      "kabel": [
+        "-W6"
+      ],
+      "groesse": "M16",
+      "bahn_z": "H + 230",
+      "von": {
+        "bmk": "-A2",
+        "flaeche": "oben",
+        "versatz": "-342.5 + 220"
+      },
+      "nach": {
+        "bmk": "-A1",
+        "flaeche": "oben",
+        "versatz": "-10"
+      }
+    },
+    {
+      "id": "R6",
+      "kabel": [
+        "-W4",
+        "-W5"
+      ],
+      "groesse": "M20",
+      "bahn_z": "H + 200",
+      "von": {
+        "bmk": "-Y1",
+        "flaeche": "oben",
+        "versatz": "0"
+      },
+      "nach": {
+        "bmk": "-A1",
+        "flaeche": "oben",
+        "versatz": "-31"
+      },
+      "auch_verbunden": [
+        "-S5"
+      ]
+    },
+    {
+      "id": "R7",
+      "kabel": [
+        "-W7"
+      ],
+      "groesse": "M16",
+      "bahn_z": "X1.z1 + 30",
+      "von": {
+        "bmk": "-A2",
+        "flaeche": "oben",
+        "versatz": "-342.5 + 90"
+      },
+      "nach": {
+        "bmk": "-S1",
+        "flaeche": "oben",
+        "versatz": "0"
+      }
+    },
+    {
+      "id": "R8",
+      "kabel": [
+        "-W8"
+      ],
+      "groesse": "M16",
+      "ebene": "B",
+      "bahn_z": "H + 300",
+      "von": {
+        "bmk": "-A2",
+        "flaeche": "hinten",
+        "versatz": "-342.5 + 60"
+      },
+      "nach": {
+        "bmk": "-S2",
+        "flaeche": "oben",
+        "versatz": "0"
+      }
+    }
   ],
   "ohne_leerrohr": [
-    {"kabel": "-W9, -W10", "grund": "Sensorleitungen laufen über den Kabelübergang am Türblatt in den Antrieb."},
-    {"kabel": "-W1, -W2, -W3, -W11, -W12 ab -X1", "grund": "Weiterführung von der Übergabedose zur Trasse ist nicht Teil der Türregel."}
-  ]
+    {
+      "kabel": "-W9, -W10",
+      "grund": "Sensorleitungen laufen über den Kabelübergang am Türblatt in den Antrieb."
+    },
+    {
+      "kabel": "-W1, -W2, -W3, -W11, -W12 ab -X1",
+      "grund": "Weiterführung von der Übergabedose zur Trasse ist nicht Teil der Türregel."
+    }
+  ],
+  "bedienelemente": {
+    "oberkante": 1050,
+    "platz_min": 1200,
+    "abstand_neben_tuer": 200,
+    "abstand_querwand": 2200,
+    "pruefzone": {
+      "z_von": 800,
+      "z_bis": 1100,
+      "tiefe_vor_wand": 400
+    },
+    "hinweis": "Oberkante aller Bedienelemente zwingend auf OK. Sind an der Schlossseite ab Türrahmen weniger als platz_min frei, werden die Bedienelemente auf die Querwand gesetzt, abstand_querwand von der Türwand entfernt."
+  }
 }

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Erzeugt das Testmodell testmodell.ifc und daraus die Varianten AP und UP.
 
-Inhalt: ein Geschoss, zwei Wände im rechten Winkel, drei Türen.
-  T01  1000 x 2100, Band links,  Wand 240 mm, mit Auslöser-Merkmal
-  T02  1100 x 2100, Band rechts, Wand 175 mm, um 90° gedreht, mit Auslöser-Merkmal
-  T03   900 x 2100, Band links,  ohne Merkmal (bleibt unbestückt)
+Inhalt: ein Geschoss, drei Wände, fünf Türen.
+  T01  1000 x 2100, Band links,  Wand 240 mm, 1400 mm frei -> Bedienelemente neben der Tür
+  T02  1100 x 2100, Band rechts, Wand 175 mm, um 90° gedreht -> neben der Tür
+  T03   900 x 2100, Band links,  ohne Auslöser-Merkmal -> bleibt unbestückt
+  T04  1000 x 2100, Band rechts, 325 mm bis zur Querwand -> Bedienelemente auf der Querwand
+  T05  1000 x 2100, Band links,  400 mm bis zum Wandende, keine Querwand -> wird abgelehnt
 """
 from pathlib import Path
 
@@ -87,10 +89,14 @@ def bauen():
         return w
 
     m1 = matrix(0, 0)
-    w1 = wand("Wand 1 (240 mm)", m1, 7000.0, 240.0)
-    tuer(w1, m1, 240.0, "T01", 1200.0, 1000.0, 2100.0, "links", True)
-    tuer(w1, m1, 240.0, "T03", 5000.0, 900.0, 2100.0, "links", False)
-    m2 = matrix(7000.0, 240.0, 0, 90.0)
+    w1 = wand("Wand 1 (240 mm)", m1, 9000.0, 240.0)
+    tuer(w1, m1, 240.0, "T01", 600.0, 1000.0, 2100.0, "links", True)
+    tuer(w1, m1, 240.0, "T04", 3500.0, 1000.0, 2100.0, "rechts", True)
+    tuer(w1, m1, 240.0, "T03", 6000.0, 900.0, 2100.0, "links", False)
+    tuer(w1, m1, 240.0, "T05", 7600.0, 1000.0, 2100.0, "links", True)
+    # Querwand auf der Bandgegenseite: 325 mm neben der Schlossseite von T04
+    wand("Wand 3 (Querwand, 175 mm)", matrix(3000.0, 0.0, 0, -90.0), 4000.0, 175.0)
+    m2 = matrix(9000.0, 240.0, 0, 90.0)
     w2 = wand("Wand 2 (175 mm)", m2, 5000.0, 175.0)
     tuer(w2, m2, 175.0, "T02", 2400.0, 1100.0, 2100.0, "rechts", True)
     return m
