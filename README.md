@@ -6,3 +6,4 @@
   - YouTube Example Video: https://www.youtube.com/watch?v=uZO4tGdmmY8
 - Complexity Heatmap.dyn - Congestion / Complexity Characterization of Revit geometry
 
+- Smoke Detector Placement - Automatische Platzierung punktförmiger Rauchmelder aus IFC-Raumvolumen (Python)

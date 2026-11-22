@@ -1,0 +1,36 @@
+# Rauchmelder-Platzierung als Webanwendung (z.B. auf einem Hostinger-VPS).
+# Einstellungen stehen in der Datei .env (Vorlage: .env.beispiel).
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      APP_BENUTZER: ${APP_BENUTZER:-planer}
+      APP_PASSWORT: ${APP_PASSWORT:?APP_PASSWORT in .env setzen}
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-500}
+      AUFBEWAHRUNG_TAGE: ${AUFBEWAHRUNG_TAGE:-14}
+    volumes:
+      - daten:/daten
+    expose:
+      - "8000"
+
+  # Caddy nimmt die Anfragen an und besorgt das HTTPS-Zertifikat fuer DOMAIN selbst
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      DOMAIN: ${DOMAIN:?DOMAIN in .env setzen}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_daten:/data
+      - caddy_config:/config
+
+volumes:
+  daten:
+  caddy_daten:
+  caddy_config:
