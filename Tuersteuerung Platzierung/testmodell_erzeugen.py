@@ -108,3 +108,4 @@ if __name__ == "__main__":
     print(f"Geschrieben: {basis}")
     for v in ("AP", "UP"):
         tp.main([str(basis), "-o", str(HIER / f"testmodell_{v}.ifc"), "--variante", v])
+        tp.main([str(basis), "-o", str(HIER / f"testmodell_{v}_beidseitig.ifc"), "--variante", v, "--bedienung", "beidseitig"])

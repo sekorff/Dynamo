@@ -50,8 +50,15 @@ def in_quader(p, box, rand=0.0):
     return bool(np.all(p >= box[0] - rand) and np.all(p <= box[1] + rand))
 
 
-def pruefe_modell(variante):
-    model = ifcopenshell.open(str(HIER / f"testmodell_{variante}.ifc"))
+def gilt(regel, bedienung):
+    return regel.get("nur_bei") in (None, bedienung)
+
+
+def pruefe_modell(variante, bedienung):
+    datei = f"testmodell_{variante}" + ("_beidseitig" if bedienung == "beidseitig" else "") + ".ifc"
+    model = ifcopenshell.open(str(HIER / datei))
+    bauteile = [r for r in REGELN["bauteile"] if gilt(r, bedienung)]
+    leerrohre = [r for r in REGELN["leerrohre"] if gilt(r, bedienung)]
     tueren = {d.Name: d for d in model.by_type("IfcDoor")}
     waende = {w.Name: netz(model, w) for w in model.by_type("IfcWall")}
     wandbox = {n: (v.min(axis=0), v.max(axis=0)) for n, v in waende.items()}
@@ -67,7 +74,7 @@ def pruefe_modell(variante):
         nachbarn[rel.RelatedElement.id()].add(rel.RelatingElement.id())
 
     for name, eintraege in sorted(je_tuer.items()):
-        wo = f"{variante} {name}"
+        wo = f"{variante} {bedienung} {name}"
         tuer = tueren[name]
         boden = ifcopenshell.util.placement.get_local_placement(tuer.ObjectPlacement)[2, 3]
         box, geraete, rohre, daten = {}, {}, defaultdict(list), {}
@@ -81,7 +88,9 @@ def pruefe_modell(variante):
                 geraete[ps["BMK"]] = e
 
         # Bauteile: vollständig, Klasse, Typ, Außenmaße, Oberkante, Lage
-        for r in REGELN["bauteile"]:
+        pruefe(set(geraete) == {r["bmk"] for r in bauteile}, f"{wo}: Bauteile {sorted(geraete)}")
+        pruefe(set(rohre) == {r["id"] for r in leerrohre}, f"{wo}: Leerrohre {sorted(rohre)}")
+        for r in bauteile:
             e = geraete.get(r["bmk"])
             pruefe(e is not None, f"{wo}: {r['bmk']} fehlt")
             if e is None:
@@ -109,7 +118,7 @@ def pruefe_modell(variante):
 
         # Leerrohre: Reihenfolge, Bögen, Lage, Abstände
         punkte, durchmesser = {}, {}
-        for lr in REGELN["leerrohre"]:
+        for lr in leerrohre:
             teile = sorted(rohre.get(lr["id"], []), key=lambda e: int(e.Name.split()[0].split(".")[1]))
             pruefe(bool(teile), f"{wo}: Leerrohr {lr['id']} fehlt")
             if not teile:
@@ -156,7 +165,7 @@ def pruefe_modell(variante):
             diff = punkte[a][:, None, :] - punkte[b][None, :, :]
             abstand = float(np.sqrt((diff ** 2).sum(axis=2)).min())
             pruefe(abstand >= (durchmesser[a] + durchmesser[b]) / 2 - 1.0, f"{wo}: {a} und {b} nur {abstand:.0f} mm Achsabstand")
-        enden = {lr["id"]: {lr["von"]["bmk"], lr["nach"]["bmk"], *lr.get("auch_verbunden", [])} for lr in REGELN["leerrohre"]}
+        enden = {lr["id"]: {lr["von"]["bmk"], lr["nach"]["bmk"], *lr.get("auch_verbunden", [])} for lr in leerrohre}
         for rid, pts in punkte.items():
             for bmk, g in geraete.items():
                 if bmk not in enden[rid]:
@@ -172,7 +181,8 @@ def pruefe_modell(variante):
 
 if __name__ == "__main__":
     for v in ("AP", "UP"):
-        pruefe_modell(v)
+        for b in ("einseitig", "beidseitig"):
+            pruefe_modell(v, b)
     if fehler:
         print(f"\n{len(fehler)} Fehler:")
         print("\n".join("  - " + f for f in fehler))

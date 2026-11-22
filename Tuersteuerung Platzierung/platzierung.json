@@ -199,6 +199,42 @@
       "bedienelement": true
     },
     {
+      "bmk": "-A3",
+      "name": "Terminal GEZE T 320 (Bandseite)",
+      "nur_bei": "beidseitig",
+      "bedienelement": true,
+      "ifc_klasse": "IfcUnitaryControlElement",
+      "predefined_type": "CONTROLPANEL",
+      "seite": "B",
+      "wand_hinter_geraet": true,
+      "varianten": {
+        "AP": {
+          "masse": {
+            "b": 77,
+            "h": 197,
+            "t": 88
+          }
+        },
+        "UP": {
+          "masse": {
+            "b": 98,
+            "h": 260,
+            "t": 11.5
+          },
+          "einbau": {
+            "b": 71,
+            "h": 213,
+            "t": 62.5
+          }
+        }
+      },
+      "position": {
+        "u": "BEB - b/2",
+        "z": "OK - h"
+      },
+      "quelle_masse": "Annahme: gleiches Gehäuse wie TZ 320, beim Hersteller zu bestätigen"
+    },
+    {
       "bmk": "-S2",
       "name": "Taster Tür öffnen, außen",
       "ifc_klasse": "IfcSwitchingDevice",
@@ -312,12 +348,12 @@
       "von": {
         "bmk": "-A1",
         "flaeche": "oben",
-        "versatz": "10"
+        "versatz": "11"
       },
       "nach": {
         "bmk": "-X1",
         "flaeche": "unten",
-        "versatz": "10"
+        "versatz": "11"
       }
     },
     {
@@ -330,12 +366,12 @@
       "von": {
         "bmk": "-A1",
         "flaeche": "oben",
-        "versatz": "31"
+        "versatz": "33"
       },
       "nach": {
         "bmk": "-X1",
         "flaeche": "unten",
-        "versatz": "31"
+        "versatz": "33"
       }
     },
     {
@@ -343,7 +379,7 @@
       "kabel": [
         "-W6"
       ],
-      "groesse": "M16",
+      "groesse": "M20",
       "bahn_z": "H + 230",
       "von": {
         "bmk": "-A2",
@@ -353,7 +389,12 @@
       "nach": {
         "bmk": "-A1",
         "flaeche": "oben",
-        "versatz": "-10"
+        "versatz": "-11"
+      },
+      "kabel_zusatz": {
+        "beidseitig": [
+          "-W13"
+        ]
       }
     },
     {
@@ -372,7 +413,7 @@
       "nach": {
         "bmk": "-A1",
         "flaeche": "oben",
-        "versatz": "-31"
+        "versatz": "-33"
       },
       "auch_verbunden": [
         "-S5"
@@ -403,6 +444,26 @@
       ],
       "groesse": "M16",
       "ebene": "B",
+      "bahn_z": "H + 340",
+      "von": {
+        "bmk": "-A2",
+        "flaeche": "hinten",
+        "versatz": "-342.5 + 30"
+      },
+      "nach": {
+        "bmk": "-S2",
+        "flaeche": "oben",
+        "versatz": "0"
+      }
+    },
+    {
+      "id": "R9",
+      "nur_bei": "beidseitig",
+      "kabel": [
+        "-W13"
+      ],
+      "groesse": "M20",
+      "ebene": "B",
       "bahn_z": "H + 300",
       "von": {
         "bmk": "-A2",
@@ -410,10 +471,11 @@
         "versatz": "-342.5 + 60"
       },
       "nach": {
-        "bmk": "-S2",
+        "bmk": "-A3",
         "flaeche": "oben",
         "versatz": "0"
-      }
+      },
+      "hinweis": "-W13 läuft vom Terminal durch die Wand hinter den Antrieb und von dort im Leerrohr R5 zur Türzentrale."
     }
   ],
   "ohne_leerrohr": [
@@ -436,6 +498,14 @@
       "z_bis": 1100,
       "tiefe_vor_wand": 400
     },
-    "hinweis": "Oberkante aller Bedienelemente zwingend auf OK. Sind an der Schlossseite ab Türrahmen weniger als platz_min frei, werden die Bedienelemente auf die Querwand gesetzt, abstand_querwand von der Türwand entfernt."
+    "hinweis": "Oberkante aller Bedienelemente zwingend auf OK. Sind an der Schlossseite ab Türrahmen weniger als platz_min frei, werden die Bedienelemente auf die Querwand gesetzt, abstand_querwand von der Türwand entfernt.",
+    "anordnung": {
+      "standard": "einseitig",
+      "werte": [
+        "einseitig",
+        "beidseitig"
+      ],
+      "hinweis": "einseitig: Türzentrale und Taster innen auf der Bandgegenseite, Taster außen auf der Bandseite. beidseitig: zusätzlich ein Terminal mit Nottaste (-A3) auf der Bandseite. Je Tür über das Merkmal Tuersteuerung.Bedienung übersteuerbar."
+    }
   }
 }

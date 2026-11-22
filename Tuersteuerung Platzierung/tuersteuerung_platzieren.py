@@ -298,7 +298,7 @@ class Bauer:
 # --------------------------------------------------------------------------
 # Platzierung je Tür
 # --------------------------------------------------------------------------
-def lage_bestimmen(tuer, umgebung, regeln, variante):
+def lage_bestimmen(tuer, umgebung, regeln, variante, bedienung):
     """Platzprüfung: liefert Bezugspunkte der Bedienelemente und Meldungen."""
     be = regeln["bedienelemente"]
     meldungen, ohne = [], set()
@@ -319,7 +319,8 @@ def lage_bestimmen(tuer, umgebung, regeln, variante):
                          f"{be['abstand_querwand']} mm von der Türwand")
     frei_b, hindernis_b, _ = tuer.platz(umgebung, regeln, "B")
     if frei_b < be["platz_min"]:
-        ohne = {g["bmk"] for g in regeln["bauteile"] if g.get("bedienelement") and g["seite"] == "B"}
+        ohne = {g["bmk"] for g in regeln["bauteile"]
+                if g.get("bedienelement") and g["seite"] == "B" and gilt(g, bedienung)}
         meldungen.append(f"Bandseite nur {frei_b:.0f} mm frei ({hindernis_b}): "
                          f"{', '.join(sorted(ohne))} nicht gesetzt, bitte von Hand planen")
     ns = {"W": tuer.W, "H": tuer.H, "OK": be["oberkante"], "BE": bezug,
@@ -327,11 +328,16 @@ def lage_bestimmen(tuer, umgebung, regeln, variante):
     return ns, lage, ohne, meldungen
 
 
-def geraete_berechnen(tuer, regeln, variante, ns, ohne):
+def gilt(regel, bedienung):
+    """Regeln mit nur_bei gelten nur in der genannten Anordnung der Bedienelemente."""
+    return regel.get("nur_bei") in (None, bedienung)
+
+
+def geraete_berechnen(tuer, regeln, variante, ns, ohne, bedienung):
     """Berechnet je Bauteil die Körper in (u, v, z) und den Anschlusskörper in (s, z)."""
     geraete = {}
     for g in regeln["bauteile"]:
-        if g["bmk"] in ohne:
+        if g["bmk"] in ohne or not gilt(g, bedienung):
             continue
         var = g.get("varianten", {}).get(variante, g)
         masse = {k: rechne(val, ns) for k, val in var["masse"].items()}
@@ -444,16 +450,19 @@ def rohrstuecke(pts, d, innenradius, rohr_id):
     return stuecke
 
 
-def tuer_bestuecken(model, bauer, umgebung, door, regeln, variante):
+def tuer_bestuecken(model, bauer, umgebung, door, regeln, variante, bedienung):
     tuer = Tuer(umgebung, door, regeln, bauer.mm)
+    eigen = ifcopenshell.util.element.get_psets(door).get(PSET, {}).get("Bedienung")
+    if eigen in regeln["bedienelemente"]["anordnung"]["werte"]:
+        bedienung = eigen
     if variante == "UP" and tuer.t < regeln["wand"]["min_dicke_up"]:
         raise NichtPlatzierbar(f"Wand {tuer.t:.0f} mm ist für Unterputz zu dünn")
-    ns, lage, ohne, meldungen = lage_bestimmen(tuer, umgebung, regeln, variante)
-    geraete = geraete_berechnen(tuer, regeln, variante, ns, ohne)
+    ns, lage, ohne, meldungen = lage_bestimmen(tuer, umgebung, regeln, variante, bedienung)
+    geraete = geraete_berechnen(tuer, regeln, variante, ns, ohne, bedienung)
     radius = regeln["leerrohr"]["bogen"]["innenradius"]
     laeufe = []
     for lr in regeln["leerrohre"]:
-        if lr["von"]["bmk"] in ohne or lr["nach"]["bmk"] in ohne:
+        if lr["von"]["bmk"] in ohne or lr["nach"]["bmk"] in ohne or not gilt(lr, bedienung):
             continue
         pts, d = trasse(tuer, regeln, variante, lr, geraete, ns)
         laeufe.append((lr, d, rohrstuecke(pts, d, radius, lr["id"])))
@@ -473,7 +482,7 @@ def tuer_bestuecken(model, bauer, umgebung, door, regeln, variante):
         e = bauer.element(r["ifc_klasse"], f"{bmk} {r['name']}", r["predefined_type"], r.get("object_type"))
         m = g.masse
         eigenschaften = {
-            "BMK": bmk, "Variante": variante, "TuerGlobalId": door.GlobalId, "TuerName": door.Name or "",
+            "BMK": bmk, "Variante": variante, "Bedienung": bedienung, "TuerGlobalId": door.GlobalId, "TuerName": door.Name or "",
             "Seite": "Bandgegenseite" if r["seite"] == "BG" else "Bandseite",
             "Breite_mm": m["b"], "Hoehe_mm": m["h"], "Tiefe_mm": m["t"],
             "QuelleMasse": r.get("quelle_masse", ""),
@@ -504,8 +513,8 @@ def tuer_bestuecken(model, bauer, umgebung, door, regeln, variante):
         vorher = geraete[lr["von"]["bmk"]].element
         for e, platz, solid, typ, laenge, art in fertige:
             eigenschaften = {
-                "BMK": lr["id"], "Variante": variante, "TuerGlobalId": door.GlobalId, "TuerName": door.Name or "",
-                "Kabel": ", ".join(lr["kabel"]), "Nenngroesse": lr["groesse"], "Aussendurchmesser_mm": d,
+                "BMK": lr["id"], "Variante": variante, "Bedienung": bedienung, "TuerGlobalId": door.GlobalId, "TuerName": door.Name or "",
+                "Kabel": ", ".join(lr["kabel"] + lr.get("kabel_zusatz", {}).get(bedienung, [])), "Nenngroesse": lr["groesse"], "Aussendurchmesser_mm": d,
                 "Von": lr["von"]["bmk"], "Nach": lr["nach"]["bmk"],
                 "Laenge_mm": round(laenge), "Gesamtlaenge_mm": round(gesamt),
             }
@@ -523,10 +532,10 @@ def tuer_bestuecken(model, bauer, umgebung, door, regeln, variante):
     if geschoss:
         api(model, "spatial.assign_container", products=neu, relating_structure=geschoss)
     system = api(model, "system.add_system", ifc_class="IfcDistributionSystem")
-    system.Name = f"Türsteuerung {door.Name or door.GlobalId} ({variante})"
+    system.Name = f"Türsteuerung {door.Name or door.GlobalId} ({variante}, {bedienung})"
     system.Description = door.GlobalId
     api(model, "system.assign_system", products=neu, system=system)
-    return neu, lage, meldungen
+    return neu, lage, meldungen, bedienung
 
 
 def vorhandene_entfernen(model, door):
@@ -562,6 +571,8 @@ def main(argv=None):
     p.add_argument("ifc", help="Eingabemodell (IFC4 oder IFC4X3)")
     p.add_argument("-o", "--out", required=True, help="Ausgabemodell")
     p.add_argument("--variante", choices=["AP", "UP"], required=True, help="Aufputz oder Unterputz")
+    p.add_argument("--bedienung", choices=["einseitig", "beidseitig"],
+                   help="Bedienelemente nur auf der Fluchtseite oder auf beiden Wandseiten (Standard aus der Regeldatei)")
     p.add_argument("--regeln", default=str(Path(__file__).with_name("platzierung.json")))
     wahl = p.add_argument_group("Türauswahl (ohne Angabe: Türen mit dem Auslöser-Merkmal aus der Regeldatei)")
     wahl.add_argument("--tuer", action="append", help="GlobalId einer Tür, mehrfach möglich")
@@ -576,6 +587,7 @@ def main(argv=None):
     tueren = tueren_waehlen(model, regeln, args)
     if not tueren:
         sys.exit("Keine passende Tür gefunden.")
+    bedienung = args.bedienung or regeln["bedienelemente"]["anordnung"]["standard"]
     bauer = Bauer(model, regeln, args.variante)
     umgebung = Umgebung(model)
     nicht = 0
@@ -583,13 +595,13 @@ def main(argv=None):
         name = d.Name or d.GlobalId
         weg = vorhandene_entfernen(model, d)
         try:
-            neu, lage, meldungen = tuer_bestuecken(model, bauer, umgebung, d, regeln, args.variante)
+            neu, lage, meldungen, bed = tuer_bestuecken(model, bauer, umgebung, d, regeln, args.variante, bedienung)
         except NichtPlatzierbar as grund:
             nicht += 1
             print(f"  {name}: NICHT bestückt – {grund}")
             continue
         ersetzt = f", {weg} alte ersetzt" if weg else ""
-        print(f"  {name}: {len(neu)} Elemente ({args.variante}), Bedienelemente: {lage}{ersetzt}")
+        print(f"  {name}: {len(neu)} Elemente ({args.variante}, {bed}), Bedienelemente: {lage}{ersetzt}")
         for m in meldungen:
             print(f"      Hinweis: {m}")
     model.write(args.out)
