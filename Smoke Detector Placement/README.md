@@ -10,6 +10,18 @@ Zwischendeckenmelder um eine Platte versetzt.
 
 ![Beispiel](beispiel/beispiel_rauchmelder_EG.png)
 
+## Weboberfläche / Hostinger
+
+Das Programm lässt sich auch als Webanwendung betreiben (IFC hochladen, Ergebnis
+herunterladen, Meldegruppentabelle wieder hochladen). Die Einrichtung auf einem
+Hostinger-VPS mit Docker beschreibt [HOSTINGER.md](HOSTINGER.md). Lokal zum
+Ausprobieren:
+
+```
+pip install -r requirements.txt -r requirements-web.txt
+APP_PASSWORT=geheim python webapp.py      # http://127.0.0.1:8000, Benutzer "planer"
+```
+
 ## Installation
 
 ```
