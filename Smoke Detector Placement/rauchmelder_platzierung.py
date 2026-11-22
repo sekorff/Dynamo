@@ -1155,14 +1155,17 @@ def platziere_druckknopfmelder(modell: ifcopenshell.file, raeume: list[Raum], re
 
 
 def schreibe_csv_dkm(raeume: list[Raum], pfad: Path) -> None:
+    zeilen = [[*raum.adresse.get(d.name, ("", "")), d.name,
+               raum.geschoss, raum.nummer, raum.name, f"{d.x:.3f}", f"{d.y:.3f}", f"{d.z:.3f}",
+               d.grund, raum.guid]
+              for raum in sorted(raeume, key=lambda r: (r.geschoss, r.nummer)) for d in raum.druckknopf]
+    zeilen.sort(key=_nach_meldegruppe)
     with pfad.open("w", newline="", encoding="utf-8-sig") as datei:
         w = csv.writer(datei, delimiter=";")
-        w.writerow(["Geschoss", "Raumnummer", "Raumname", "Raum_GUID", "Melder",
-                    "Meldegruppe", "Meldernummer", "X_m", "Y_m", "Z_m", "Grund"])
-        for raum in sorted(raeume, key=lambda r: (r.geschoss, r.nummer)):
-            for d in raum.druckknopf:
-                w.writerow([raum.geschoss, raum.nummer, raum.name, raum.guid, d.name,
-                            *raum.adresse.get(d.name, ("", "")), f"{d.x:.3f}", f"{d.y:.3f}", f"{d.z:.3f}", d.grund])
+        # Meldegruppe und Meldernummer getrennt: "3/1" wuerde Excel als Datum lesen
+        w.writerow(["Meldegruppe", "Meldernummer", "Kennung", "Geschoss", "Raumnummer",
+                    "Raumname", "X_m", "Y_m", "Z_m", "Grund", "Raum_GUID"])
+        w.writerows(zeilen)
 
 
 def bericht_dkm(raeume: list[Raum]) -> None:
@@ -1170,7 +1173,7 @@ def bericht_dkm(raeume: list[Raum]) -> None:
     print("-" * 105)
     for raum in sorted(raeume, key=lambda r: (r.geschoss, r.nummer)):
         for d in raum.druckknopf:
-            print(f"{raum.geschoss[:9]:<10}{raum.nummer[:7]:<8}{raum.name[:19]:<20}{d.name:<18}"
+            print(f"{raum.geschoss[:9]:<10}{raum.nummer[:7]:<8}{raum.name[:19]:<20}{melder_bezeichnung(raum, d.name):<18}"
                   f"{d.x:>8.2f}{d.y:>8.2f}  {d.grund}")
     print("-" * 105)
     treppen = sorted(r.nummer for r in raeume if r.treppenhaus)
@@ -1557,25 +1560,42 @@ def bericht_meldegruppen(zeilen: list[dict]) -> None:
 # --------------------------------------------------------------------------- #
 # Ausgabe
 # --------------------------------------------------------------------------- #
+def melder_bezeichnung(raum: Raum, kennung: str) -> str:
+    """Bezeichnung eines Melders: Meldegruppe/Meldernummer, z.B. "3/1"."""
+    if kennung in raum.adresse:
+        return "{}/{}".format(*raum.adresse[kennung])
+    return kennung
+
+
+def _nach_meldegruppe(zeile: list) -> tuple:
+    """Sortierung der Melderlisten: Meldegruppe, dann Meldernummer; Zeilen ohne Melder zuletzt."""
+    mg, nr = zeile[0], zeile[1]
+    return (mg == "", _mg_schluessel(str(mg)), nr if isinstance(nr, int) else 0)
+
+
 def schreibe_csv(raeume: list[Raum], pfad: Path) -> None:
+    zeilen = []
+    for raum in sorted(raeume, key=lambda r: (r.geschoss, r.nummer)):
+        ort = [raum.geschoss, raum.nummer, raum.name]
+        if not raum.bereiche:
+            zeilen.append(["", "", ""] + ort + [""] * 10 + [" | ".join(raum.hinweise), raum.guid])
+        for b in raum.bereiche:
+            hinweise = " | ".join(raum.hinweise + b.hinweise)
+            fuss = [f"{b.flaeche:.2f}", f"{b.hoehe:.2f}", f"{b.a:.0f}", f"{b.dh:.2f}",
+                    f"{b.max_abstand:.2f}" if len(b.melder) else "", hinweise, raum.guid]
+            if len(b.melder) == 0:
+                zeilen.append(["", "", ""] + ort + [b.art, b.feld, "", "", ""] + fuss)
+            for name, (x, y) in zip(b.namen, b.melder):
+                zeilen.append([*raum.adresse.get(name, ("", "")), name]
+                              + ort + [b.art, b.feld, f"{x:.3f}", f"{y:.3f}", f"{b.z_oben:.3f}"] + fuss)
+    zeilen.sort(key=_nach_meldegruppe)
     with pfad.open("w", newline="", encoding="utf-8-sig") as datei:
         w = csv.writer(datei, delimiter=";")
-        w.writerow(["Geschoss", "Raumnummer", "Raumname", "Raum_GUID", "Bereich", "Deckenfeld",
-                    "Melder", "Meldegruppe", "Meldernummer", "X_m", "Y_m", "Z_m", "Feldflaeche_m2", "Hoehe_m",
-                    "A_m2", "DH_m", "max_Abstand_m", "Hinweise"])
-        for raum in sorted(raeume, key=lambda r: (r.geschoss, r.nummer)):
-            kopf = [raum.geschoss, raum.nummer, raum.name, raum.guid]
-            if not raum.bereiche:
-                w.writerow(kopf + [""] * 13 + [" | ".join(raum.hinweise)])
-            for b in raum.bereiche:
-                hinweise = " | ".join(raum.hinweise + b.hinweise)
-                fuss = [f"{b.flaeche:.2f}", f"{b.hoehe:.2f}", f"{b.a:.0f}", f"{b.dh:.2f}",
-                        f"{b.max_abstand:.2f}" if len(b.melder) else "", hinweise]
-                if len(b.melder) == 0:
-                    w.writerow(kopf + [b.art, b.feld, "", "", "", "", "", ""] + fuss)
-                for name, (x, y) in zip(b.namen, b.melder):
-                    w.writerow(kopf + [b.art, b.feld, name, *raum.adresse.get(name, ("", "")),
-                                       f"{x:.3f}", f"{y:.3f}", f"{b.z_oben:.3f}"] + fuss)
+        # Meldegruppe und Meldernummer getrennt: "3/1" wuerde Excel als Datum lesen
+        w.writerow(["Meldegruppe", "Meldernummer", "Kennung", "Geschoss", "Raumnummer",
+                    "Raumname", "Bereich", "Deckenfeld", "X_m", "Y_m", "Z_m", "Feldflaeche_m2",
+                    "Hoehe_m", "A_m2", "DH_m", "max_Abstand_m", "Hinweise", "Raum_GUID"])
+        w.writerows(zeilen)
 
 
 def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str,
@@ -1662,6 +1682,15 @@ def schreibe_plaene(raeume: list[Raum], achsen: Achsen, ordner: Path, stamm: str
                 else:
                     ax.scatter(b.melder[:, 0], b.melder[:, 1], s=110, marker="s",
                                facecolor="none", edgecolor="#1f618d", lw=1.3, zorder=4)
+            for b in raum.bereiche:  # Beschriftung Meldegruppe/Meldernummer
+                rm = b.art == "Raum"
+                for name, m in zip(b.namen, b.melder):
+                    ax.annotate(melder_bezeichnung(raum, name), m, fontsize=5, zorder=8,
+                                color="#922b21" if rm else "#1f618d",
+                                xytext=(4, 4) if rm else (4, -9), textcoords="offset points")
+            for d in raum.druckknopf:
+                ax.annotate(melder_bezeichnung(raum, d.name), (d.x, d.y), fontsize=5, zorder=8,
+                            color="#1e8449", xytext=(5, 4), textcoords="offset points")
             for tuer in raum.tueren:
                 ax.fill(*tuer.exterior.xy, facecolor="#e67e22", edgecolor="#a04000", lw=0.5, zorder=3.5)
             if raum.druckknopf:
@@ -1769,9 +1798,9 @@ def schreibe_ifc(modell: ifcopenshell.file, raeume: list[Raum], pfad: Path) -> N
             form = (modell.createIfcProductDefinitionShape(None, None, [geometrie])
                     if geometrie is not None else None)
             if name in raum.adresse:
-                beschreibung += ", Meldegruppe {}/{}".format(*raum.adresse[name])
+                beschreibung += ", Meldegruppe {} Melder {}".format(*raum.adresse[name])
             attribute = dict(GlobalId=ifcopenshell.guid.new(), OwnerHistory=historie,
-                             Name=name, Description=beschreibung,
+                             Name=melder_bezeichnung(raum, name), Description=beschreibung,
                              ObjectPlacement=platzierung, Representation=form)
             if ifc2x3:
                 melder = modell.create_entity("IfcDistributionControlElement",
@@ -1915,7 +1944,6 @@ def main(argv=None) -> int:
     if not regeln.ohne_dkm:
         anzahl = platziere_druckknopfmelder(modell, raeume, regeln)
         print(f"\nGefunden: {anzahl} Tueren, Erdgeschoss: {_erdgeschoss(modell, regeln)}")
-        bericht_dkm(raeume)
     else:
         klassifiziere_raeume(modell, raeume, regeln)
 
@@ -1937,6 +1965,8 @@ def main(argv=None) -> int:
     elif args.meldegruppen and not args.meldegruppen_neu:
         print(f"  ! {mg_pfad} nicht gefunden - Meldegruppen werden neu gebildet", file=sys.stderr)
     zeilen = bilde_meldegruppen(raeume, regeln, vorgabe)
+    if not regeln.ohne_dkm:
+        bericht_dkm(raeume)
     bericht_meldegruppen(zeilen)
     entfallen = len(set(vorgabe) - {(z["Raum_GUID"], z["Art"]) for z in zeilen})
     if entfallen:

@@ -205,9 +205,17 @@ Dabei gilt:
   `--meldegruppen-neu` wird die Tabelle verworfen und neu gebildet.
 
 Die Räume werden über die `Raum_GUID` wiedererkannt; diese Spalte und `Art`
-dürfen nicht verändert werden. Meldegruppe und laufende Meldernummer stehen in
-den Melder-CSV, in der IFC-Beschreibung und im Plan. Die Meldernummern werden
-je Gruppe fortlaufend vergeben und ändern sich, wenn Räume umgruppiert werden.
+dürfen nicht verändert werden.
+
+**Meldernummern** – Die Melder werden je Meldegruppe durchnummeriert, immer
+beginnend mit 1 und lückenlos aufsteigend (Reihenfolge: Geschoss, Raumnummer,
+Melder im Raum). Die Bezeichnung eines Melders ist `Meldegruppe/Meldernummer`,
+z. B. `3/1`; so steht sie im Plan an jedem Melder und in der IFC als Name.
+In den Melder-CSV stehen `Meldegruppe` und `Meldernummer` als getrennte Spalten
+(die Schreibweise `3/1` würde Excel als Datum lesen), sortiert nach Gruppe und
+Nummer; die Spalte `Kennung` nennt zusätzlich den Raumbezug (z. B. `0.01-RM03`).
+Nach einer Änderung der Meldegruppentabelle wird beim nächsten Lauf neu
+durchnummeriert.
 
 ## Grenzen
 
