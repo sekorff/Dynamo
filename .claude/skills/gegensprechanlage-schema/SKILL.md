@@ -1,6 +1,6 @@
 ---
 name: gegensprechanlage-schema
-description: Erzeugt deterministisch ein Gegensprechanlagen-Schema (Intercom / Türsprechanlage) als PDF: Schema und Tabellen immer als zwei getrennte Dokumente mit bedarfsgerechtem Blattformat, Rahmen und Plankopf immer über den Skill mp-plankopf. Verwenden, wenn ein Schema, Strangschema oder Übersichtsplan einer IP-Gegensprechanlage gefragt ist - mit Außen- und Innensprechstellen an Türen, Toren, Schranken, Vereinzelungsanlagen, Aufzügen, Pollern, Schleusen, Rampen, Kassenautomaten, Notrufsäulen, Klingeltableaus, Fluchttüren, Paketanlagen und Drehtüren, Innensprechstellen an Pforte, Leitstand, Wohnung/Büro, Etagenruf, Schleuseninnenraum, Aufzugvorraum und Tiefgarage, Software-Clients/Apps, IP-Relais (Smart Relais), Zusatzgeräten, mit/ohne Video und Zugangskontrolle, Freigaben, PoE-Speisung, LWL-Strecken über 90 m mit Medienkonverter und PoE-Injektor 230 V, TK-Anlage, Wählgerät (IP/Mobilfunk), Störmeldungen an die GLT sowie Geräteliste und Schnittstellenliste mit Zuständigkeit der Gewerke nach DIN 276 (Koordination, Anschluss, Inbetriebnahme).
+description: Erzeugt deterministisch ein Gegensprechanlagen-Schema (Intercom / Türsprechanlage) als PDF - Schema und Tabellen immer als zwei getrennte Dokumente mit bedarfsgerechtem Blattformat, Rahmen und Plankopf immer über den Skill mp-plankopf. Verwenden, wenn ein Schema, Strangschema, Anlagenschema oder Übersichtsplan einer IP-Gegensprechanlage gefragt ist - mit Außensprechstellen (Tür, Tor, Schranke, Vereinzelungsanlage, Aufzug, Poller, Schleuse, Rampe, Kassenautomat, Notrufsäule, Klingeltableau u. a.), Innensprechstellen (Pforte, Leitstand, Wohnung/Büro u. a.), Software-Clients, IP-Relais (Smart Relais), Video, Zugangskontrolle, Freigaben, PoE, LWL-Strecken über 90 m mit Medienkonverter und PoE-Injektor 230 V, TK-Anlage, Wählgerät (IP/Mobilfunk), Störmeldungen an die GLT sowie Geräteliste und Schnittstellenliste mit Zuständigkeit der Gewerke nach DIN 276.
 ---
 
 # Gegensprechanlage-Schema (PDF)
@@ -37,7 +37,7 @@ Gesucht wird in dieser Reihenfolge: Umgebungsvariable `MP_PLANKOPF_SKILL`, Nachb
 `.claude/skills/mp-plankopf`, `~/.claude/skills/mp-plankopf`.
 
 `mp-plankopf` enthält lizenzpflichtige Schriften und Logos und darf nicht in ein öffentliches
-Repository; in diesem Repository stehen der Ordner und die erzeugten Pläne deshalb in `.gitignore`.
+Repository; dasselbe gilt für die erzeugten Pläne (M&P-Logo, eingebettete Schrift).
 Alle Texte des Plans sind wie der Plankopf in Avenir LT Std gesetzt.
 
 Aus `projekt` werden übernommen: `plan_nr` -> `Plannummer`, `index` -> `aktuelle Änderung Index`,
@@ -213,4 +213,4 @@ Gegensprechanlage und sind keine Gewerkeschnittstellen.
 
 - `scripts/generate_schema.py` - Validierung und PDF-Erzeugung
 - `examples/beispiel.json` - vollständiges Beispiel mit allen Varianten
-- Beispiel-PDFs werden nicht eingecheckt (M&P-Logo und Schrift); bei Bedarf aus `examples/beispiel.json` erzeugen
+- Beispiel-PDFs liegen nicht bei; bei Bedarf aus `examples/beispiel.json` erzeugen
