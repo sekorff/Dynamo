@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<title>RWA Ausführung – Seiten 2 und 3: Listen und Leistungsbilanz</title>
+<style>
+@page{size:A3 landscape;margin:9mm}
+body{font-family:Arial,Helvetica,sans-serif;font-size:7.4pt;color:#222;margin:0;background:#fff}
+h1{font-size:15pt;margin:0 0 1mm}
+.sub{color:#555;font-size:9pt;margin-bottom:3mm}
+h2{font-size:10pt;margin:2.2mm 0 1mm}
+table{border-collapse:collapse;width:100%}
+th,td{border:.6pt solid #999;padding:.5mm 1.1mm;vertical-align:top;text-align:left}
+th{background:#e9e9e9;font-size:7.6pt}
+td.b{font-weight:700;white-space:nowrap}
+.kg{font-weight:700;white-space:nowrap}
+.legend{display:flex;flex-wrap:wrap;gap:1.2mm 5mm;margin:1.5mm 0 0;font-size:8.4pt}
+.legend b{display:inline-block;min-width:13mm}
+.note{border:.8pt solid #e08600;background:#fffdf5;padding:1.8mm 2.5mm;margin-top:2mm;font-size:7.6pt;line-height:1.35}
+.page1{page-break-after:always;display:flex;align-items:center;justify-content:center;height:277mm}
+.page1 img{max-width:100%;max-height:277mm}
+</style></head><body>
+<!--PAGE1-->
+<h1>Seite 2 – Bauteilliste und Schnittstellenliste</h1>
+<div class="sub">zum Ausführungsschema RWA-Fenster mit Sonnenschutz (außen) und Verdunkelung (innen) · D+H RZN 4404-K V2 mit AT 41 / WAREMA MSE Notstrom-Kit · Zuständigkeiten nach Kostengruppen DIN 276:2018-12 · Vorschlag zur Abstimmung</div>
+
+<h2>Gewerke nach DIN 276</h2>
+<div class="legend">
+<span><b>KG 334</b> Außenwandöffnungen – Fenster einschl. Antrieben (im Dach: KG 362)</span>
+<span><b>KG 338</b> Lichtschutz zur KG 330 – Sonnenschutz und Verdunkelung (im Dach: KG 366)</span>
+<span><b>KG 444</b> Niederspannungsinstallationsanlagen – Elektro</span>
+<span><b>KG 456-RWA</b> Gefahrenmelde- und Alarmanlagen, Los RWA</span>
+<span><b>KG 456-BMA</b> Gefahrenmelde- und Alarmanlagen, Los Brandmeldeanlage</span>
+<span><b>KG 480</b> Gebäude- und Anlagenautomation (481 Automationseinrichtungen, 484 Kabel und Leitungen)</span>
+<span><b>KG 742</b> Fachplanung Technische Ausrüstung</span>
+</div>
+
+<h2>1 Verwendete Bauteile</h2>
+<table>
+<tr><th>BMK</th><th>Bauteil</th><th>Hersteller / Typ</th><th>Art.-Nr.</th><th>Kenndaten</th><th>Klemmen</th><th>Stück</th><th>Einbauort</th><th>KG</th></tr>
+<tr><td class="b">A1</td><td>RWA-Kompaktzentrale</td><td>D+H RZN 4404-K V2 (ZP RZN 4404-K V2 + Gehäuse GEH-KST oder GEH-S-RWA)</td><td>bei D+H anfragen</td><td>230 V AC, 120 VA; 24 V DC / 4 A; 1 Linie / 1 Gruppe</td><td>Netz L · N; RM 1–2; RT 3–8; LT 1–4; MOT 5–7; Ext. 1–7</td><td>1</td><td>Schaltschrank RWA</td><td class="kg">456-RWA</td></tr>
+<tr><td class="b">G1</td><td>Akku RWA-Zentrale</td><td>D+H Typ 2, VdS-zugelassen</td><td>bei D+H anfragen</td><td>2 × 12 V / 2,2 Ah; Notversorgung 72 h</td><td>Akku-Anschluss + / –</td><td>2</td><td>in A1</td><td class="kg">456-RWA</td></tr>
+<tr><td class="b">A2</td><td>Jalousiemodul (Anlaufverzögerung)</td><td>D+H AT 41</td><td>30.551.70</td><td>Verzögerung 40 … 110 s; Kontakt max. 60 V / 2 A</td><td>1–4 (LT), 5–7 (MOT), P1–P4</td><td>1</td><td>auf A1, Steckplatz LT / MOT</td><td class="kg">456-RWA</td></tr>
+<tr><td class="b">S1</td><td>RWA-Taster</td><td>D+H RT 45</td><td>bei D+H anfragen</td><td>max. 8 je Linie; Endwiderstand 10 kΩ</td><td>1 · 2 · 3 · 4 · 5 · 6 · 7 · 8</td><td>nach Bedarf</td><td>Zugang / Rettungsweg</td><td class="kg">456-RWA</td></tr>
+<tr><td class="b">M1</td><td>Fensterantrieb</td><td>D+H KA / ZA …-BRV</td><td>Typ nach Flügel</td><td>24 V DC; BRV-Meldung; Gruppe ≤ 4 A</td><td>weiß · braun · gelb</td><td>je Fenster</td><td>RWA-Fenster</td><td class="kg">334</td></tr>
+<tr><td class="b">EM</td><td>Endmodul Antriebsleitung</td><td>D+H EM 47 K</td><td>bei D+H anfragen</td><td>2 × 47 kΩ</td><td>orange · schwarz · schwarz</td><td>1 je Gruppe</td><td>in XD1, letzter Antrieb</td><td class="kg">456-RWA</td></tr>
+<tr><td class="b">XD1</td><td>Abzweigdose</td><td>E30 nach Brandschutzkonzept</td><td>–</td><td>–</td><td>–</td><td>je Fenster</td><td>am Fenster</td><td class="kg">456-RWA</td></tr>
+<tr><td class="b">A3, A5</td><td>Motorsteuereinheit Notstrom</td><td>WAREMA MSE Notstrom-Kit REG (AP)</td><td>2013 983 (2014 062)</td><td>230 V AC; Ausgang 500 VA; Eingänge 24 V DC, 1–2 mA</td><td>X1: 1–9; X2: 1–9; X5: 1–7; X6: 1–9</td><td>2</td><td>Verteiler Sonnenschutz</td><td class="kg">338</td></tr>
+<tr><td class="b">A4, A6</td><td>USV mit Einsteckkarte</td><td>WAREMA USV Notstrom-Kit</td><td>2013 984</td><td>230 V AC; 6 Ausgänge; Akkupack RBC48 (2014 827)</td><td>Schuko-Netzleitung; Kaltgeräte-Ausgänge</td><td>2</td><td>Verteiler Sonnenschutz</td><td class="kg">338</td></tr>
+<tr><td class="b">S2, S3</td><td>Schlüsseltaster Reset</td><td>WAREMA Schlüsseltaster Notstrom-Kit AP, 1-polig</td><td>2017 192</td><td>Reset flankengetriggert</td><td>an X5: 5 R · 7 In+</td><td>2</td><td>beim Verteiler</td><td class="kg">338</td></tr>
+<tr><td class="b">M2</td><td>Antrieb Sonnenschutz außen</td><td>WAREMA Raffstore-Antrieb 230 V AC</td><td>mit Behang</td><td>je USV 4 × 100 W, 3 × 140 W oder 2 × 200 W</td><td>△ · ▽ · N · PE</td><td>je Behang</td><td>Oberschiene außen</td><td class="kg">338</td></tr>
+<tr><td class="b">M3</td><td>Antrieb Verdunkelung innen</td><td>WAREMA Antrieb 230 V AC</td><td>mit Behang</td><td>wie M2; Eignung bei WAREMA bestätigen</td><td>△ · ▽ · N · PE</td><td>je Behang</td><td>Kasten innen</td><td class="kg">338</td></tr>
+<tr><td class="b">B1, B2</td><td>Positionsschalter „Behang oben“</td><td>Typ mit WAREMA klären (kein Serienteil des Kits)</td><td>–</td><td>potentialfreier Schließer</td><td>Schließer</td><td>2</td><td>am Behang</td><td class="kg">338</td></tr>
+<tr><td class="b">K1</td><td>Koppelrelais Beschattung</td><td>24 V DC, 2 Wechsler, Kleinsignalkontakte</td><td>–</td><td>Spule über AT 41 P2 – P3</td><td>A1–A2; 13–14; 23–24</td><td>1</td><td>Beistellgehäuse RWA</td><td class="kg">456-RWA</td></tr>
+<tr><td class="b">K2, K3</td><td>Koppelrelais Alarm / Störung</td><td>24 V DC, 1 Wechsler</td><td>–</td><td>an A bzw. S gegen –</td><td>A1–A2; 11–12–14</td><td>2</td><td>Beistellgehäuse RWA</td><td class="kg">456-RWA</td></tr>
+<tr><td class="b">K4, K5</td><td>Koppelrelais Rückmeldung</td><td>24 V DC, 2 Wechsler</td><td>–</td><td>K4 Sonnenschutz, K5 Verdunkelung</td><td>A1–A2; 11–14; 21–24</td><td>2</td><td>Beistellgehäuse RWA</td><td class="kg">456-RWA</td></tr>
+<tr><td class="b">K6</td><td>Zeitrelais</td><td>24 V DC, anzugverzögert</td><td>–</td><td>60 s Laufzeitüberwachung</td><td>A1–A2; 15–16–18</td><td>1</td><td>Beistellgehäuse RWA</td><td class="kg">456-RWA</td></tr>
+<tr><td class="b">BMA</td><td>Brandfallsteuerung</td><td>Koppler der BMA</td><td>–</td><td>Arbeitskontakt; 1 kΩ in Reihe, 10 kΩ parallel</td><td>potentialfreier Kontakt</td><td>1</td><td>BMA</td><td class="kg">456-BMA</td></tr>
+<tr><td class="b">UV</td><td>Abgänge F1, F2, F3</td><td>LS-Schalter B 16 A</td><td>–</td><td>F2 / F3 gemeinsam mit dem Sonnenschutzaktor</td><td>L · N · PE</td><td>3</td><td>Unterverteilung</td><td class="kg">444</td></tr>
+<tr><td class="b">GLT</td><td>DDC-Unterstation</td><td>Fabrikat der Gebäudeautomation</td><td>–</td><td>DI / DO potentialfrei</td><td>nach Planung GA</td><td>1</td><td>Automationsschwerpunkt</td><td class="kg">481</td></tr>
+</table>
+
+<h2>2 Schnittstellenliste</h2>
+<table>
+<tr><th>Nr.</th><th>Schnittstelle (von → nach)</th><th>Klemmen von → nach</th><th>Signal / Funktion</th><th>Kabel</th><th>Leitung liefern, verlegen</th><th>Koordination</th><th>Anschließen „von“</th><th>Anschließen „nach“</th><th>Inbetriebnahme / Funktionsprüfung</th></tr>
+<tr><td class="b">S01</td><td>S1 RT 45 → A1</td><td>2 · 1 · 6 · 4 · 7 · 5 → RT 3 T · 4 – · 5 K · 6 A · 7 Z · 8 S</td><td>Handauslösung, Reset, Anzeigen</td><td>W1</td><td class="kg">456-RWA</td><td class="kg">456-RWA</td><td class="kg">456-RWA</td><td class="kg">456-RWA</td><td class="kg">456-RWA</td></tr>
+<tr><td class="b">S02</td><td>BMA → A1</td><td>Arbeitskontakt → RM 1 R · 2 –</td><td>Auslösung durch BMA</td><td>W2</td><td class="kg">456-BMA</td><td class="kg">456-BMA</td><td class="kg">456-BMA</td><td class="kg">456-RWA</td><td class="kg">gemeinsam, führend 456-BMA</td></tr>
+<tr><td class="b">S03</td><td>UV F1 → A1</td><td>L · N · PE → Netzklemme L · N</td><td>Netz RWA-Zentrale</td><td>W3</td><td class="kg">444</td><td class="kg">444</td><td class="kg">444</td><td class="kg">456-RWA</td><td class="kg">456-RWA</td></tr>
+<tr><td class="b">S04</td><td>UV F2 / F3 → USV A4 / A6</td><td>L · N · PE → Schuko-Steckdose</td><td>Netz Notstrom-Kits</td><td>W4</td><td class="kg">444</td><td class="kg">444</td><td class="kg">444</td><td class="kg">338</td><td class="kg">338</td></tr>
+<tr><td class="b">S05</td><td>K1 → MSE A3 / A5</td><td>13–14 / 23–24 → X5: 6 In3 · 7 In+</td><td>Hochfahrt bei Alarm und Lüftung, Fahrsperre</td><td>W7</td><td class="kg">444</td><td class="kg">456-RWA</td><td class="kg">456-RWA</td><td class="kg">338</td><td class="kg">gemeinsam, führend 456-RWA</td></tr>
+<tr><td class="b">S06</td><td>B1 / B2 → K4 / K5</td><td>Schließer → Spule A1–A2</td><td>Rückmeldung Parkposition</td><td>W11</td><td class="kg">444</td><td class="kg">456-RWA</td><td class="kg">338</td><td class="kg">456-RWA</td><td class="kg">gemeinsam, führend 456-RWA</td></tr>
+<tr><td class="b">S07</td><td>A2 AT 41 → XD1 → M1</td><td>6 Mot.a · 7 Mot.b · 5 Überw. · P4 → weiß · braun · gelb, EM 47 K</td><td>Fensterantrieb, Überwachung, BRV-Meldung</td><td>W12</td><td class="kg">456-RWA</td><td class="kg">456-RWA</td><td class="kg">456-RWA</td><td class="kg">456-RWA</td><td class="kg">456-RWA, Hub und Endlagen mit 334</td></tr>
+<tr><td class="b">S08</td><td>K2 … K6 → GLT</td><td>Wechsler → DI</td><td>Alarm, Störung, Parkposition, Laufzeit</td><td>W14</td><td class="kg">484</td><td class="kg">480</td><td class="kg">456-RWA</td><td class="kg">481</td><td class="kg">gemeinsam, führend 480</td></tr>
+<tr><td class="b">S09</td><td>GLT → A2 AT 41</td><td>DO → 2 N– · 3 zu · 4 auf (über K4 ∧ K5)</td><td>Lüften AUF / ZU mit Sicherheitskette</td><td>W13</td><td class="kg">484</td><td class="kg">480</td><td class="kg">481</td><td class="kg">456-RWA</td><td class="kg">gemeinsam; Sicherheitskette führend 456-RWA</td></tr>
+<tr><td class="b">S10</td><td>MSE A3 / A5 → GLT</td><td>X6: 7 NC · 8 C · 9 NO → DI</td><td>Betrieb und Störung Notstrom-Kits</td><td>W15</td><td class="kg">484</td><td class="kg">480</td><td class="kg">338</td><td class="kg">481</td><td class="kg">gemeinsam, führend 480</td></tr>
+<tr><td class="b">S11</td><td>MSE A3 / A5 → M2 / M3</td><td>X2: 1 △ · 2 ▽ · 3 N · 4 PE → Antrieb</td><td>Antrieb AUF / AB</td><td>W9</td><td class="kg">338</td><td class="kg">338</td><td class="kg">338</td><td class="kg">338</td><td class="kg">338</td></tr>
+<tr><td class="b">S12</td><td>USV A4 / A6 → MSE A3 / A5</td><td>Ausgang → X1; Einsteckkarte → X5: 2 · 3 · 4</td><td>Versorgung und USV-Störung</td><td>W5, W6</td><td class="kg">338</td><td class="kg">338</td><td class="kg">338</td><td class="kg">338</td><td class="kg">338</td></tr>
+<tr><td class="b">S13</td><td>Sonnenschutzaktor → MSE A3 / A5</td><td>△ · ▽ · N · PE → X2: 6 · 7 · 8 · 9</td><td>Normalbetrieb, Fahrbefehle der GLT</td><td>W10</td><td class="kg">338</td><td class="kg">480</td><td class="kg">338</td><td class="kg">338</td><td class="kg">gemeinsam, führend 338</td></tr>
+<tr><td class="b">S14</td><td>S2 / S3 → MSE A3 / A5</td><td>Taster → X5: 5 R · 7 In+</td><td>Reset nach Auslösung</td><td>W8</td><td class="kg">338</td><td class="kg">338</td><td class="kg">338</td><td class="kg">338</td><td class="kg">338</td></tr>
+<tr><td class="b">S15</td><td>M1 an Flügel; B1 / B2 an Behang</td><td>mechanisch</td><td>Montage, Kollisionsfreiheit Flügel / Behänge</td><td>–</td><td class="kg">–</td><td class="kg">334 mit 338</td><td class="kg">334</td><td class="kg">338</td><td class="kg">Probefahrt gemeinsam 334 / 338</td></tr>
+<tr><td class="b">S16</td><td>Gesamtanlage</td><td>alle</td><td>Wirk-Prinzip-Prüfung: Auslösung → Behänge oben → Fenster AUF, bei Netz und Netzausfall, mit Zeitmessung</td><td>–</td><td class="kg">–</td><td class="kg">742</td><td class="kg">alle beteiligten KG</td><td class="kg">alle beteiligten KG</td><td class="kg">führend 456-RWA; Abnahme durch Prüfsachverständigen</td></tr>
+</table>
+
+<div class="note"><b>Hinweise.</b>
+Die Zuordnung ist ein Vorschlag; verbindlich wird sie erst mit den Leistungsverzeichnissen und der Schnittstellenvereinbarung der Gewerke.
+Die RWA-Anlage ist hier der KG 456 zugeordnet, der Fensterantrieb als Teil des Fensters der KG 334. Manche Projekte führen die komplette RWA einschließlich Antrieben in der KG 334 – dann wandern A1, A2, S1, X1, K1–K5 und die Schnittstellen S01, S07 dorthin.
+Die Verdunkelung ist als fest eingebauter Lichtschutz in der KG 338 geführt, nicht als Ausstattung (KG 600). Liegen die RWA-Fenster im Dach, gelten KG 362 statt 334 und KG 366 statt 338.
+Klemmen nach D+H 99.823.80 (06/19), D+H AT 41 Rev. 2.2 und WAREMA 2014458 (04/2022). Klemmen der Koppelrelais sind übliche Bezeichnungen und hängen vom gewählten Fabrikat ab. Kabeltypen und maximale Längen zu W1–W16 siehe Kabelliste auf Seite 1.</div>
+
+<div style="page-break-before:always"></div>
+<h1>Seite 3 – Leistungsbilanz der Motorabgänge</h1>
+<div class="sub">Grenzwerte aus den Herstelleranleitungen (D+H 99.823.80, WAREMA 2014458) · Antriebsleistungen sind Annahmen, weil die Antriebstypen noch nicht festliegen – nach Typenschild ersetzen</div>
+
+<h2>3.1 Bilanz je Motorabgang</h2>
+<table>
+<tr><th>Abgang</th><th>von (Gerät: Klemme)</th><th>Verbraucher</th><th>Spannung</th><th>Zulässig laut Hersteller</th><th>Angesetzt (Annahme)</th><th>Strom</th><th>Auslastung</th><th>Reserve</th><th>Leitung, max. Länge bei diesem Strom</th><th>Bemerkung</th></tr>
+<tr><td class="b">M1</td><td>A2 AT 41: 6 Mot.a · 7 Mot.b</td><td>Fensterantriebe D+H KA / ZA …-BRV</td><td>24 V DC</td><td>4,0 A = 96 W je Gruppe; Kurzzeitbetrieb 30 % ED</td><td>2 Antriebe × 1,0 A = 48 W</td><td class="b">2,0 A</td><td class="b">50 %</td><td>2,0 A</td><td>W12: 5×2,5 mm² 100 m (1,5 mm²: 60 m)</td><td>Summenstrom aller Antriebe der Gruppe; Anlaufstrom laut Antriebsdatenblatt prüfen</td></tr>
+<tr><td class="b">M2</td><td>MSE A3 X2: 1 △ · 2 ▽ · 3 N</td><td>Raffstore-Antrieb außen</td><td>230 V AC</td><td>500 VA Schaltleistung je Ausgang; 1 Antrieb je MSE</td><td>1 Antrieb × 140 W</td><td class="b">ca. 0,6 A</td><td class="b">28 %</td><td>360 VA</td><td>W9: 4×1,5 mm² 100 m*</td><td>Motorabsicherung im vorgeschalteten Aktor (WAREMA-Plan: 3,15 AT)</td></tr>
+<tr><td class="b">M3</td><td>MSE A5 X2: 1 △ · 2 ▽ · 3 N</td><td>Verdunkelungs-Antrieb innen</td><td>230 V AC</td><td>500 VA Schaltleistung je Ausgang; 1 Antrieb je MSE</td><td>1 Antrieb × 100 W</td><td class="b">ca. 0,45 A</td><td class="b">20 %</td><td>400 VA</td><td>W9: 4×1,5 mm² 100 m*</td><td>Eignung des Antriebs für das Notstrom-Kit bei WAREMA bestätigen</td></tr>
+</table>
+
+<h2>3.2 Notstromquellen</h2>
+<table>
+<tr><th>Quelle</th><th>versorgt</th><th>Grenze laut Hersteller</th><th>Angesetzt (Annahme)</th><th>Auslastung</th><th>Notbetrieb</th><th>Bemerkung</th></tr>
+<tr><td class="b">G1 in A1</td><td>M1 über A1 / A2</td><td>2 × 12 V / 2,2 Ah (Typ 2) für 72 h bis 4 A; bis 2 A genügen 2 × 12 V / 1,2 Ah (Typ 1)</td><td>2,0 A Antriebsstrom</td><td class="b">50 % des Ausgangsstroms</td><td>72 h Bereitschaft, danach Öffnen</td><td>Mit D+H-Alarmmitteln nächstgrößerer Akku (3,4 Ah bzw. 2,2 Ah). Dauerlasten der Koppelrelais sind in der D+H-Auslegung nicht enthalten – siehe Hinweis</td></tr>
+<tr><td class="b">USV A4</td><td>MSE A3 → M2</td><td>je USV 4 × 100 W, 3 × 140 W oder 2 × 200 W; 1 × 320 W (Becker) bzw. 300 W (Somfy)</td><td>1 × 140 W + MSE ca. 4 VA</td><td class="b">1 von 3 möglichen Antrieben</td><td>eine Hochfahrt: ca. 70 s je 2,5 m ≈ 2,7 Wh</td><td>Frei: 2 weitere Antriebe à 140 W, jeweils mit eigenem MSE Notstrom-Kit</td></tr>
+<tr><td class="b">USV A6</td><td>MSE A5 → M3</td><td>wie A4</td><td>1 × 100 W + MSE ca. 4 VA</td><td class="b">1 von 4 möglichen Antrieben</td><td>eine Hochfahrt, Laufzeit bei WAREMA abfragen</td><td>Frei: 3 weitere Antriebe à 100 W. Eine gemeinsame USV für M2 und M3 wäre zulässig (2 × 140 W)</td></tr>
+</table>
+
+<h2>3.3 Netzabgänge in der Unterverteilung</h2>
+<table>
+<tr><th>Abgang</th><th>versorgt</th><th>Leistung im Betrieb</th><th>Strom</th><th>Bereitschaft</th><th>Absicherung</th><th>Auslastung</th><th>Leitung</th></tr>
+<tr><td class="b">F1</td><td>A1 RWA-Zentrale</td><td>120 VA (Fenster fährt)</td><td>0,52 A</td><td>5,8 W</td><td>B 16 A, eigener Stromkreis</td><td>3 %</td><td>W3: NYM-J 3×1,5 mm², 75 m*</td></tr>
+<tr><td class="b">F2</td><td>USV A4, MSE A3, Sonnenschutzaktor, M2</td><td>ca. 145 VA (Behang fährt) zuzüglich Akkuladung der USV</td><td>ca. 0,65 A</td><td>MSE 12–21 mA, USV laut Typenschild</td><td>B 16 A, gemeinsam mit dem Aktor</td><td>4 %</td><td>W4: NYM-J 3×1,5 mm², 75 m*</td></tr>
+<tr><td class="b">F3</td><td>USV A6, MSE A5, Verdunkelungsaktor, M3</td><td>ca. 105 VA (Behang fährt) zuzüglich Akkuladung der USV</td><td>ca. 0,45 A</td><td>wie F2</td><td>B 16 A, gemeinsam mit dem Aktor</td><td>3 %</td><td>W4: NYM-J 3×1,5 mm², 75 m*</td></tr>
+<tr><td class="b">Summe</td><td>alle drei Anlagen</td><td>ca. 370 VA, nicht gleichzeitig: erst fahren die Behänge, danach das Fenster</td><td>ca. 1,6 A</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
+</table>
+
+<h2>3.4 Ausbaugrenzen</h2>
+<table>
+<tr><th>Abgang</th><th>Grenze</th><th>Zulässige Bestückung</th></tr>
+<tr><td class="b">M1 (D+H)</td><td>Summenstrom 4 A je Gruppe; die Zentrale hat eine Gruppe</td><td>4 Antriebe à 1,0 A · 2 Antriebe à 2,0 A · 1 Antrieb bis 4,0 A. Mehr Fenster oder stärkere Antriebe erfordern eine zweite Zentrale oder eine größere Bauart.</td></tr>
+<tr><td class="b">M2, M3 (WAREMA)</td><td>1 Antrieb je MSE; Antriebe je USV nach Aufnahmeleistung</td><td>4 × 100 W · 3 × 140 W · 2 × 200 W · 1 × 320 W (Becker) / 300 W (Somfy). Andere Antriebe nur nach Rücksprache mit dem WAREMA-Service.</td></tr>
+</table>
+
+<div class="note"><b>Hinweise.</b>
+Die angesetzten Werte (Fensterantrieb 1,0 A, Raffstore 140 W, Verdunkelung 100 W, je ein Behang und zwei Fensterantriebe) sind Platzhalter; verbindlich sind die Typenschilder der ausgewählten Antriebe. Die WAREMA-Leistungsklassen stammen aus der Tabelle „Maximale Anzahl von Antrieben pro USV“.
+<b>Koppelrelais und 72-h-Akku:</b> Ein dauernd angezogenes Relais mit etwa 20 mA entnimmt in 72 h rund 1,4 Ah. K1 und die Rückmelderelais K4 / K5 würden den 2,2-Ah-Akku der Zentrale bei Netzausfall vorzeitig entladen, wenn sie aus dem notversorgten Potential „+ / –“ gespeist werden. Speisung aus dem nicht notversorgten Potential „N+ / N–“ (Ext. Klemmen 1 und 2) oder eine größere Akkukapazität mit D+H festlegen. Fällt K1 bei Netzausfall ab, fahren die Behänge hoch – das WAREMA-Kit fährt bei Netzausfall nach 25 s ohnehin selbst hoch.
+* Eigener Richtwert, siehe Kabelliste Seite 1.</div>
+</body></html>
