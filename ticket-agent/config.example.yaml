@@ -1,0 +1,40 @@
+# Kopiere diese Datei nach config.yaml und passe sie an.
+
+agent:
+  name: "Max"                     # Unterschrift in der Nachricht
+  auto_contact: true              # false = nur melden, Nachricht als Entwurf mitschicken
+  max_messages_per_day: 10        # Schutz vor Spam-Sperre
+  message_delay_seconds: [30, 90] # zufällige Pause vor jeder Nachricht
+  interval_minutes: 10            # Abstand zwischen Suchläufen (±20 % Zufall)
+  # Eigene Vorlage (optional). Platzhalter: {titel} {preis} {anzahl} {anzahl_text}
+  # {preis_text} {angebot} {limit} {name}
+  # message: |
+  #   Hallo, sind die Tickets "{titel}" noch da? {preis_text}
+  #   Viele Grüße {name}
+
+searches:
+  - name: "Coldplay München"
+    keywords: ["Coldplay München", "Coldplay Olympiastadion"]
+    max_price_per_ticket: 120     # dein Limit in EUR pro Ticket
+    min_quantity: 2               # mindestens so viele Tickets im Inserat
+    max_quantity: 4
+    must_contain: ["Coldplay"]    # alle Begriffe müssen vorkommen
+    exclude: ["Tribute", "Poster", "Parkticket"]
+    min_price_per_ticket: 30      # darunter Betrugsverdacht -> nur Meldung
+    vb_tolerance_percent: 15      # "VB"-Inserate bis 15 % über Limit: Gegenangebot zum Limit
+    portals: ["kleinanzeigen", "ebay"]
+    # urls:                       # optional: eigene Such-URL aus dem Browser (mit Ort/Umkreis/Kategorie)
+    #   kleinanzeigen: "https://www.kleinanzeigen.de/s-..."
+
+portals:
+  kleinanzeigen:
+    headless: false               # sichtbarer Browser wird seltener als Bot erkannt
+    profile_dir: "data/browser-profile"
+  ebay:
+    marketplace: "EBAY_DE"        # Zugangsdaten: EBAY_CLIENT_ID / EBAY_CLIENT_SECRET (Umgebungsvariablen)
+
+notify:
+  # telegram:                     # Token besser per TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID
+  #   chat_id: "123456789"
+  # ntfy:
+  #   topic: "mein-geheimes-ticket-topic"
