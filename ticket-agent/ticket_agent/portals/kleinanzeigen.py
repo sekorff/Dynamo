@@ -7,6 +7,7 @@ unter portals.kleinanzeigen.selectors überschreiben, falls die Seite umgebaut w
 """
 from __future__ import annotations
 
+import json
 import logging
 import random
 import re
@@ -24,15 +25,19 @@ log = logging.getLogger("ticket_agent")
 BASE = "https://www.kleinanzeigen.de"
 
 SELECTORS = {
-    "item": "article.aditem",
-    "title": "a.ellipsis, h2 a",
-    "price": ".aditem-main--middle--price-shipping--price",
-    "description": ".aditem-main--middle--description",
+    # jeweils neues Layout (Stand 11/2026) und älteres Layout als Alternative
+    "item": "article[data-adid]",
+    "title": "h3 a, h2 a, a.ellipsis",
+    "price": ".aditem-main--middle--price-shipping--price, h3 ~ div p",
+    "description": ".aditem-main--middle--description, h3 ~ p",
     "location": ".aditem-main--top--left",
     "cookie_accept": "#gdpr-banner-accept",
-    "message_box": "#viewad-contact-form textarea, textarea[name='message']",
-    "message_submit": "#viewad-contact-form button[type='submit'], button.viewad-contact-submit",
-    "message_success": ".ajaxform-success-msg, .outcomemessage-success, [data-testid='message-sent']",
+    # Kontaktformular ist ein Dialog, der erst über "Nachricht schreiben" geöffnet wird
+    "message_open": "#viewad-contact-button, button:has-text('Nachricht schreiben'), a:has-text('Nachricht schreiben')",
+    "message_login_required": ".viewad-contact-button-login",
+    "message_box": "#viewad-contact-message, textarea[name='message']",
+    "message_submit": "button.viewad-contact-submit",
+    "message_success": ".ajaxform-success-msg, .j-viewad-contact-success",
     "login_marker": "#user-email, a#user-logout, .user-profile",
 }
 
@@ -54,6 +59,16 @@ def parse_search(html: str, selectors: dict | None = None) -> list[Listing]:
             continue
         txt = lambda key: (art.select_one(sel[key]).get_text(" ", strip=True) if art.select_one(sel[key]) else "")
         price, negotiable = parse_price(txt("price"))
+        location = txt("location") or next(
+            (t for t in (sp.get_text(" ", strip=True) for sp in art.select("span")) if re.match(r"\d{5}\b", t)), ""
+        )
+        description = txt("description")
+        meta = art.select_one("script[type='application/ld+json']")
+        if meta and meta.string:  # enthält die längere Beschreibung als die sichtbare Vorschau
+            try:
+                description = json.loads(meta.string).get("description") or description
+            except ValueError:
+                pass
         out.append(
             Listing(
                 portal="kleinanzeigen",
@@ -62,8 +77,8 @@ def parse_search(html: str, selectors: dict | None = None) -> list[Listing]:
                 url=urljoin(BASE, href),
                 price=price,
                 negotiable=negotiable,
-                description=txt("description"),
-                location=txt("location"),
+                description=description,
+                location=location,
             )
         )
     return out
@@ -90,6 +105,7 @@ class Kleinanzeigen(Portal):
         self._ctx = self._pw.chromium.launch_persistent_context(
             str(self.profile),
             headless=self.cfg.get("headless", False) if headless is None else headless,
+            executable_path=self.cfg.get("executable_path"),  # optional: eigener Chrome/Chromium
             locale="de-DE",
             viewport={"width": 1280, "height": 900},
         )
@@ -136,10 +152,15 @@ class Kleinanzeigen(Portal):
     def send_message(self, listing: Listing, text: str) -> None:
         page = self._goto(listing.url)
         box = page.locator(self.sel["message_box"]).first
-        try:
-            box.wait_for(state="visible", timeout=10000)
-        except Exception as exc:
-            raise RuntimeError("Nachrichtenfeld nicht gefunden – eingeloggt? (python -m ticket_agent login)") from exc
+        if not box.is_visible():
+            opener = page.locator(self.sel["message_open"]).first
+            if opener.count() == 0 and page.locator(self.sel["message_login_required"]).count():
+                raise RuntimeError("nicht eingeloggt – bitte `python -m ticket_agent login` ausführen")
+            try:
+                opener.click(timeout=8000)
+                box.wait_for(state="visible", timeout=10000)
+            except Exception as exc:
+                raise RuntimeError("Nachrichtenfeld nicht gefunden (Selektoren prüfen, siehe README)") from exc
         box.click()
         box.fill(text)
         time.sleep(random.uniform(1.5, 4.0))

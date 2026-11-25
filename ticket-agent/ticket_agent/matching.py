@@ -20,7 +20,7 @@ _PER_TICKET = re.compile(
     r"preis\s+(?:gilt\s+)?(?:pro|je)|\bp\.\s?p\.|pro\s+person",
     re.I,
 )
-_WANTED = re.compile(r"^\s*(?:suche|gesucht|gesuch|\[suche\]|tausche|biete\s+tausch)\b", re.I)
+_WANTED = re.compile(r"^\s*(?:ich\s+suche|suche|gesucht|gesuch|\[suche\]|tausche|biete\s+tausch)\b", re.I)
 _SCAM_HINTS = {
     r"freunde\s*(?:&|und|\+)?\s*familie|friends\s*(?:&|and)?\s*family|\bf\s*&\s*f\b": "Zahlung per PayPal Freunde & Familie verlangt (kein Käuferschutz)",
     r"whats\s*app|telegram|\+?\d[\d\s/-]{9,}": "Verkäufer lenkt auf WhatsApp/Telefon um",
@@ -60,15 +60,14 @@ def _contains(text: str, needle: str) -> bool:
 
 def evaluate(listing: Listing, search: Search) -> Decision:
     text = listing.text
-    if not any(_contains(text, k) for k in search.keywords):
-        return Decision("ignore", "Suchbegriff kommt im Inserat nicht vor")
+    # keywords sind nur die Suchanfragen an das Portal; lokal gefiltert wird über must_contain/exclude.
     for word in search.must_contain:
         if not _contains(text, word):
             return Decision("ignore", f"Pflichtbegriff fehlt: {word}")
     for word in search.exclude:
         if _contains(text, word):
             return Decision("ignore", f"Ausschlussbegriff: {word}")
-    if _WANTED.search(listing.title):
+    if _WANTED.search(listing.title) or _WANTED.search(listing.description):
         return Decision("ignore", "Gesuch/Tausch, kein Angebot")
 
     qty = detect_quantity(text)

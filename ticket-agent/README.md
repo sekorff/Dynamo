@@ -49,9 +49,12 @@ ntfy-Topic in der `config.yaml` eintragen.
 - **Nutzungsbedingungen:** Kleinanzeigen untersagt automatisierte Zugriffe. Bei Erkennung drohen Captchas oder
   eine Kontosperre. Halte Intervall und Tageslimit moderat oder setze `auto_contact: false` – dann erhältst du
   den fertigen Nachrichtenentwurf und sendest selbst.
-- **Selektoren:** Die Kleinanzeigen-Anbindung wurde nur gegen eine Beispielseite getestet, nicht gegen die
-  Live-Seite. Meldet der Agent „0 Treffer geparst“ oder „Nachrichtenfeld nicht gefunden“, die Selektoren unter
-  `portals.kleinanzeigen.selectors` anpassen (Standardwerte in `ticket_agent/portals/kleinanzeigen.py`).
+- **Selektoren:** Die Suche ist gegen die Live-Seite getestet (Layout Stand 11/2026). Der Nachrichtenversand ist
+  nicht live getestet, weil er ein eingeloggtes Konto braucht. Meldet der Agent „0 Treffer geparst“ oder
+  „Nachrichtenfeld nicht gefunden“, die Selektoren unter `portals.kleinanzeigen.selectors` anpassen
+  (Standardwerte in `ticket_agent/portals/kleinanzeigen.py`).
+- **Suchbegriffe:** `keywords` sind die Suchanfragen an das Portal. Gefiltert wird lokal über `must_contain` und
+  `exclude` – z. B. `exclude: ["Tribute", "Candlelight", "Kerzenschein"]`, sonst landen Tribute-Konzerte im Ergebnis.
 - **Betrug:** Tickets auf Kleinanzeigen sind ein häufiges Betrugsziel. Nur mit Käuferschutz zahlen oder persönlich übergeben.
 - **Weitere Portale:** Klasse von `Portal` ableiten (`ticket_agent/portals/base.py`), `search()` implementieren und in
   `portals/__init__.py` registrieren.

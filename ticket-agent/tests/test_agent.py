@@ -11,7 +11,7 @@ from ticket_agent.portals.kleinanzeigen import parse_search, search_url
 from ticket_agent.store import Store
 
 FIX = Path(__file__).parent / "fixtures"
-SEARCH = Search(name="cp", keywords=["Coldplay"], max_price_per_ticket=120, min_price_per_ticket=30, vb_tolerance_percent=15)
+SEARCH = Search(name="cp", keywords=["Coldplay Tickets"], must_contain=["coldplay"], max_price_per_ticket=120, min_price_per_ticket=30, vb_tolerance_percent=15)
 
 
 def L(title, price, negotiable=False, desc="", id="1", portal="fake"):
@@ -45,6 +45,7 @@ def test_evaluate_rules():
     assert evaluate(L("2 Tickets Coldplay, 110 € pro Karte", 110), SEARCH).action == "contact"
     assert evaluate(L("2 Tickets Coldplay, 130 € pro Karte", 130), SEARCH).action == "ignore"
     assert evaluate(L("Suche Coldplay Tickets", 50), SEARCH).action == "ignore"
+    assert evaluate(L("Coldplay Konzert", 50, desc="Ich suche 1 oder 2 Tickets"), SEARCH).action == "ignore"
     assert evaluate(L("Coldplay Ticket", 10), SEARCH).action == "notify"        # verdächtig billig
     assert evaluate(L("Coldplay Ticket", None, True), SEARCH).action == "notify"
     assert evaluate(L("Oasis Ticket", 50), SEARCH).action == "ignore"
@@ -68,6 +69,13 @@ def test_kleinanzeigen_parser():
     assert a.url == "https://www.kleinanzeigen.de/s-anzeige/2x-coldplay-muenchen/3001-231-1"
     assert items[1].price == 1250.0 and items[2].price is None
     assert search_url("Coldplay München") == "https://www.kleinanzeigen.de/s-coldplay-münchen/k0"
+
+
+def test_kleinanzeigen_parser_layout_2026():
+    a, b = parse_search((FIX / "kleinanzeigen_search_2026.html").read_text(encoding="utf-8"))
+    assert (a.id, a.title, a.price, a.negotiable, a.location) == ("4001", "2 Tickets Coldplay Dresden", 50.0, True, "01277 Blasewitz")
+    assert "pro Karte" in a.description                       # lange Beschreibung aus den Metadaten
+    assert (b.price, b.location, b.description) == (95.0, "49377 Vechta", "Biete zwei Karten")
 
 
 def test_ebay_parser():

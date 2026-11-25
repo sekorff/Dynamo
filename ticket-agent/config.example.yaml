@@ -14,11 +14,11 @@ agent:
 
 searches:
   - name: "Coldplay München"
-    keywords: ["Coldplay München", "Coldplay Olympiastadion"]
+    keywords: ["Coldplay München", "Coldplay Olympiastadion"]   # Suchanfragen an die Portale
     max_price_per_ticket: 120     # dein Limit in EUR pro Ticket
     min_quantity: 2               # mindestens so viele Tickets im Inserat
     max_quantity: 4
-    must_contain: ["Coldplay"]    # alle Begriffe müssen vorkommen
+    must_contain: ["Coldplay"]    # alle Begriffe müssen im Inserat vorkommen (Groß/Klein egal)
     exclude: ["Tribute", "Poster", "Parkticket"]
     min_price_per_ticket: 30      # darunter Betrugsverdacht -> nur Meldung
     vb_tolerance_percent: 15      # "VB"-Inserate bis 15 % über Limit: Gegenangebot zum Limit
@@ -30,6 +30,7 @@ portals:
   kleinanzeigen:
     headless: false               # sichtbarer Browser wird seltener als Bot erkannt
     profile_dir: "data/browser-profile"
+    # executable_path: "/usr/bin/google-chrome"   # optional: installierten Chrome statt Playwright-Chromium nutzen
   ebay:
     marketplace: "EBAY_DE"        # Zugangsdaten: EBAY_CLIENT_ID / EBAY_CLIENT_SECRET (Umgebungsvariablen)
 
